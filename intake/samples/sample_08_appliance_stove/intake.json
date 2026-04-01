@@ -1,0 +1,26 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Landlord ordered a new gas oven to replace the old broken one. He only paid to have it dropped off. He is very shocked that I'm not happy. The stove is sitting in the box uninstalled — I can't cook and gas appliance installation requires a certified professional.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2021-10-14T15:00:00Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "appliance",
+      "urgency": "medium",
+      "recommended_action": "Dispatch certified gas appliance installer to connect the new oven. Gas line connections must be performed by a licensed professional — tenant should NOT attempt self-installation due to gas leak risk. Landlord is responsible for installation costs as part of providing a habitable unit with functioning kitchen appliances.",
+      "confidence_score": 0.95
+    },
+    "source": {
+      "origin": "reddit",
+      "subreddit": "r/Wellthatsucks",
+      "post_url": "https://www.reddit.com/r/Wellthatsucks/comments/q7jv9y/landlord_ordered_a_new_gas_oven_to_replace_the/",
+      "post_title": "Landlord ordered a new gas oven to replace the old broken one. He only paid to have it dropped off. He is very shocked that I'm not happy."
+    }
+  }
+}

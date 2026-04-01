@@ -1,0 +1,36 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Our ceilings are leaking badly and the landlord suggests we move instead of repairing them. Water stains and active dripping from multiple ceiling spots.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2022-08-17T09:00:00Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2022-08-17T09:00:30Z"
+        },
+        {
+          "file_url": "photo_03.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2022-08-17T09:01:00Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "structural",
+      "urgency": "emergency",
+      "recommended_action": "Dispatch roofer or structural inspector immediately. Active ceiling leaks risk ceiling collapse and mold growth. Identify water source — possible roof damage or upstairs plumbing failure. Landlord is legally obligated to repair; tenant should document and report to housing authority if not addressed within 24 hours.",
+      "confidence_score": 0.95
+    },
+    "source": {
+      "origin": "reddit",
+      "subreddit": "r/mildlyinfuriating",
+      "post_url": "https://www.reddit.com/r/mildlyinfuriating/comments/wqosdq/landlord_suggests_we_move_instead_of_repairing/",
+      "post_title": "Landlord suggests we move instead of repairing leaky ceilings"
+    }
+  }
+}

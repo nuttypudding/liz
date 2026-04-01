@@ -1,0 +1,51 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "I made a post the other day asking for help and many of you said to take pictures of issues with the apartment. This is just some of the pictures of the laundry room. No duct tape doesn't fix everything.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-12-30T10:00:00Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-12-30T10:00:30Z"
+        },
+        {
+          "file_url": "photo_03.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-12-30T10:01:00Z"
+        },
+        {
+          "file_url": "photo_04.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-12-30T10:01:30Z"
+        },
+        {
+          "file_url": "photo_05.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-12-30T10:02:00Z"
+        },
+        {
+          "file_url": "photo_06.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-12-30T10:02:30Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "general",
+      "urgency": "medium",
+      "recommended_action": "Schedule full inspection of laundry room. Multiple issues repaired with duct tape indicate systemic neglect — pipes, walls, and fixtures need professional assessment. Document all duct-tape repairs for code violation reporting if landlord does not address within 48 hours.",
+      "confidence_score": 0.91
+    },
+    "source": {
+      "origin": "reddit",
+      "subreddit": "r/LandlordLove",
+      "post_url": "https://www.reddit.com/r/LandlordLove/comments/1hq3f74/no_duct_tape_doesnt_fix_everything/",
+      "post_title": "No Duct tape doesn't fix everything"
+    }
+  }
+}

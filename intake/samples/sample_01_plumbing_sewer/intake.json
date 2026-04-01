@@ -1,0 +1,41 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "It's been smelling like poop in my room and outside for months so I contacted my landlord about it. He said there wasn't an issue and so I went and got a plumber to come take a look at it. Main sewer line has rusted out and looks like clogged from toilet paper and most likely paper towel. Am now staying in a hotel paid for by landlord.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2023-04-27T14:00:00Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2023-04-27T14:00:30Z"
+        },
+        {
+          "file_url": "photo_03.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2023-04-27T14:01:00Z"
+        },
+        {
+          "file_url": "photo_04.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2023-04-27T14:01:30Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "plumbing",
+      "urgency": "emergency",
+      "recommended_action": "Dispatch emergency plumber immediately. Main sewer line has rusted out and is clogged. Unit is uninhabitable due to sewage smell — arrange temporary hotel accommodation for tenant. Walls and floors in affected room will need to be ripped out and replaced after sewer line repair.",
+      "confidence_score": 0.97
+    },
+    "source": {
+      "origin": "reddit",
+      "subreddit": "r/mildlyinfuriating",
+      "post_url": "https://www.reddit.com/r/mildlyinfuriating/comments/131qsdr/landlord_said_there_wasnt_an_issue_i_hired/",
+      "post_title": "Landlord said there wasn't an issue. I hired private plumber to check and this is what I come back too."
+    }
+  }
+}

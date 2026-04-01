@@ -1,0 +1,41 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Damp/Mouldy Holes? Some paint and a bit of tape will fix it no problem! Don't worry about fixing the outside, tape is known to be completely watertight. The landlord just painted over the mold and taped over holes in the wall instead of actually fixing the water damage.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-05-30T11:00:00Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-05-30T11:00:30Z"
+        },
+        {
+          "file_url": "photo_03.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-05-30T11:01:00Z"
+        },
+        {
+          "file_url": "photo_04.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-05-30T11:01:30Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "structural",
+      "urgency": "medium",
+      "recommended_action": "Dispatch contractor to assess water intrusion source and extent of mold damage. Cosmetic repairs (paint, tape) are insufficient — underlying moisture issue must be resolved. Mold remediation required. Exterior waterproofing likely needed. Advise tenant to ventilate area and avoid prolonged exposure.",
+      "confidence_score": 0.93
+    },
+    "source": {
+      "origin": "reddit",
+      "subreddit": "r/LandlordLove",
+      "post_url": "https://www.reddit.com/r/LandlordLove/comments/1d41rp0/dampmouldy_holes/",
+      "post_title": "Damp/Mouldy Holes?"
+    }
+  }
+}

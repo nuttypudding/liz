@@ -1,0 +1,36 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "My AC unit. It's filthy and looks like it has black mold growing inside. Landlord won't do anything about it. This is a health hazard.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-09-17T14:00:00Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-09-17T14:00:30Z"
+        },
+        {
+          "file_url": "photo_03.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-09-17T14:01:00Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "hvac",
+      "urgency": "emergency",
+      "recommended_action": "Stop using AC unit immediately — suspected black mold poses serious respiratory health risk. Dispatch HVAC technician for inspection and professional cleaning or replacement. If mold confirmed, unit must be replaced. Report to health department if landlord does not act within 24 hours.",
+      "confidence_score": 0.94
+    },
+    "source": {
+      "origin": "reddit",
+      "subreddit": "r/LandlordLove",
+      "post_url": "https://www.reddit.com/r/LandlordLove/comments/1filnwh/my_ac_unit/",
+      "post_title": "My AC unit"
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "NYC: Neighbor moved out, and now there's a non-stop stream of cockroaches from his apartment. Management refuses to do anything. These glue traps are completely filled every two days. The roaches (and rats) are pouring out from the vacant apartment (22) next door, and the building management are ignoring my calls. This has been going on for over a month — it's disgusting and feels like a health hazard.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2025-03-25T16:00:00Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2025-03-25T16:00:30Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "pest",
+      "urgency": "emergency",
+      "recommended_action": "Dispatch licensed pest control company immediately for full building treatment. Source is vacant neighboring unit — coordinate access to unit 22 for extermination. Seal entry points between units. Building-wide treatment required as cockroach and rat infestation spreads through shared walls. Report to NYC housing authority (311) if management continues to ignore.",
+      "confidence_score": 0.96
+    },
+    "source": {
+      "origin": "reddit",
+      "subreddit": "r/mildlyinfuriating",
+      "post_url": "https://www.reddit.com/r/mildlyinfuriating/comments/1macjun/nyc_neighbor_moved_out_and_now_theres_a_nonstop/",
+      "post_title": "NYC: Neighbor moved out, and now there's a non-stop stream of cockroaches from his apartment. Management refuses to do anything."
+    }
+  }
+}

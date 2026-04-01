@@ -1,0 +1,31 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Fridge and stove hooked up to this adapter and extension cord. Landlord refuses to change receptacle and says this is ok. 2 to 3 prong adapter ran extension cord that sits on the floor in between my oven and stove. Is it safe though?",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2023-06-30T12:00:00Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2023-06-30T12:00:30Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "electrical",
+      "urgency": "emergency",
+      "recommended_action": "This is a serious fire hazard and likely an electrical code violation. Major appliances (refrigerator, stove) must not be connected via adapters or extension cords — they require dedicated grounded outlets. Dispatch licensed electrician to install proper 3-prong grounded receptacles. Advise tenant to unplug extension cord setup immediately. Report to building inspector if landlord refuses.",
+      "confidence_score": 0.98
+    },
+    "source": {
+      "origin": "reddit",
+      "subreddit": "r/electrical",
+      "post_url": "https://www.reddit.com/r/electrical/comments/14fdkou/fridge_and_stove_hooked_up_to_this_adapter_and/",
+      "post_title": "Fridge and stove hooked up to this adapter and extension cord. landlord refuses to change receptacle and says this is ok…is it safe tho ?"
+    }
+  }
+}

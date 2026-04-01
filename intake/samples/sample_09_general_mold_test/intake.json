@@ -1,0 +1,26 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "A mold test kit from my apartment after my landlord told me they 'cleaned' the mold by putting bleach on the spots. The petri dish is completely covered in mold growth — the bleach did nothing to fix the underlying problem.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2023-05-20T13:00:00Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "general",
+      "urgency": "emergency",
+      "recommended_action": "Professional mold remediation required immediately. Bleach surface treatment is insufficient — mold test confirms active severe contamination. Identify and fix moisture source. Full mold assessment by certified inspector needed. Tenant may need temporary relocation depending on severity. This is a habitability violation.",
+      "confidence_score": 0.97
+    },
+    "source": {
+      "origin": "reddit",
+      "subreddit": "r/mildlyinfuriating",
+      "post_url": "https://www.reddit.com/r/mildlyinfuriating/comments/13igu3k/a_mold_test_kit_from_my_apartment_after_my/",
+      "post_title": "A mold test kit from my apartment after my landlord told me they \"cleaned\" the mold by putting bleach on the spots"
+    }
+  }
+}

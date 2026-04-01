@@ -1,0 +1,26 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Ceiling caved in after a year of telling our landlord that the ceiling has been sagging. We reported this multiple times and nothing was done until the ceiling actually collapsed.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-07-24T08:00:00Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "structural",
+      "urgency": "emergency",
+      "recommended_action": "Emergency structural assessment required. Ceiling has collapsed — area must be cordoned off immediately. Dispatch structural engineer to evaluate remaining ceiling integrity and identify cause (water damage, load-bearing failure, deterioration). Tenant may need temporary relocation. Document prior complaints as evidence of landlord negligence. Report to building department.",
+      "confidence_score": 0.99
+    },
+    "source": {
+      "origin": "reddit",
+      "subreddit": "r/mildlyinfuriating",
+      "post_url": "https://www.reddit.com/r/mildlyinfuriating/comments/1ear4d7/ceiling_caved_in_after_a_year_of_telling_our/",
+      "post_title": "Ceiling caved in after a year of telling our landlord that the ceiling has been sagging"
+    }
+  }
+}
