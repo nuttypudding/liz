@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "There are diagonal cracks on the interior walls starting from the corners of the windows, and one of them is pretty wide — maybe a quarter inch or more. The cracks seem to have gotten longer over the past couple of months. I've also noticed that a door that used to close fine now sticks and won't latch properly.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-09-05T11:00:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-09-05T11:03:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "structural",
+      "urgency": "medium",
+      "recommended_action": "Schedule a structural assessment within the week to evaluate differential settlement or foundation movement indicated by the diagonal cracking pattern and door misalignment. Document crack widths and locations with photos for baseline comparison. If cracks continue to widen or new ones appear, escalate to emergency priority.",
+      "confidence_score": 0.91
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

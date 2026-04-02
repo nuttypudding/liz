@@ -1,0 +1,26 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "There is a strong burning plastic smell coming from the wall near my kitchen outlet. I noticed it this morning and it got stronger throughout the day. I unplugged everything from that outlet but the smell is still there. This is really scaring me — please send someone ASAP.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-07-08T11:22:00Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "electrical",
+      "urgency": "emergency",
+      "recommended_action": "Dispatch a licensed electrician immediately — a burning plastic smell from a wall outlet is a strong indicator of overheated wiring or arcing, both of which are serious fire hazards. Advise tenant to avoid using any outlets on that wall and to keep a fire extinguisher accessible. If the smell intensifies or visible smoke appears, instruct tenant to evacuate and call 911.",
+      "confidence_score": 0.98
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "My AC keeps turning on and off every few minutes — it runs for maybe 3 or 4 minutes, shuts off, then turns back on again. The apartment never really gets cool because it doesn't run long enough. I've noticed this started after I changed the thermostat setting last week. My electric bill this month is already looking high.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-06-30T17:20:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-06-30T17:21:10Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "hvac",
+      "urgency": "medium",
+      "recommended_action": "Schedule an HVAC technician to assess the short-cycling issue — likely causes include an oversized system, low refrigerant, a dirty evaporator coil, or a faulty thermostat setting causing rapid setpoint swings. Check that the thermostat anticipator setting is correct. Short-cycling increases wear and energy cost; resolve within 3-5 days.",
+      "confidence_score": 0.90
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

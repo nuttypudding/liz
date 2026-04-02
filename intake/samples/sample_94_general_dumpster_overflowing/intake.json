@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The dumpster in the back parking lot has been completely overflowing since Monday and trash is now piled up on the ground around it. It smells really bad and there are flies everywhere. I think the trash pickup was missed this week. Can someone look into getting an extra pickup or a larger bin?",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-08-07T14:33:09Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-08-07T14:34:21Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "general",
+      "urgency": "medium",
+      "recommended_action": "Contact the waste management provider to schedule an emergency pickup and investigate the missed collection. Consider requesting a temporary additional bin or a larger container if overflows are recurring, and arrange for the surrounding area to be cleaned.",
+      "confidence_score": 0.90
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

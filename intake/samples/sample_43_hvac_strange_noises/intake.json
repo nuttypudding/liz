@@ -1,0 +1,17 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The HVAC unit started making a loud banging noise every time it kicks on, and then a rattling sound while it's running. It didn't used to do this. The banging is pretty jarring — happens once or twice at startup then goes away. The rattle is constant while it's on. It's still heating but the noise is concerning.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-12-10T20:15:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "hvac",
+      "urgency": "medium",
+      "recommended_action": "Schedule an HVAC technician to inspect for a loose blower wheel, failing motor mount, or debris in the air handler causing the banging and rattle. Startup banging can indicate delayed ignition or a loose heat exchanger panel. Do not ignore — loose mechanical components can escalate to system failure. Aim to inspect within 3-5 days.",
+      "confidence_score": 0.88
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

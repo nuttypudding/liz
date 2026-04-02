@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "I noticed that one of the vents in my bedroom barely blows any air, but the vent in the living room blasts. I also found what looks like a gap in the duct near the ceiling in my closet where air is clearly leaking out — I can feel it when I hold my hand near it. My energy bill has also been way higher than usual the past two months.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-09-18T10:30:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-09-18T10:31:45Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "hvac",
+      "urgency": "low",
+      "recommended_action": "Schedule an HVAC technician to inspect and seal the ductwork gap — mastic sealant or metallic tape can be used for accessible joints. Check for additional duct leaks and rebalance airflow to affected rooms. Sealing ducts will improve efficiency and reduce energy costs. Non-urgent; complete within 2 weeks.",
+      "confidence_score": 0.87
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

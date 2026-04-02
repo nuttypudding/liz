@@ -1,0 +1,19 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "There's a large pothole near the entrance of the parking lot that's been getting bigger over the past month. I hit it last week and I'm pretty sure it bent my wheel — I had to take my car in to get it checked. Other residents have complained about it too. Someone is going to get seriously hurt or damage their car if it's not fixed.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-04-03T08:47:22Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-04-03T08:48:05Z"},
+        {"file_url": "photo_03.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-04-03T08:49:10Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "general",
+      "urgency": "medium",
+      "recommended_action": "Arrange for asphalt patching or pothole repair within one week to prevent vehicle damage and potential liability claims. In the interim, place visible warning cones or signage around the hazard. Document the tenant's reported vehicle damage for insurance purposes.",
+      "confidence_score": 0.91
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

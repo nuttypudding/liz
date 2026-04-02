@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "There is definitely something large living under the house in the crawlspace — I can hear heavy movement and thumping at night and there's a really bad smell coming from the floor vents, kind of musky and awful. My neighbor said she saw a raccoon going under the house through a gap in the foundation skirting last week. I'm worried it might have babies under there.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-03-01T21:00:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-03-01T21:02:15Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "pest",
+      "urgency": "medium",
+      "recommended_action": "Engage a licensed wildlife removal specialist to inspect the crawlspace — if there is a nesting female with young, removal must be done humanely and in compliance with local wildlife regulations. Do not seal the entry point until all animals are confirmed to have exited. After removal, inspect crawlspace insulation and vapor barrier for damage and sanitize the area, then permanently seal the foundation skirting gap.",
+      "confidence_score": 0.90
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

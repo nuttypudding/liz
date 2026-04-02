@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The AC has been running constantly for two days but the apartment is still 85 degrees inside. I've checked the thermostat and it's set correctly to 72. It blows air but it's not cold at all — feels like room temperature. This is really unbearable, especially with my kids here.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-07-15T14:22:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-07-15T14:23:10Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "hvac",
+      "urgency": "medium",
+      "recommended_action": "Schedule an HVAC technician to inspect the system for low refrigerant, a failed compressor, or a clogged condenser coil. Tenant should be advised to use fans and keep blinds closed in the meantime. Respond within 24 hours given summer conditions with children in the unit.",
+      "confidence_score": 0.93
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

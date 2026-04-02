@@ -1,0 +1,26 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "All the outlets and the overhead light in my second bedroom stopped working yesterday afternoon. None of the other rooms are affected. I checked the breaker panel and nothing looks tripped. I tried resetting all the breakers anyway but still nothing. It's been out for almost 24 hours now.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-11-14T09:00:00Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "electrical",
+      "urgency": "medium",
+      "recommended_action": "Schedule a licensed electrician to diagnose the loss of power to the second bedroom. The likely causes are a tripped GFCI outlet that feeds the circuit downstream, a failed breaker that does not visibly trip, or a loose connection at the panel or junction box. Tenant should also check all GFCI outlets in bathrooms and kitchen that may be on the same circuit.",
+      "confidence_score": 0.89
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

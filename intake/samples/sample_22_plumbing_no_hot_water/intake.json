@@ -1,0 +1,31 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "We woke up this morning with no hot water at all. Cold water works fine everywhere but hot just runs cold no matter how long we wait. The water heater is in the utility closet and the pilot light looks like it might be out — there's no little blue flame I can see. I don't really know how to relight it safely and I don't want to mess with it. We have a baby so warm water is kind of essential for us right now.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-12-05T07:58:17Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-12-05T07:59:04Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "plumbing",
+      "urgency": "medium",
+      "recommended_action": "Send a plumber or HVAC technician within the day to relight the pilot light and inspect the water heater thermocouple — a pilot that won't stay lit typically indicates a faulty thermocouple, which is a low-cost part. If the unit is older than 10-12 years, assess whether full replacement is more cost-effective. Tenant should not attempt to relight it without guidance given safety risks.",
+      "confidence_score": 0.90
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

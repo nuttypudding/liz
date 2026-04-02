@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The thermostat display is blank and nothing happens when I press the buttons. I replaced the batteries but it's still not working. The HVAC system itself seems fine — I can hear the blower when I flip the breaker but I have no way to control the temperature. It's been stuck at whatever temperature it was at when the thermostat died.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-03-05T13:00:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-03-05T13:01:10Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "hvac",
+      "urgency": "low",
+      "recommended_action": "Send a technician or maintenance staff to replace the thermostat. Verify compatibility with existing HVAC system before purchasing replacement. Check low-voltage wiring connections at the thermostat base for loose or corroded terminals. This is non-urgent unless weather conditions create a comfort or safety issue.",
+      "confidence_score": 0.95
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

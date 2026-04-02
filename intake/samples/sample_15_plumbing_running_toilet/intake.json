@@ -1,0 +1,26 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Hi, just wanted to let you know the toilet in the master bathroom has been running nonstop for about a week now. It makes that hissing/trickling sound all the time even when no one has flushed it. I jiggled the handle and it stops for a bit but then starts right back up. It's not a huge deal but I figured I should report it since it's probably wasting water.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-08-19T16:55:10Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "plumbing",
+      "urgency": "low",
+      "recommended_action": "Schedule a non-urgent plumbing visit to replace the flapper valve or fill valve inside the toilet tank — a continuously running toilet typically indicates a worn flapper or faulty float mechanism, both inexpensive repairs. This should be addressed within 1-2 weeks to avoid unnecessary water waste and higher utility bills.",
+      "confidence_score": 0.97
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Something has been running around in the ceiling above my bedroom every morning starting around 6am — it sounds like scratching and rolling around, sometimes chattering. My upstairs neighbor says he can hear it too but from inside the attic access. We think it might be squirrels because we've seen them on the roof a lot lately. It's been going on for about three weeks.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-10-22T06:35:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-10-22T06:36:18Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "pest",
+      "urgency": "medium",
+      "recommended_action": "Schedule a wildlife exclusion inspection to identify how squirrels are entering the attic — common entry points include damaged fascia boards, roof vents, and gaps where rooflines meet. A licensed wildlife removal specialist should install one-way exclusion devices and seal all entry points once animals have vacated. Inspect for any chewed wiring or insulation damage during the attic assessment, as squirrels can create fire hazards.",
+      "confidence_score": 0.93
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

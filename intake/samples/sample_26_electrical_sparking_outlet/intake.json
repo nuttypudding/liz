@@ -1,0 +1,31 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "I plugged my phone charger into the outlet next to my bathroom sink and it sparked at me. There was a visible flash and a small popping sound. The outlet still works but I'm too scared to use it. I took a video but I'm attaching photos for now.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2025-01-19T08:05:00Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2025-01-19T08:05:45Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "electrical",
+      "urgency": "emergency",
+      "recommended_action": "Send a licensed electrician urgently to inspect and replace the outlet. Sparking at the point of plug insertion — especially near a bathroom — suggests a faulty outlet, moisture ingress, or missing GFCI protection required by code in wet locations. Advise tenant not to use the outlet under any circumstances until it is inspected and cleared.",
+      "confidence_score": 0.97
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

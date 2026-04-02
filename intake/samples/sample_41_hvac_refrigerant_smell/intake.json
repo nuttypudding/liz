@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "There's a weird sweet chemical smell coming from the AC unit inside the apartment. It started yesterday and it's getting stronger. I looked it up and someone said it might be refrigerant leaking — is that dangerous? I turned off the AC for now. My eyes have been a little irritated but I'm not sure if that's related.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-08-02T16:55:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-08-02T16:56:10Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "hvac",
+      "urgency": "emergency",
+      "recommended_action": "Dispatch an HVAC technician immediately to inspect for refrigerant leak — Freon and newer refrigerants can displace oxygen and cause health symptoms. Advise tenant to ventilate the unit and avoid prolonged exposure until cleared. Check indoor air handler for visible oil stains or frost near refrigerant lines. Document tenant's reported symptoms.",
+      "confidence_score": 0.90
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "URGENT - there is water everywhere in my kitchen!! A pipe under the sink just burst and water is spraying all over the cabinet and onto the floor. I turned off the valve under the sink but water is still dripping. I have towels down but I need someone here NOW. My downstairs neighbor might be getting water through their ceiling too.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-02-14T08:23:11Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-02-14T08:24:05Z"
+        },
+        {
+          "file_url": "photo_03.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-02-14T08:24:48Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "plumbing",
+      "urgency": "emergency",
+      "recommended_action": "Dispatch an emergency plumber immediately — active water intrusion from a burst supply line risks structural damage and potential flooding to units below. Confirm the main shutoff valve for the unit has been closed and advise the tenant to remove valuables from the affected area. Also check on the downstairs unit for ceiling water damage.",
+      "confidence_score": 0.98
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

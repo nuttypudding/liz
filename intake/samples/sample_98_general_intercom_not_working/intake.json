@@ -1,0 +1,17 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The intercom unit inside my apartment hasn't been working for about three weeks. I can't hear when someone buzzes me from the front entrance and I have no way to let guests in remotely. I have to go all the way downstairs every time someone arrives which is really inconvenient, especially late at night.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-01-28T20:11:44Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "general",
+      "urgency": "low",
+      "recommended_action": "Schedule an intercom technician to inspect and repair the in-unit panel. Determine whether the issue is isolated to this unit or affects the building-wide system. Provide tenant with an estimated repair date within 5 business days.",
+      "confidence_score": 0.87
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

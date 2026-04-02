@@ -1,0 +1,17 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "There is a large wasp nest up in the corner of the attic access area and I've been stung twice already just trying to get to my stored boxes. The nest looks like it's about the size of a basketball at this point. I have a young child in the house and we're too scared to use that hallway now. Please send someone as soon as possible.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-08-05T15:45:33Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "pest",
+      "urgency": "emergency",
+      "recommended_action": "Dispatch a licensed pest control technician today to remove the nest safely — a basketball-sized nest indicates a large mature colony (potentially 1,000+ workers) and poses serious sting risk, especially with a child present. Advise tenants to avoid the attic hallway entirely until treated. Technician should wear full protective gear and treat at dusk or dawn when wasps are least active; follow up to confirm the nest has been fully removed and entry point sealed.",
+      "confidence_score": 0.97
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "I noticed ice forming on the metal pipes coming out of my AC unit inside the closet. The AC is running but barely blowing any air and what does come out isn't very cold. There's also some water dripping onto the floor near the unit. I turned off the AC because I wasn't sure if I should keep running it.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-07-28T11:40:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-07-28T11:41:30Z"},
+        {"file_url": "photo_03.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-07-28T11:42:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "hvac",
+      "urgency": "medium",
+      "recommended_action": "Confirm tenant should keep AC off and switch to fan-only mode to allow coils to thaw — this may take 2-4 hours. Schedule HVAC inspection to determine cause: likely restricted airflow from a dirty filter, low refrigerant, or a blocked drain line. Check for water damage around the air handler and clear the condensate drain. Replace filter if overdue.",
+      "confidence_score": 0.94
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

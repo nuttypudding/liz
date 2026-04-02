@@ -1,0 +1,19 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Water is dripping from the ceiling in my bedroom every time it rains hard. There are brown water stains on the ceiling that keep getting bigger, and last night I had to put out three buckets. The stain now covers almost half the ceiling. I'm worried about the ceiling material and whether there could be mold up there.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-12-02T21:30:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-12-02T21:33:00Z"},
+        {"file_url": "photo_03.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-12-02T21:35:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "structural",
+      "urgency": "medium",
+      "recommended_action": "Schedule a roofing contractor within 48 hours to identify and patch the leak source — likely failed flashing, cracked shingles, or a compromised valley. Inspect the attic space or ceiling cavity for moisture accumulation, insulation saturation, and early mold growth. Once the exterior is repaired, assess ceiling drywall for replacement if structurally compromised.",
+      "confidence_score": 0.92
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

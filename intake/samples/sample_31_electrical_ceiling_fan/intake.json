@@ -1,0 +1,26 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The ceiling fan in my bedroom has started making a loud clicking and humming noise whenever it's on. It also wobbles noticeably which it didn't do before. The light on the fan still works fine but the noise is so bad I can't sleep with it on. This started about 10 days ago.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-06-17T21:30:00Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "electrical",
+      "urgency": "medium",
+      "recommended_action": "Schedule an electrician or handyperson to inspect the ceiling fan mounting, blade balance, and motor. Wobbling combined with clicking sounds often indicates loose mounting hardware or an unbalanced blade set, which can cause the fan to detach from the ceiling over time. Tighten all hardware, balance the blades, and inspect the motor mount before authorizing continued use.",
+      "confidence_score": 0.87
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

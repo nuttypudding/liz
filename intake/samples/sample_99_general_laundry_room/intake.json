@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The dryer in the laundry room on the ground floor (unit 2) has been taking two full cycles to dry a normal load, so it's basically costing double what it should. A few other residents I spoke to are having the same issue. The lint trap looks like it hasn't been cleaned in months.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-05-11T12:30:58Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-05-11T12:31:44Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "general",
+      "urgency": "medium",
+      "recommended_action": "Dispatch maintenance to clean the lint trap and inspect the dryer exhaust duct for blockage — a clogged vent is a fire hazard and likely cause of the inefficiency. Service the dryer unit within 3 business days and establish a regular lint-trap cleaning schedule.",
+      "confidence_score": 0.93
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "My carbon monoxide detector went off about 20 minutes ago. I opened all the windows and took my family outside. The alarm stopped after a few minutes but I'm scared to go back in. We have a gas furnace that was serviced last year. Not sure what to do — we're standing outside right now.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-02-03T19:12:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-02-03T19:13:45Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "hvac",
+      "urgency": "emergency",
+      "recommended_action": "Instruct tenant NOT to re-enter the unit until cleared by emergency services — call 911 if not already done. Contact a licensed HVAC/gas technician for emergency inspection of the furnace, flue, and heat exchanger for CO leaks or cracked heat exchanger. Do not restore gas service until the source is identified and repaired. Document the incident immediately.",
+      "confidence_score": 0.98
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

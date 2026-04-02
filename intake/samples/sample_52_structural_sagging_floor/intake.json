@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The floor in my living room has started sagging noticeably near the center — when I walk across it I can feel it flex and dip under my feet. I also hear creaking that wasn't there before. My couch legs are starting to leave deeper indentations than usual and I'm not sure if the floor is safe to walk on anymore.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-07-22T14:30:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-07-22T14:32:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "structural",
+      "urgency": "emergency",
+      "recommended_action": "Arrange for an immediate structural inspection to evaluate the floor joists and subfloor for rot, pest damage, or joist failure. Advise the tenant to avoid placing heavy furniture or gathering in the affected area until cleared. A licensed contractor should access the crawl space or basement below to assess support beam integrity.",
+      "confidence_score": 0.96
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "I've noticed some hairline cracks appearing along the ceiling where it meets the walls in two rooms. They're thin and not very wide, but there are quite a few of them in a row. Everything else in the unit seems fine and it doesn't look like anything is leaking. Is this something I should be worried about?",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-03-10T15:20:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "structural",
+      "urgency": "low",
+      "recommended_action": "Hairline cracks at wall-ceiling joints are commonly caused by normal seasonal settling and thermal expansion — monitor for widening or new cracks over the next 30-60 days. Schedule a routine inspection at the next available opportunity to confirm no underlying movement. Cosmetic repair with joint compound and paint can be addressed during the next scheduled maintenance visit.",
+      "confidence_score": 0.87
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

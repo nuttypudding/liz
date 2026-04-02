@@ -1,0 +1,26 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "One of our toilets is clogged and we can't get it unclogged ourselves. We've tried plunging it probably 20 times over the last two days and it still won't drain. When we flush it fills almost to the top and goes down very slowly. We're a family of 4 so we really need both toilets working. The other toilet is fine.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-04-16T15:33:27Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "plumbing",
+      "urgency": "medium",
+      "recommended_action": "Send a plumber within 24-48 hours to auger the toilet and clear the clog — plunging has been unsuccessful, suggesting the obstruction is deeper in the drain line or trap. Advise tenant to avoid flushing the affected toilet until resolved. If augering fails, a camera inspection of the line may be warranted.",
+      "confidence_score": 0.93
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

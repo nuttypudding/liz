@@ -1,0 +1,31 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "I was moving some boxes in my closet and found a bundle of wires coming out of the wall with no cover plate. Some of the wire insulation looks stripped and the copper is visible. I have a young kid so this is really dangerous. I've blocked off the closet for now.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-05-22T10:15:00Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-05-22T10:16:30Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "electrical",
+      "urgency": "emergency",
+      "recommended_action": "Dispatch a licensed electrician immediately to secure and properly terminate the exposed wiring. Bare copper conductors accessible to occupants — especially children — pose an immediate electrocution hazard. The circuit feeding those wires should be shut off at the breaker until an electrician can install a proper junction box and cover plate.",
+      "confidence_score": 0.99
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

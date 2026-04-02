@@ -1,0 +1,17 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The dryer has been making a really loud squealing and thumping sound when it runs. It still dries clothes okay but the noise is terrible — it sounds like metal grinding on metal every time the drum goes around. It started about a month ago and has been getting progressively worse. I'm worried it might stop working soon or even become a fire hazard.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-01-28T10:00:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "appliance",
+      "urgency": "medium",
+      "recommended_action": "Schedule a technician to inspect the dryer drum support rollers, drum glides, belt, and idler pulley — these are the most common causes of squealing and thumping sounds. Metal-on-metal grinding can accelerate wear and eventually cause belt or drum failure. Repair before the noise worsens to prevent a more costly replacement.",
+      "confidence_score": 0.91
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

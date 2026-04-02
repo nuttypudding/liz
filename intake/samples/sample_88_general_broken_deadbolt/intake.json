@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The deadbolt on my front door stopped working last night — the key turns but nothing catches and the bolt won't extend. I can still lock the door using the knob lock but I don't feel safe relying on just that. This needs to be fixed as soon as possible since I live alone.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-11-03T21:14:05Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-11-03T21:14:52Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "general",
+      "urgency": "emergency",
+      "recommended_action": "Dispatch a licensed locksmith within 24 hours to inspect and replace the deadbolt mechanism. Confirm tenant has a functional secondary lock in the interim and advise them not to leave the unit unattended until repaired.",
+      "confidence_score": 0.96
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Hey it's been below zero outside for the past two days and now I have no water coming out of my kitchen faucet at all. The bathroom still works fine. I think the pipe going to the kitchen might be frozen — it runs along the exterior wall on the north side. I haven't tried to thaw it myself because I wasn't sure if I should. It's still really cold out.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2025-01-18T07:12:33Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "plumbing",
+      "urgency": "emergency",
+      "recommended_action": "Dispatch a plumber immediately to assess and safely thaw the frozen pipe — frozen pipes can burst without warning, causing severe water damage. Advise the tenant NOT to use open flame or high heat to thaw pipes themselves. The plumber should also inspect the pipe for any cracks or fractures that may have formed from ice expansion.",
+      "confidence_score": 0.95
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Two of the four burners on the gas stove won't ignite properly. The front left burner clicks constantly on its own even when it's off, and the back right burner won't light at all no matter how long I hold the ignition. I can smell a faint gas odor near the stove when I try to turn on the back right burner. I turned that one off and haven't tried it again.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-04-22T17:45:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-04-22T17:46:30Z"},
+        {"file_url": "photo_03.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-04-22T17:47:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "appliance",
+      "urgency": "emergency",
+      "recommended_action": "Address immediately due to the reported gas odor near the non-igniting burner — contact the gas utility if the smell is strong or persistent. Dispatch a gas appliance technician to inspect the burner valve, igniter, and gas supply line for the rear burner. The constant clicking on the front left burner indicates a wet or faulty igniter switch that also requires service.",
+      "confidence_score": 0.97
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

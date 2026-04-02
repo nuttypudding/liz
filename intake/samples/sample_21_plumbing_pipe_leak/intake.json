@@ -1,0 +1,31 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "I noticed water stains forming on the ceiling of my bedroom closet and traced it back to a slow drip from what looks like a pipe joint in the wall. It's not gushing but there's a wet spot growing on the drywall and I can see water coming out every minute or so from where two pipes connect. I've put a bucket there. This started sometime yesterday I think.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-06-30T20:14:52Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-06-30T20:15:39Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "plumbing",
+      "urgency": "medium",
+      "recommended_action": "Dispatch a plumber within 24 hours to repair the leaking pipe joint — an ongoing drip inside a wall cavity will cause progressive drywall damage and potential mold if not addressed promptly. The plumber should reseal or replace the joint and assess the extent of moisture damage to the surrounding drywall. A drywall repair may be needed as a follow-up.",
+      "confidence_score": 0.92
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

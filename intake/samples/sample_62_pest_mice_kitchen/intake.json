@@ -1,0 +1,19 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "I found mouse droppings all along the back of my kitchen counter and inside my lower cabinet where I keep dry goods. Last night I heard scratching behind the stove — it was loud enough to wake me up. I've already thrown out a bag of rice and a box of cereal that had been chewed through. This is a serious health concern and I need it dealt with immediately.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-11-03T07:42:15Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-11-03T07:43:30Z"},
+        {"file_url": "photo_03.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-11-03T07:44:05Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "pest",
+      "urgency": "emergency",
+      "recommended_action": "Dispatch a licensed pest control technician within 24 hours to inspect for entry points, place bait stations, and seal gaps behind appliances and along baseboards. Advise tenant to store all dry goods in sealed containers immediately and remove compromised food. Schedule a follow-up inspection within 7 days to assess trap activity and confirm entry point sealing.",
+      "confidence_score": 0.97
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

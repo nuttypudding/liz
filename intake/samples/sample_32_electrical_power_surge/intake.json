@@ -1,0 +1,36 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "We had a big thunderstorm last night and now several things in my apartment aren't working. My microwave and one of my TVs are completely dead. The lights in the living room flicker randomly. I'm worried something got fried in the walls. I have a surge protector but it looks like the indicator light on it is now red.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-08-21T08:10:00Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-08-21T08:11:30Z"
+        },
+        {
+          "file_url": "photo_03.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-08-21T08:12:00Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "electrical",
+      "urgency": "medium",
+      "recommended_action": "Schedule an electrician to inspect the panel, wiring, and outlets for surge damage. The flickering lights after a storm can indicate a damaged service connection or damaged breaker. Check whether the utility provider reports any transformer damage on the street. Tenant-owned appliances damaged by surge are typically a tenant insurance matter, but building wiring must be confirmed safe before closing the ticket.",
+      "confidence_score": 0.90
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

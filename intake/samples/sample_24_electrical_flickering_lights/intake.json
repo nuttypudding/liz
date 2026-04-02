@@ -1,0 +1,31 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The lights in my living room and hallway have been flickering on and off for about two weeks now. It happens mostly in the evenings and sometimes they'll dim really low before coming back. I thought it was just the bulbs at first but I replaced them and it's still doing it.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-03-12T19:45:00Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-03-12T19:46:10Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "electrical",
+      "urgency": "medium",
+      "recommended_action": "Schedule a licensed electrician to inspect the circuit serving the living room and hallway. Persistent flickering after bulb replacement typically indicates a loose connection, overloaded circuit, or failing dimmer switch. Do not delay — loose wiring connections can be a fire hazard if left unaddressed.",
+      "confidence_score": 0.91
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

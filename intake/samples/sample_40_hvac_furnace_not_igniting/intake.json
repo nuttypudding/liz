@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The furnace keeps trying to start but then shuts off after a few seconds. I can hear it click and then a short whoosh like it's trying to light, but then nothing happens. It's been doing this all morning and now the apartment is getting cold. The error light on the furnace is blinking but I don't know what the code means.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-11-21T08:30:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-11-21T08:31:20Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "hvac",
+      "urgency": "medium",
+      "recommended_action": "Send an HVAC technician to diagnose the furnace fault code and inspect the igniter, flame sensor, and gas valve. The short cycle pattern suggests a failed hot surface igniter or dirty flame sensor. Respond within 24 hours; escalate to emergency if outdoor temperatures drop below freezing.",
+      "confidence_score": 0.91
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

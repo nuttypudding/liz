@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "I noticed a section of my hardwood floor near the sliding door feels soft and kind of hollow when I walk on it, and there's a small pile of what looks like sawdust next to the baseboard that I keep sweeping up but it keeps coming back. My neighbor mentioned they had termites last year so now I'm worried that's what this is. I'm attaching photos of the dust and the floor area.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-02-08T11:30:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-02-08T11:31:20Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "pest",
+      "urgency": "emergency",
+      "recommended_action": "Arrange a termite inspection by a licensed pest control company within 24-48 hours — the combination of soft flooring, hollow sound, and recurring sawdust-like frass strongly suggests active subterranean or drywood termite activity that can cause rapid structural damage if untreated. Do not delay; have the inspector assess whether damage has reached the subfloor or structural joists. Treatment options (fumigation, spot treatment, or borate application) should be determined after professional evaluation.",
+      "confidence_score": 0.91
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

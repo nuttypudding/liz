@@ -1,0 +1,26 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The showerhead in the main bathroom drips slowly after you turn it off. It's not a lot — maybe a drip every 10 seconds or so — but it's been going on since I moved in about 3 months ago. I just kept forgetting to mention it. Wanted to finally get it on the record in case it gets worse. The handles feel a little stiff too when you turn them.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2025-03-10T10:05:28Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "plumbing",
+      "urgency": "low",
+      "recommended_action": "Schedule a non-urgent repair to replace the shower valve cartridge — a post-shutoff drip combined with stiff handles is a clear indicator of a worn cartridge or O-ring inside the valve body, a standard inexpensive fix. Address within the next 2-3 weeks at the next available maintenance slot.",
+      "confidence_score": 0.95
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

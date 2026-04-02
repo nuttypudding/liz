@@ -1,0 +1,17 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The garbage disposal stopped working — it just hums when I turn it on but nothing spins. I turned it off right away because I've heard that humming means it's jammed and you shouldn't leave it running. There may have been some food scraps in there that caused a clog. I've tried pressing the reset button at the bottom but it still just hums.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-08-27T18:10:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "appliance",
+      "urgency": "low",
+      "recommended_action": "Send maintenance to manually unjam the disposal using the hex key port at the bottom of the unit to free the impeller. If the motor has burned out from overheating, the disposal may need replacement. Advise tenant to avoid putting fibrous or hard food items down the disposal.",
+      "confidence_score": 0.90
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

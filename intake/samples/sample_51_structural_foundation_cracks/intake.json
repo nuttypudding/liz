@@ -1,0 +1,19 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "There are large cracks running along the basement foundation wall, and some of them look like they go all the way through. Water is seeping in through one of the cracks after it rains and there's a musty smell down there now. I'm worried this might be serious — the cracks look wider than they did a few months ago. Please send someone to look at this as soon as possible.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-03-12T09:15:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-03-12T09:17:00Z"},
+        {"file_url": "photo_03.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-03-12T09:19:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "structural",
+      "urgency": "emergency",
+      "recommended_action": "Dispatch a licensed structural engineer immediately to assess the foundation cracks for lateral movement, water infiltration, and load-bearing integrity. Do not allow tenants to use basement space until inspection is complete. If cracks show active widening or inward displacement, contact a foundation repair specialist same day.",
+      "confidence_score": 0.97
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

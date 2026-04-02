@@ -1,0 +1,26 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "There's a dripping faucet in the kitchen that's been going on for maybe a month. It drips from the spout even when it's fully turned off — maybe once every few seconds. I put a bowl under it for now. It's not a flood or anything but I wanted to report it. It keeps me up at night sometimes when the apartment is quiet.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-07-22T18:40:12Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "plumbing",
+      "urgency": "low",
+      "recommended_action": "Schedule a non-urgent visit to replace the worn cartridge or washers in the kitchen faucet — a dripping faucet from a closed tap typically indicates a failed internal seal and is a straightforward repair. Address within 2 weeks to prevent unnecessary water waste.",
+      "confidence_score": 0.96
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

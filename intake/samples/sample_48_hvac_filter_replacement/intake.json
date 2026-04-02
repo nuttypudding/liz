@@ -1,0 +1,17 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "I pulled out the air filter to check it and it's completely black — looks like it hasn't been replaced in a very long time. The AC has been running slower lately and there's been more dust than usual around the vents. I don't have a replacement filter on hand and wasn't sure what size to get. Can you send someone to replace it?",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-02-20T12:45:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "hvac",
+      "urgency": "low",
+      "recommended_action": "Send maintenance staff to replace the air filter with the correct size (check unit label or existing filter for dimensions). Recommend switching to a MERV-8 or higher filter and establishing a 60-90 day replacement schedule. Check for any airflow restriction or coil buildup that may have resulted from the neglected filter.",
+      "confidence_score": 0.97
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

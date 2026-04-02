@@ -1,0 +1,36 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The breaker for my master bedroom keeps tripping every few days. I reset it each time but it trips again within a day or two. I don't think I'm overloading it — it's just my TV and a lamp on that circuit. This has been going on for about three weeks.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-09-03T15:30:00Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-09-03T15:31:20Z"
+        },
+        {
+          "file_url": "photo_03.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-09-03T15:32:00Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "electrical",
+      "urgency": "medium",
+      "recommended_action": "Schedule a licensed electrician to inspect the breaker and associated circuit. A breaker that trips repeatedly under light load often indicates a failing breaker, a loose neutral wire, or an underlying short circuit. Continuing to reset a faulty breaker without diagnosis can cause wiring damage or a fire risk over time.",
+      "confidence_score": 0.92
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

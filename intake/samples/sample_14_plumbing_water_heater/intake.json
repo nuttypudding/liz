@@ -1,0 +1,31 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The water heater in my unit started making a really loud popping/rumbling noise yesterday and now there's a small puddle of water forming around the base of it. I noticed the water pressure from the hot tap also seems lower than usual. The unit is in the closet next to the bathroom. I attached a photo of the puddle and the unit. It looks pretty old honestly.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-11-07T14:30:55Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-11-07T14:31:40Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "plumbing",
+      "urgency": "emergency",
+      "recommended_action": "Schedule same-day service to inspect the water heater — pooling water at the base combined with rumbling sounds indicates a likely tank failure or pressure relief valve issue, which can escalate to flooding or, in rare cases, a pressure-related rupture. Turn off the cold water supply to the heater as a precaution and assess whether the unit needs repair or full replacement.",
+      "confidence_score": 0.96
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

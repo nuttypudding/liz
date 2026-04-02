@@ -1,0 +1,31 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Hi, this is unit 4B. Our toilet started overflowing this morning and wouldn't stop even after we stopped flushing. Then the bathtub started gurgling and sewage water came up through the tub drain. The smell is unbearable and we can't use any water in the bathroom at all. This has never happened before. We have two kids and really need this fixed today.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-05-03T10:45:00Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-05-03T10:46:22Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "plumbing",
+      "urgency": "emergency",
+      "recommended_action": "Send an emergency plumber to perform a sewer line inspection and clear the blockage — simultaneous backup through toilet and tub drain indicates a main sewer line obstruction, not a fixture-level clog. Advise tenant to avoid running any water until repaired. A drain snake or hydro-jetting is likely required.",
+      "confidence_score": 0.97
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

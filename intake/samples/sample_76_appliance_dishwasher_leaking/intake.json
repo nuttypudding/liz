@@ -1,0 +1,19 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The dishwasher started leaking from the bottom door seal during the wash cycle. There's water pooling on the kitchen floor every time I run it so I've stopped using it for now. I wiped it up but I'm concerned the water is seeping under the flooring — you can see the laminate starting to bubble a little near the front. Wanted to report it right away.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-09-03T19:45:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-09-03T19:46:10Z"},
+        {"file_url": "photo_03.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-09-03T19:47:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "appliance",
+      "urgency": "medium",
+      "recommended_action": "Schedule an appliance technician to inspect and replace the dishwasher door gasket/seal within 3–5 days. Assess the laminate flooring for water damage and determine if subfloor remediation is needed. Advise tenant not to run the dishwasher until repairs are complete.",
+      "confidence_score": 0.94
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

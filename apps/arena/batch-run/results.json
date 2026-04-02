@@ -1,0 +1,883 @@
+{
+  "metadata": {
+    "timestamp": "2026-04-02T01:10:57.005251+00:00",
+    "sample_count": 10,
+    "model_count": 7,
+    "total_evaluations": 70,
+    "models": {
+      "gpt-4o": {
+        "provider": "openai",
+        "vision_tier": 1,
+        "cost_input_1m": 2.5,
+        "cost_output_1m": 10.0
+      },
+      "gpt-4o-mini": {
+        "provider": "openai",
+        "vision_tier": 2,
+        "cost_input_1m": 0.15,
+        "cost_output_1m": 0.6
+      },
+      "claude-sonnet-4-20250514": {
+        "provider": "anthropic",
+        "vision_tier": 1,
+        "cost_input_1m": 3.0,
+        "cost_output_1m": 15.0
+      },
+      "claude-haiku-4-5-20251001": {
+        "provider": "anthropic",
+        "vision_tier": 2,
+        "cost_input_1m": 0.8,
+        "cost_output_1m": 4.0
+      },
+      "gemini-2.5-flash": {
+        "provider": "google",
+        "vision_tier": 1,
+        "cost_input_1m": 0.15,
+        "cost_output_1m": 0.6
+      },
+      "gemini-2.5-pro": {
+        "provider": "google",
+        "vision_tier": 1,
+        "cost_input_1m": 1.25,
+        "cost_output_1m": 10.0
+      },
+      "meta-llama/llama-4-scout-17b-16e-instruct": {
+        "provider": "groq",
+        "vision_tier": 2,
+        "cost_input_1m": 0.11,
+        "cost_output_1m": 0.34
+      }
+    },
+    "total_time_s": 518.0,
+    "errors": [
+      "gemini-2.5-flash / sample_02_general_duct_tape: Unterminated string starting at: line 4 column 25 (char 80)",
+      "gemini-2.5-pro / sample_02_general_duct_tape: 'NoneType' object has no attribute 'strip'",
+      "meta-llama/llama-4-scout-17b-16e-instruct / sample_02_general_duct_tape: Error code: 400 - {'error': {'message': 'Too many images provided.  This model supports up to 5 images', 'type': 'invalid_request_error'}}",
+      "gemini-2.5-pro / sample_03_structural_leaky_ceiling: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}",
+      "gemini-2.5-pro / sample_05_structural_mold_holes: Expecting property name enclosed in double quotes: line 3 column 26 (char 55)",
+      "meta-llama/llama-4-scout-17b-16e-instruct / sample_09_general_mold_test: 1 validation error for AIOutput\ncategory\n  Input should be 'plumbing', 'electrical', 'hvac', 'structural', 'pest', 'appliance' or 'general' [type=enum, input_value='mold', input_type=str]\n    For furt"
+    ]
+  },
+  "samples": {
+    "sample_01_plumbing_sewer": {
+      "ground_truth": {
+        "category": "plumbing",
+        "urgency": "emergency",
+        "recommended_action": "Dispatch emergency plumber immediately. Main sewer line has rusted out and is clogged. Unit is uninhabitable due to sewage smell \u2014 arrange temporary hotel accommodation for tenant. Walls and floors in affected room will need to be ripped out and replaced after sewer line repair.",
+        "confidence_score": 0.97
+      },
+      "tenant_message": "It's been smelling like poop in my room and outside for months so I contacted my landlord about it. He said there wasn't an issue and so I went and got a plumber to come take a look at it. Main sewer line has rusted out and looks like clogged from toilet paper and most likely paper towel. Am now sta",
+      "photo_count": 4,
+      "models": {
+        "gpt-4o": {
+          "category": "plumbing",
+          "urgency": "emergency",
+          "recommended_action": "Immediately repair or replace the main sewer line to prevent further damage and health hazards.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 15.34,
+          "error": null
+        },
+        "gpt-4o-mini": {
+          "category": "plumbing",
+          "urgency": "emergency",
+          "recommended_action": "Arrange for immediate plumbing repairs to address the sewer line issue and prevent further damage.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 17.61,
+          "error": null
+        },
+        "claude-sonnet-4-20250514": {
+          "category": "plumbing",
+          "urgency": "emergency",
+          "recommended_action": "Immediately hire licensed plumber for main sewer line replacement and arrange professional sewage cleanup/remediation",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 9.66,
+          "error": null
+        },
+        "claude-haiku-4-5-20251001": {
+          "category": "plumbing",
+          "urgency": "emergency",
+          "recommended_action": "Immediately engage a licensed plumber to excavate and replace the main sewer line. Document all damage and costs. Coordinate with tenant's temporary housing. This is a serious structural/health hazard requiring urgent professional remediation.",
+          "confidence_score": 0.98,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 9.9,
+          "error": null
+        },
+        "gemini-2.5-flash": {
+          "category": "plumbing",
+          "urgency": "emergency",
+          "recommended_action": "Engage a licensed plumber immediately to repair or replace the rusted and clogged main sewer line. Follow up with professional remediation for sewage damage and structural repairs.",
+          "confidence_score": 1.0,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 15.38,
+          "error": null
+        },
+        "gemini-2.5-pro": {
+          "category": "plumbing",
+          "urgency": "emergency",
+          "recommended_action": "Coordinate with licensed plumbers to replace the failed main sewer line and restore the unit.",
+          "confidence_score": 1.0,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 18.45,
+          "error": null
+        },
+        "meta-llama/llama-4-scout-17b-16e-instruct": {
+          "category": "plumbing",
+          "urgency": "emergency",
+          "recommended_action": "Contact a plumber to repair or replace the main sewer line immediately",
+          "confidence_score": 0.9,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 11.16,
+          "error": null
+        }
+      }
+    },
+    "sample_02_general_duct_tape": {
+      "ground_truth": {
+        "category": "general",
+        "urgency": "medium",
+        "recommended_action": "Schedule full inspection of laundry room. Multiple issues repaired with duct tape indicate systemic neglect \u2014 pipes, walls, and fixtures need professional assessment. Document all duct-tape repairs for code violation reporting if landlord does not address within 48 hours.",
+        "confidence_score": 0.91
+      },
+      "tenant_message": "I made a post the other day asking for help and many of you said to take pictures of issues with the apartment. This is just some of the pictures of the laundry room. No duct tape doesn't fix everything.",
+      "photo_count": 6,
+      "models": {
+        "gpt-4o": {
+          "category": "structural",
+          "urgency": "medium",
+          "recommended_action": "Schedule a professional inspection to assess and repair the wall and ductwork issues.",
+          "confidence_score": 0.9,
+          "category_match": false,
+          "urgency_match": true,
+          "latency_s": 16.47,
+          "error": null
+        },
+        "gpt-4o-mini": {
+          "category": "structural",
+          "urgency": "medium",
+          "recommended_action": "Schedule an inspection to assess the damage and determine necessary repairs.",
+          "confidence_score": 0.85,
+          "category_match": false,
+          "urgency_match": true,
+          "latency_s": 12.46,
+          "error": null
+        },
+        "claude-sonnet-4-20250514": {
+          "category": "structural",
+          "urgency": "medium",
+          "recommended_action": "Schedule professional inspection for foundation/structural damage and water intrusion issues",
+          "confidence_score": 0.85,
+          "category_match": false,
+          "urgency_match": true,
+          "latency_s": 13.63,
+          "error": null
+        },
+        "claude-haiku-4-5-20251001": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Schedule immediate professional inspection of laundry room. Address exposed/deteriorating electrical wiring, corroded plumbing connections, crumbling drywall/plaster, and mold growth. This poses serious safety hazards (electrical shock, water damage, mold exposure). Do not allow tenant to use facilities until repairs are completed.",
+          "confidence_score": 0.95,
+          "category_match": false,
+          "urgency_match": false,
+          "latency_s": 10.64,
+          "error": null
+        },
+        "gemini-2.5-flash": {
+          "category": null,
+          "urgency": null,
+          "recommended_action": null,
+          "confidence_score": null,
+          "category_match": false,
+          "urgency_match": false,
+          "latency_s": 14.72,
+          "error": "Unterminated string starting at: line 4 column 25 (char 80)"
+        },
+        "gemini-2.5-pro": {
+          "category": null,
+          "urgency": null,
+          "recommended_action": null,
+          "confidence_score": null,
+          "category_match": false,
+          "urgency_match": false,
+          "latency_s": 21.4,
+          "error": "'NoneType' object has no attribute 'strip'"
+        },
+        "meta-llama/llama-4-scout-17b-16e-instruct": {
+          "category": null,
+          "urgency": null,
+          "recommended_action": null,
+          "confidence_score": null,
+          "category_match": false,
+          "urgency_match": false,
+          "latency_s": 10.07,
+          "error": "Error code: 400 - {'error': {'message': 'Too many images provided.  This model supports up to 5 images', 'type': 'invalid_request_error'}}"
+        }
+      }
+    },
+    "sample_03_structural_leaky_ceiling": {
+      "ground_truth": {
+        "category": "structural",
+        "urgency": "emergency",
+        "recommended_action": "Dispatch roofer or structural inspector immediately. Active ceiling leaks risk ceiling collapse and mold growth. Identify water source \u2014 possible roof damage or upstairs plumbing failure. Landlord is legally obligated to repair; tenant should document and report to housing authority if not addressed within 24 hours.",
+        "confidence_score": 0.95
+      },
+      "tenant_message": "Our ceilings are leaking badly and the landlord suggests we move instead of repairing them. Water stains and active dripping from multiple ceiling spots.",
+      "photo_count": 3,
+      "models": {
+        "gpt-4o": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Immediately assess and repair the source of the leak to prevent further damage and ensure tenant safety.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 2.26,
+          "error": null
+        },
+        "gpt-4o-mini": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Immediate inspection and repair of the leaking ceilings to prevent further damage.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 6.76,
+          "error": null
+        },
+        "claude-sonnet-4-20250514": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Schedule immediate professional inspection for water damage and roof/plumbing leak repair",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 4.48,
+          "error": null
+        },
+        "claude-haiku-4-5-20251001": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Immediately inspect roof and ceiling for active leaks. Engage licensed roofer/contractor for emergency repair. Document all water damage for liability. Provide tenant with temporary mitigation (buckets, tarps) while repair is arranged. This is a habitability issue requiring urgent remediation.",
+          "confidence_score": 0.98,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 4.15,
+          "error": null
+        },
+        "gemini-2.5-flash": {
+          "category": "plumbing",
+          "urgency": "emergency",
+          "recommended_action": "Immediately investigate and stop the source of the water leak, then assess and repair all water damage to ceilings and affected areas.",
+          "confidence_score": 1.0,
+          "category_match": false,
+          "urgency_match": true,
+          "latency_s": 3.96,
+          "error": null
+        },
+        "gemini-2.5-pro": {
+          "category": null,
+          "urgency": null,
+          "recommended_action": null,
+          "confidence_score": null,
+          "category_match": false,
+          "urgency_match": false,
+          "latency_s": 3.05,
+          "error": "503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}"
+        },
+        "meta-llama/llama-4-scout-17b-16e-instruct": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Send a contractor to assess and repair the ceiling immediately",
+          "confidence_score": 0.9,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 2.54,
+          "error": null
+        }
+      }
+    },
+    "sample_04_hvac_dirty_ac": {
+      "ground_truth": {
+        "category": "hvac",
+        "urgency": "emergency",
+        "recommended_action": "Stop using AC unit immediately \u2014 suspected black mold poses serious respiratory health risk. Dispatch HVAC technician for inspection and professional cleaning or replacement. If mold confirmed, unit must be replaced. Report to health department if landlord does not act within 24 hours.",
+        "confidence_score": 0.94
+      },
+      "tenant_message": "My AC unit. It's filthy and looks like it has black mold growing inside. Landlord won't do anything about it. This is a health hazard.",
+      "photo_count": 3,
+      "models": {
+        "gpt-4o": {
+          "category": "hvac",
+          "urgency": "emergency",
+          "recommended_action": "Immediately arrange for a professional HVAC cleaning and mold inspection.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 7.71,
+          "error": null
+        },
+        "gpt-4o-mini": {
+          "category": "hvac",
+          "urgency": "emergency",
+          "recommended_action": "Schedule an immediate inspection and cleaning of the AC unit due to health hazard concerns.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 9.36,
+          "error": null
+        },
+        "claude-sonnet-4-20250514": {
+          "category": "hvac",
+          "urgency": "medium",
+          "recommended_action": "Schedule HVAC professional to inspect and clean system, test for mold, and replace filters",
+          "confidence_score": 0.9,
+          "category_match": true,
+          "urgency_match": false,
+          "latency_s": 4.9,
+          "error": null
+        },
+        "claude-haiku-4-5-20251001": {
+          "category": "hvac",
+          "urgency": "medium",
+          "recommended_action": "Schedule professional HVAC inspection and cleaning within 7 days. If mold is confirmed, require professional remediation and document findings. Ensure proper maintenance going forward.",
+          "confidence_score": 0.85,
+          "category_match": true,
+          "urgency_match": false,
+          "latency_s": 4.03,
+          "error": null
+        },
+        "gemini-2.5-flash": {
+          "category": "hvac",
+          "urgency": "medium",
+          "recommended_action": "Schedule a professional HVAC technician to inspect and thoroughly clean the AC unit, including coils and ductwork, and assess for mold remediation.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": false,
+          "latency_s": 10.64,
+          "error": null
+        },
+        "gemini-2.5-pro": {
+          "category": "hvac",
+          "urgency": "medium",
+          "recommended_action": "Schedule a qualified HVAC technician to inspect for mold and perform a thorough system and duct cleaning.",
+          "confidence_score": 0.98,
+          "category_match": true,
+          "urgency_match": false,
+          "latency_s": 14.1,
+          "error": null
+        },
+        "meta-llama/llama-4-scout-17b-16e-instruct": {
+          "category": "hvac",
+          "urgency": "medium",
+          "recommended_action": "Schedule a professional HVAC technician to inspect and clean the AC unit and ducts",
+          "confidence_score": 0.9,
+          "category_match": true,
+          "urgency_match": false,
+          "latency_s": 6.14,
+          "error": null
+        }
+      }
+    },
+    "sample_05_structural_mold_holes": {
+      "ground_truth": {
+        "category": "structural",
+        "urgency": "medium",
+        "recommended_action": "Dispatch contractor to assess water intrusion source and extent of mold damage. Cosmetic repairs (paint, tape) are insufficient \u2014 underlying moisture issue must be resolved. Mold remediation required. Exterior waterproofing likely needed. Advise tenant to ventilate area and avoid prolonged exposure.",
+        "confidence_score": 0.93
+      },
+      "tenant_message": "Damp/Mouldy Holes? Some paint and a bit of tape will fix it no problem! Don't worry about fixing the outside, tape is known to be completely watertight. The landlord just painted over the mold and taped over holes in the wall instead of actually fixing the water damage.",
+      "photo_count": 4,
+      "models": {
+        "gpt-4o": {
+          "category": "structural",
+          "urgency": "medium",
+          "recommended_action": "Conduct a thorough inspection to identify and repair the source of water intrusion and properly remediate mold.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 4.12,
+          "error": null
+        },
+        "gpt-4o-mini": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Investigate and repair the source of water damage and mold, ensuring proper remediation.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": false,
+          "latency_s": 7.46,
+          "error": null
+        },
+        "claude-sonnet-4-20250514": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Immediately arrange professional mold remediation and water damage assessment. Identify and fix water source before any cosmetic repairs.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": false,
+          "latency_s": 5.11,
+          "error": null
+        },
+        "claude-haiku-4-5-20251001": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Immediately inspect for water intrusion source (roof leak, exterior damage, plumbing). Do not simply paint/tape over mold. Require professional assessment of water damage extent, mold remediation, and structural integrity before cosmetic repairs.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": false,
+          "latency_s": 4.0,
+          "error": null
+        },
+        "gemini-2.5-flash": {
+          "category": "plumbing",
+          "urgency": "emergency",
+          "recommended_action": "Immediately identify and repair the source of the water leak, professionally remediate all mold, and repair damaged structural elements and finishes.",
+          "confidence_score": 0.95,
+          "category_match": false,
+          "urgency_match": false,
+          "latency_s": 6.07,
+          "error": null
+        },
+        "gemini-2.5-pro": {
+          "category": null,
+          "urgency": null,
+          "recommended_action": null,
+          "confidence_score": null,
+          "category_match": false,
+          "urgency_match": false,
+          "latency_s": 11.48,
+          "error": "Expecting property name enclosed in double quotes: line 3 column 26 (char 55)"
+        },
+        "meta-llama/llama-4-scout-17b-16e-instruct": {
+          "category": "plumbing",
+          "urgency": "emergency",
+          "recommended_action": "Investigate and fix the source of the water leak",
+          "confidence_score": 0.9,
+          "category_match": false,
+          "urgency_match": false,
+          "latency_s": 3.13,
+          "error": null
+        }
+      }
+    },
+    "sample_06_pest_cockroaches": {
+      "ground_truth": {
+        "category": "pest",
+        "urgency": "emergency",
+        "recommended_action": "Dispatch licensed pest control company immediately for full building treatment. Source is vacant neighboring unit \u2014 coordinate access to unit 22 for extermination. Seal entry points between units. Building-wide treatment required as cockroach and rat infestation spreads through shared walls. Report to NYC housing authority (311) if management continues to ignore.",
+        "confidence_score": 0.96
+      },
+      "tenant_message": "NYC: Neighbor moved out, and now there's a non-stop stream of cockroaches from his apartment. Management refuses to do anything. These glue traps are completely filled every two days. The roaches (and rats) are pouring out from the vacant apartment (22) next door, and the building management are ign",
+      "photo_count": 2,
+      "models": {
+        "gpt-4o": {
+          "category": "pest",
+          "urgency": "emergency",
+          "recommended_action": "Immediately contact pest control services to address the infestation and inspect the vacant apartment for entry points.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 6.28,
+          "error": null
+        },
+        "gpt-4o-mini": {
+          "category": "pest",
+          "urgency": "emergency",
+          "recommended_action": "Contact pest control immediately to address the infestation and assess the vacant apartment.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 10.62,
+          "error": null
+        },
+        "claude-sonnet-4-20250514": {
+          "category": "pest",
+          "urgency": "emergency",
+          "recommended_action": "Contact professional pest control immediately and coordinate with building management to address the vacant unit source",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 7.17,
+          "error": null
+        },
+        "claude-haiku-4-5-20251001": {
+          "category": "pest",
+          "urgency": "emergency",
+          "recommended_action": "Immediately schedule professional pest control inspection and treatment for both the vacant unit 22 and affected tenant's unit. Document infestation severity. Verify building's pest management contract and escalate to building owner/management company. This may constitute a habitability violation under NYC housing code.",
+          "confidence_score": 0.98,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 5.66,
+          "error": null
+        },
+        "gemini-2.5-flash": {
+          "category": "pest",
+          "urgency": "emergency",
+          "recommended_action": "Immediately contact a professional pest control service for a comprehensive inspection and treatment of the tenant's unit and the vacant neighboring apartment. Investigate and seal potential entry points.",
+          "confidence_score": 1.0,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 7.05,
+          "error": null
+        },
+        "gemini-2.5-pro": {
+          "category": "pest",
+          "urgency": "emergency",
+          "recommended_action": "Dispatch a professional exterminator immediately to treat the source apartment (22), the reporting tenant's apartment (23), and common areas.",
+          "confidence_score": 1.0,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 10.83,
+          "error": null
+        },
+        "meta-llama/llama-4-scout-17b-16e-instruct": {
+          "category": "pest",
+          "urgency": "emergency",
+          "recommended_action": "Seal the vacant apartment and perform an immediate extermination and cleaning",
+          "confidence_score": 0.9,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 4.88,
+          "error": null
+        }
+      }
+    },
+    "sample_07_electrical_unsafe_adapter": {
+      "ground_truth": {
+        "category": "electrical",
+        "urgency": "emergency",
+        "recommended_action": "This is a serious fire hazard and likely an electrical code violation. Major appliances (refrigerator, stove) must not be connected via adapters or extension cords \u2014 they require dedicated grounded outlets. Dispatch licensed electrician to install proper 3-prong grounded receptacles. Advise tenant to unplug extension cord setup immediately. Report to building inspector if landlord refuses.",
+        "confidence_score": 0.98
+      },
+      "tenant_message": "Fridge and stove hooked up to this adapter and extension cord. Landlord refuses to change receptacle and says this is ok. 2 to 3 prong adapter ran extension cord that sits on the floor in between my oven and stove. Is it safe though?",
+      "photo_count": 2,
+      "models": {
+        "gpt-4o": {
+          "category": "electrical",
+          "urgency": "medium",
+          "recommended_action": "Consult a licensed electrician to assess the safety of the current setup and consider upgrading the receptacle to a grounded outlet.",
+          "confidence_score": 0.9,
+          "category_match": true,
+          "urgency_match": false,
+          "latency_s": 5.48,
+          "error": null
+        },
+        "gpt-4o-mini": {
+          "category": "electrical",
+          "urgency": "emergency",
+          "recommended_action": "Advise the landlord to inspect the electrical setup and replace the receptacle to ensure safety.",
+          "confidence_score": 0.9,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 4.52,
+          "error": null
+        },
+        "claude-sonnet-4-20250514": {
+          "category": "electrical",
+          "urgency": "emergency",
+          "recommended_action": "Immediately hire licensed electrician to install proper GFCI outlets and dedicated circuits for appliances - current setup violates electrical codes and creates fire/electrocution hazard",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 6.1,
+          "error": null
+        },
+        "claude-haiku-4-5-20251001": {
+          "category": "electrical",
+          "urgency": "emergency",
+          "recommended_action": "Immediately have a licensed electrician inspect and install proper 240V receptacles for major appliances. This setup violates electrical code and poses serious fire/shock hazards. Do not delay.",
+          "confidence_score": 0.98,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 2.96,
+          "error": null
+        },
+        "gemini-2.5-flash": {
+          "category": "electrical",
+          "urgency": "emergency",
+          "recommended_action": "Advise the tenant to immediately unplug the stove and refrigerator from the extension cord and adapter. Inform the landlord that this setup is a severe fire and electrical shock hazard and requires immediate professional electrical inspection and proper, dedicated grounded outlets for these appliances.",
+          "confidence_score": 1.0,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 7.71,
+          "error": null
+        },
+        "gemini-2.5-pro": {
+          "category": "electrical",
+          "urgency": "emergency",
+          "recommended_action": "Dispatch a licensed electrician immediately. The use of an ungrounded adapter and extension cord for major appliances is a severe fire and shock hazard. The outlet must be replaced with a properly grounded or GFCI-protected receptacle.",
+          "confidence_score": 1.0,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 12.54,
+          "error": null
+        },
+        "meta-llama/llama-4-scout-17b-16e-instruct": {
+          "category": "electrical",
+          "urgency": "medium",
+          "recommended_action": "Replace the adapter and ensure proper grounding of the receptacle",
+          "confidence_score": 0.8,
+          "category_match": true,
+          "urgency_match": false,
+          "latency_s": 3.11,
+          "error": null
+        }
+      }
+    },
+    "sample_08_appliance_stove": {
+      "ground_truth": {
+        "category": "appliance",
+        "urgency": "medium",
+        "recommended_action": "Dispatch certified gas appliance installer to connect the new oven. Gas line connections must be performed by a licensed professional \u2014 tenant should NOT attempt self-installation due to gas leak risk. Landlord is responsible for installation costs as part of providing a habitable unit with functioning kitchen appliances.",
+        "confidence_score": 0.95
+      },
+      "tenant_message": "Landlord ordered a new gas oven to replace the old broken one. He only paid to have it dropped off. He is very shocked that I'm not happy. The stove is sitting in the box uninstalled \u2014 I can't cook and gas appliance installation requires a certified professional.",
+      "photo_count": 1,
+      "models": {
+        "gpt-4o": {
+          "category": "appliance",
+          "urgency": "medium",
+          "recommended_action": "Arrange for a certified professional to install the gas oven.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 2.58,
+          "error": null
+        },
+        "gpt-4o-mini": {
+          "category": "appliance",
+          "urgency": "emergency",
+          "recommended_action": "Arrange for a certified professional to install the gas oven as soon as possible.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": false,
+          "latency_s": 3.47,
+          "error": null
+        },
+        "claude-sonnet-4-20250514": {
+          "category": "appliance",
+          "urgency": "medium",
+          "recommended_action": "Schedule certified gas appliance technician to install the new range and remove old unit",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 3.48,
+          "error": null
+        },
+        "claude-haiku-4-5-20251001": {
+          "category": "appliance",
+          "urgency": "medium",
+          "recommended_action": "Hire a licensed gas appliance installer to connect the new range. Landlord is responsible for installation costs as part of providing a functioning kitchen appliance. Tenant should not attempt DIY gas line connections.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 2.87,
+          "error": null
+        },
+        "gemini-2.5-flash": {
+          "category": "appliance",
+          "urgency": "medium",
+          "recommended_action": "Arrange for a certified professional to install the new gas oven immediately.",
+          "confidence_score": 1.0,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 4.73,
+          "error": null
+        },
+        "gemini-2.5-pro": {
+          "category": "appliance",
+          "urgency": "medium",
+          "recommended_action": "Schedule a certified technician to remove the old stove and install the new gas range.",
+          "confidence_score": 1.0,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 9.4,
+          "error": null
+        },
+        "meta-llama/llama-4-scout-17b-16e-instruct": {
+          "category": "appliance",
+          "urgency": "medium",
+          "recommended_action": "Hire a certified professional to install the new gas oven",
+          "confidence_score": 0.9,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 3.09,
+          "error": null
+        }
+      }
+    },
+    "sample_09_general_mold_test": {
+      "ground_truth": {
+        "category": "general",
+        "urgency": "emergency",
+        "recommended_action": "Professional mold remediation required immediately. Bleach surface treatment is insufficient \u2014 mold test confirms active severe contamination. Identify and fix moisture source. Full mold assessment by certified inspector needed. Tenant may need temporary relocation depending on severity. This is a habitability violation.",
+        "confidence_score": 0.97
+      },
+      "tenant_message": "A mold test kit from my apartment after my landlord told me they 'cleaned' the mold by putting bleach on the spots. The petri dish is completely covered in mold growth \u2014 the bleach did nothing to fix the underlying problem.",
+      "photo_count": 1,
+      "models": {
+        "gpt-4o": {
+          "category": "structural",
+          "urgency": "medium",
+          "recommended_action": "Conduct a professional mold inspection and remediation to address the underlying issue.",
+          "confidence_score": 0.95,
+          "category_match": false,
+          "urgency_match": false,
+          "latency_s": 4.21,
+          "error": null
+        },
+        "gpt-4o-mini": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Address the mold issue immediately and consider professional remediation.",
+          "confidence_score": 0.95,
+          "category_match": false,
+          "urgency_match": true,
+          "latency_s": 2.91,
+          "error": null
+        },
+        "claude-sonnet-4-20250514": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Immediately hire certified mold remediation specialist and address underlying moisture source",
+          "confidence_score": 0.95,
+          "category_match": false,
+          "urgency_match": true,
+          "latency_s": 3.58,
+          "error": null
+        },
+        "claude-haiku-4-5-20251001": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Immediately engage a licensed mold remediation specialist to conduct professional assessment and remediation. Do not rely on surface cleaning. Identify and address underlying moisture source (potential plumbing leak, HVAC issue, or ventilation problem). Document all findings and remediation work for liability protection.",
+          "confidence_score": 0.95,
+          "category_match": false,
+          "urgency_match": true,
+          "latency_s": 3.28,
+          "error": null
+        },
+        "gemini-2.5-flash": {
+          "category": "structural",
+          "urgency": "medium",
+          "recommended_action": "Arrange for a professional mold inspection and remediation to identify the source of moisture and properly remove all mold.",
+          "confidence_score": 0.95,
+          "category_match": false,
+          "urgency_match": false,
+          "latency_s": 5.41,
+          "error": null
+        },
+        "gemini-2.5-pro": {
+          "category": "pest",
+          "urgency": "emergency",
+          "recommended_action": "Schedule professional mold inspection and remediation immediately. Previous remediation attempt was unsuccessful.",
+          "confidence_score": 0.98,
+          "category_match": false,
+          "urgency_match": true,
+          "latency_s": 12.05,
+          "error": null
+        },
+        "meta-llama/llama-4-scout-17b-16e-instruct": {
+          "category": null,
+          "urgency": null,
+          "recommended_action": null,
+          "confidence_score": null,
+          "category_match": false,
+          "urgency_match": false,
+          "latency_s": 2.2,
+          "error": "1 validation error for AIOutput\ncategory\n  Input should be 'plumbing', 'electrical', 'hvac', 'structural', 'pest', 'appliance' or 'general' [type=enum, input_value='mold', input_type=str]\n    For furt"
+        }
+      }
+    },
+    "sample_10_structural_ceiling_caved": {
+      "ground_truth": {
+        "category": "structural",
+        "urgency": "emergency",
+        "recommended_action": "Emergency structural assessment required. Ceiling has collapsed \u2014 area must be cordoned off immediately. Dispatch structural engineer to evaluate remaining ceiling integrity and identify cause (water damage, load-bearing failure, deterioration). Tenant may need temporary relocation. Document prior complaints as evidence of landlord negligence. Report to building department.",
+        "confidence_score": 0.99
+      },
+      "tenant_message": "Ceiling caved in after a year of telling our landlord that the ceiling has been sagging. We reported this multiple times and nothing was done until the ceiling actually collapsed.",
+      "photo_count": 1,
+      "models": {
+        "gpt-4o": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Immediately arrange for a professional inspection and repair of the ceiling. Ensure tenant safety and consider temporary relocation if necessary.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 5.92,
+          "error": null
+        },
+        "gpt-4o-mini": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Immediate inspection and repair of the ceiling to ensure tenant safety.",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 2.67,
+          "error": null
+        },
+        "claude-sonnet-4-20250514": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Immediately evacuate unit, contact structural engineer for safety assessment, and arrange emergency temporary housing for tenant",
+          "confidence_score": 0.95,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 4.36,
+          "error": null
+        },
+        "claude-haiku-4-5-20251001": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Immediately assess structural integrity of ceiling and upper floor/roof. Engage licensed structural engineer and contractor for emergency repairs. Document all prior maintenance requests. Address potential safety hazards and water damage. Consider tenant relocation if structural integrity is compromised.",
+          "confidence_score": 0.98,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 2.53,
+          "error": null
+        },
+        "gemini-2.5-flash": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Immediately secure the area, assess structural integrity, identify and repair the source of the water leak, and arrange for tenant relocation.",
+          "confidence_score": 1.0,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 6.7,
+          "error": null
+        },
+        "gemini-2.5-pro": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Immediately dispatch emergency structural repair and water mitigation teams. Assess tenant safety and consider temporary relocation.",
+          "confidence_score": 1.0,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 13.06,
+          "error": null
+        },
+        "meta-llama/llama-4-scout-17b-16e-instruct": {
+          "category": "structural",
+          "urgency": "emergency",
+          "recommended_action": "Send a contractor to assess and repair the structural damage to the ceiling immediately",
+          "confidence_score": 0.9,
+          "category_match": true,
+          "urgency_match": true,
+          "latency_s": 2.29,
+          "error": null
+        }
+      }
+    }
+  }
+}

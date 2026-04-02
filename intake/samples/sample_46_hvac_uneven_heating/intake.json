@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The bedrooms are always freezing but the living room and kitchen are way too warm. I've been using space heaters in the bedrooms just to stay comfortable. The thermostat is in the hallway and shows 70 degrees but it must be at least 75 in the living room and probably 62 in the back bedroom. This has been a problem since we moved in.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-12-28T09:10:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-12-28T09:11:30Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "hvac",
+      "urgency": "low",
+      "recommended_action": "Have an HVAC technician assess airflow balance — inspect dampers, duct sizing, and register positions throughout the unit. Check for blocked or closed vents in the cold rooms. Airflow balancing or adding a zone damper may be required. Tenant should verify bedroom vents are fully open as a first step.",
+      "confidence_score": 0.86
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

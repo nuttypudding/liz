@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Ever since the previous tenant moved out I've been getting bitten by what I'm pretty sure are fleas — my ankles are covered in small itchy bites and I can see tiny jumping insects in the carpet when I walk through the living room. I don't even have a pet. I think the last tenant had cats and left an infestation behind. I've vacuumed multiple times but they're still here.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-05-03T17:50:10Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-05-03T17:51:30Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "pest",
+      "urgency": "medium",
+      "recommended_action": "Schedule a professional flea treatment promptly — flea eggs in carpet can remain dormant and hatch over weeks, meaning vacuuming alone is insufficient. A pest control technician should apply an insect growth regulator (IGR) combined with a residual adulticide treatment throughout the carpeted areas. Recommend tenant launder all soft furnishings on high heat and vacuum immediately before and after treatment.",
+      "confidence_score": 0.94
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

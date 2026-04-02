@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The paint on the ceiling in my bathroom is peeling pretty badly — large flakes keep falling into the sink and tub. It looks like it might be from moisture or a slow leak from the unit above. The building is older so I'm a little worried it could be lead paint.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-03-02T11:18:55Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-03-02T11:19:40Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "general",
+      "urgency": "medium",
+      "recommended_action": "Schedule a maintenance inspection within one week to identify the moisture source and assess the extent of the paint damage. If the building was constructed before 1978, arrange for lead paint testing before any repair work begins and follow EPA RRP protocols.",
+      "confidence_score": 0.92
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

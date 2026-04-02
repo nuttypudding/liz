@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Hi, my refrigerator stopped cooling sometime overnight and everything inside is now warm. I noticed the freezer is also not cold — the ice cream is completely melted and the meat I had in there feels thawed. I'm worried about food safety and I've already thrown out a bunch of stuff. This is really urgent because I have a baby at home and need a working fridge.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-07-14T08:22:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-07-14T08:23:30Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "appliance",
+      "urgency": "emergency",
+      "recommended_action": "Dispatch an appliance technician within 24 hours to inspect the refrigerator compressor, condenser coils, and refrigerant level. Advise tenant to discard all perishables that have been above 40°F for more than 2 hours. Provide a temporary mini-fridge if repair will be delayed beyond same day.",
+      "confidence_score": 0.97
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

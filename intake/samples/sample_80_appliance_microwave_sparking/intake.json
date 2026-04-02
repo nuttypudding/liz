@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The microwave started sparking and making loud popping sounds when I turned it on this evening. I immediately shut it off and unplugged it. There's a burnt smell coming from it and I can see a black scorch mark on the inside wall of the microwave. I'm not going to use it again — this seems really dangerous.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-01-08T20:40:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-01-08T20:41:15Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "appliance",
+      "urgency": "emergency",
+      "recommended_action": "Do not attempt to use the microwave. Confirm it remains unplugged. Arrange for immediate inspection or replacement — a sparking microwave with internal burn damage poses a fire risk and should not be returned to service. Replace the unit if the waveguide cover or magnetron is damaged.",
+      "confidence_score": 0.98
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

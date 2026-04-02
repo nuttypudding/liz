@@ -1,0 +1,17 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Two of the overhead lights in the hallway on the 3rd floor have been out for almost a week now. It's really dark at night and I've almost tripped a couple of times coming home late. I'm also concerned about safety — it feels unsafe walking through a pitch-dark corridor.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-10-14T22:08:17Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "general",
+      "urgency": "medium",
+      "recommended_action": "Replace the burned-out bulbs or faulty fixtures in the 3rd floor hallway within 48 hours. Check whether the issue is limited to bulbs or involves the fixture wiring, and ensure all common-area lighting meets minimum lumen requirements for safety.",
+      "confidence_score": 0.93
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The range hood above the stove stopped working — the fan doesn't run and the light bulb inside is also out. When I cook anything the kitchen fills up with smoke and grease smell and it just hangs in the air. I've checked and the hood is plugged in but nothing happens when I press any of the buttons. It's been this way for about two weeks.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-10-05T12:20:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "appliance",
+      "urgency": "low",
+      "recommended_action": "Schedule a technician to inspect the range hood fan motor, control board, and internal wiring. If the unit is old or the motor is seized, replacement may be more cost-effective than repair. Also replace the light bulb if it is not an integrated LED module.",
+      "confidence_score": 0.88
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

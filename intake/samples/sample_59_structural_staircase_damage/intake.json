@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Two of the wooden stairs on the interior staircase have cracked and one of them feels like it might give way when I step on it — it sags in the middle and makes a loud cracking noise. The handrail is also pulling away from the wall on one side. My elderly mother visits regularly and I'm very concerned about this.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-08-19T17:05:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-08-19T17:07:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "structural",
+      "urgency": "emergency",
+      "recommended_action": "Treat this as a fall and injury hazard requiring same-day repair or restriction. If the staircase is the only access between floors, arrange temporary safe use protocols and dispatch a carpenter immediately to replace the damaged treads and re-secure the handrail bracket. Inspect stair stringers for underlying rot or failure.",
+      "confidence_score": 0.96
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

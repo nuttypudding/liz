@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The ice maker in the freezer stopped making ice about a week ago. The water dispenser on the door still works fine so it doesn't seem like a water supply issue. The ice maker arm is in the down position but nothing comes out. I also noticed there seems to be a small puddle of water forming inside the freezer near the ice maker which is a bit concerning.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-03-02T14:30:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-03-02T14:31:45Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "appliance",
+      "urgency": "low",
+      "recommended_action": "Schedule a technician to inspect the ice maker module, water inlet valve, and fill tube for ice blockages or valve failure. The internal puddle suggests a partial blockage or thaw issue in the fill line. This is non-urgent but should be addressed within 1–2 weeks to prevent water damage to the freezer interior.",
+      "confidence_score": 0.89
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

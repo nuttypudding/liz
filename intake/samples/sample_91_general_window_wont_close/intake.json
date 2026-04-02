@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The window in my living room won't close all the way — there's about a half-inch gap at the bottom that I can't get to seal no matter what I try. Cold air is coming in and my heating bill is going to be crazy this month. I think the latch mechanism is broken.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-12-09T17:22:44Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-12-09T17:23:18Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "general",
+      "urgency": "medium",
+      "recommended_action": "Schedule a maintenance visit within 3-5 days to inspect the window latch and frame for damage or misalignment. Replace the latch hardware or re-seat the window sash as needed to restore a proper seal.",
+      "confidence_score": 0.91
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

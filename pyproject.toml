@@ -1,0 +1,16 @@
+[project]
+name = "liz"
+version = "0.1.0"
+description = "AI Property Manager platform"
+requires-python = ">=3.11"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+
+[tool.pytest.ini_options]
+testpaths = ["apps/arena/tests", "apps/api/tests"]
+asyncio_mode = "auto"

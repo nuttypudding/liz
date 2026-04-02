@@ -1,0 +1,31 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "I noticed the wiring in my hallway light switch looks really old — the insulation on the wires is crumbly and kind of cloth-like, not the plastic I'm used to seeing. My neighbor told me it might be knob-and-tube wiring. I didn't know this building was that old. Should I be worried about this?",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-10-03T14:00:00Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-10-03T14:01:15Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "electrical",
+      "urgency": "medium",
+      "recommended_action": "Schedule a licensed electrician to assess whether knob-and-tube wiring is present and evaluate its condition. Cloth-insulated wiring with degraded insulation is a known fire risk, particularly if it has been covered with insulation or modified over the years. Depending on findings, a full or partial rewire may be required to meet current safety codes.",
+      "confidence_score": 0.93
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

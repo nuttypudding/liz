@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "I woke up this morning covered in itchy red bites in a line across my arm and shoulder. When I pulled back my mattress cover I found small reddish-brown bugs and dark rust-colored stains on the seams of my mattress — I looked it up and I'm pretty sure these are bed bugs. I am completely freaking out right now and I can't sleep in this room. My roommate in the next bedroom is also reporting bites this week.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-01-14T06:15:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-01-14T06:16:45Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "pest",
+      "urgency": "emergency",
+      "recommended_action": "Escalate to a certified bed bug exterminator immediately — bed bug infestations spread rapidly between units and require professional heat treatment or targeted pesticide application. Notify all adjacent units as a precautionary measure and instruct tenants not to move bedding or furniture between rooms to avoid spreading the infestation. Schedule a full-unit inspection within 24 hours and document findings for treatment planning.",
+      "confidence_score": 0.98
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

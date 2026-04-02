@@ -1,0 +1,19 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The apartment feels extremely humid even though the AC is running. My windows are constantly fogging up on the inside and I've noticed condensation on the walls near the vents. Some of my wooden furniture is starting to warp. The AC seems to be cooling but it feels damp and stuffy, not comfortable.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-08-14T15:00:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-08-14T15:01:20Z"},
+        {"file_url": "photo_03.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-08-14T15:02:45Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "hvac",
+      "urgency": "medium",
+      "recommended_action": "Inspect the AC system for an oversized unit (short-cycling prevents adequate dehumidification) or a clogged condensate drain causing moisture backup. Check that the evaporator coil is clean and confirm the system is running full cycles. Persistent high humidity risks mold growth — address within 48-72 hours and re-inspect walls and vents for early mold signs.",
+      "confidence_score": 0.89
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

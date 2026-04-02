@@ -1,0 +1,69 @@
+models:
+  gpt-4o:
+    provider: openai
+    model_id: gpt-4o
+    supports_vision: true
+    vision_tier: 1
+    vision_note: "Top-tier image understanding, strong OCR and spatial reasoning"
+    cost_input_1m: 2.5
+    cost_output_1m: 10.0
+    max_tokens: 128000
+  gpt-4o-mini:
+    provider: openai
+    model_id: gpt-4o-mini
+    supports_vision: true
+    vision_tier: 2
+    vision_note: "Good image parsing at low cost, slight accuracy trade-off"
+    cost_input_1m: 0.15
+    cost_output_1m: 0.6
+    max_tokens: 128000
+  claude-sonnet-4-20250514:
+    provider: anthropic
+    model_id: claude-sonnet-4-20250514
+    supports_vision: true
+    vision_tier: 1
+    vision_note: "Top-tier image understanding, excellent detail extraction"
+    cost_input_1m: 3.0
+    cost_output_1m: 15.0
+    max_tokens: 200000
+  claude-haiku-4-5-20251001:
+    provider: anthropic
+    model_id: claude-haiku-4-5-20251001
+    supports_vision: true
+    vision_tier: 2
+    vision_note: "Good image parsing, fastest Anthropic model"
+    cost_input_1m: 0.8
+    cost_output_1m: 4.0
+    max_tokens: 200000
+  gemini-2.5-flash:
+    provider: google
+    model_id: gemini-2.5-flash
+    supports_vision: true
+    vision_tier: 1
+    vision_note: "Fast, cheap, strong vision — best value for image triage"
+    cost_input_1m: 0.15
+    cost_output_1m: 0.6
+    max_tokens: 1048576
+  gemini-2.5-pro:
+    provider: google
+    model_id: gemini-2.5-pro
+    supports_vision: true
+    vision_tier: 1
+    vision_note: "Top-tier image understanding, best-in-class context window"
+    cost_input_1m: 1.25
+    cost_output_1m: 10.0
+    max_tokens: 1048576
+  meta-llama/llama-4-scout-17b-16e-instruct:
+    provider: groq
+    model_id: meta-llama/llama-4-scout-17b-16e-instruct
+    supports_vision: true
+    vision_tier: 2
+    vision_note: "Native multimodal, fast via Groq, good for triage tasks"
+    cost_input_1m: 0.11
+    cost_output_1m: 0.34
+    max_tokens: 131072
+feature_assignments:
+  gatekeeper: gemini-2.5-flash
+  estimator: gpt-4o
+  matchmaker: claude-sonnet-4-20250514
+  ledger: meta-llama/llama-4-scout-17b-16e-instruct

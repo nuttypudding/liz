@@ -1,0 +1,26 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The light fixture in my dining room stopped working. I changed the bulb and it still doesn't turn on. When I look up inside the fixture I can see that one of the wires has come loose — it's just hanging there not connected to anything. I don't want to touch it myself.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2025-03-05T18:20:00Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "electrical",
+      "urgency": "low",
+      "recommended_action": "Schedule a licensed electrician to re-secure the loose wire inside the light fixture and restore power. Turn off the circuit breaker for the dining room as a precaution until the repair is completed. This is a straightforward repair with no immediate safety hazard since the fixture is not energizing, but it should be addressed within the week.",
+      "confidence_score": 0.86
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

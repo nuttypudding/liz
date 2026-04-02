@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The washing machine has been shaking violently during the spin cycle for the past few weeks — it literally walks across the floor and I have to hold it in place or it bangs into the wall. The noise is extremely loud, like a jet engine, and my downstairs neighbor has already complained twice. I've tried redistributing laundry loads but it doesn't help.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-06-18T21:15:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-06-18T21:16:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "appliance",
+      "urgency": "medium",
+      "recommended_action": "Send a technician to inspect the washing machine drum bearings, shock absorbers/suspension rods, and leveling feet. Excessive vibration and movement typically indicates worn drum bearings or failed shock absorbers. Confirm the unit is properly leveled and anti-vibration pads are in place to protect the flooring.",
+      "confidence_score": 0.93
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

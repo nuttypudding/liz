@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Three of the interior doors in the apartment have started sticking and one of them won't close at all anymore. The gaps around the door frames look uneven and I can see daylight through a gap at the top corner of the front door frame. This all seemed to happen gradually over the last two months.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-05-30T16:10:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-05-30T16:12:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "structural",
+      "urgency": "medium",
+      "recommended_action": "Schedule a structural inspection within one week to evaluate foundation settlement or framing movement causing the widespread door misalignment. Check for related cracking at wall-ceiling junctions and above door openings. Multiple affected doors simultaneously is a red flag for systemic settlement rather than isolated swelling.",
+      "confidence_score": 0.89
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The washing machine won't drain and I have a full load of wet clothes stuck inside. I ran the spin cycle twice and both times it just left standing water at the bottom. I tried canceling and restarting but nothing helped. The machine is flashing an error code that looks like it says 'E2' but I'm not sure what that means.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-02-11T11:05:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-02-11T11:06:20Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "appliance",
+      "urgency": "medium",
+      "recommended_action": "Send an appliance technician to inspect the drain pump, drain hose, and pump filter for blockages. The E2 error code typically indicates a drain failure. Advise tenant to manually remove standing water using a towel before the visit to prevent mold or mildew.",
+      "confidence_score": 0.92
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The oven completely stopped working this morning. I set it to preheat to 350 and it never got warm — the display shows the temperature going up but when I check inside it's stone cold. The stovetop burners still work fine so it's just the oven part. I have a big family dinner planned for this weekend and I really need this fixed soon.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-12-19T09:15:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-12-19T09:16:30Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "appliance",
+      "urgency": "medium",
+      "recommended_action": "Dispatch an appliance technician to inspect the oven bake element, broil element, and oven temperature sensor. The issue may be a failed heating element or faulty temperature probe — both are typically straightforward repairs. Prioritize scheduling before the weekend given the tenant's timeline.",
+      "confidence_score": 0.93
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

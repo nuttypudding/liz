@@ -1,0 +1,19 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The heat stopped working last night and it's 18 degrees outside. Right now it's 52 degrees in my apartment and dropping. I have a newborn baby and we cannot stay here like this. The thermostat shows it's calling for heat but nothing comes on. Please help as soon as possible.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-01-08T06:45:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-01-08T06:46:30Z"},
+        {"file_url": "photo_03.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-01-08T06:47:15Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "hvac",
+      "urgency": "emergency",
+      "recommended_action": "Dispatch an emergency HVAC technician immediately — indoor temperature is dangerously low with a newborn present. Provide temporary electric space heater as interim relief while diagnosing furnace failure. Check furnace igniter, gas supply, and control board. This may constitute a habitability violation if not resolved within hours.",
+      "confidence_score": 0.99
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

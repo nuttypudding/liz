@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The wooden window frame in the second bedroom is rotting — the wood is soft, discolored, and crumbles a little when I touch it. There's a draft coming in around the edges and I think bugs might be getting in through the soft spots. It looks like water has been collecting on the sill for a long time.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-10-03T13:55:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-10-03T13:57:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "structural",
+      "urgency": "medium",
+      "recommended_action": "Send a carpenter or window contractor within one week to assess the extent of the wood rot in the frame and sill. If rot has spread to the rough framing or structural header above the window opening, escalate scope of repair. Seal air gaps with weatherstripping in the interim to prevent further moisture intrusion and pest entry.",
+      "confidence_score": 0.88
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

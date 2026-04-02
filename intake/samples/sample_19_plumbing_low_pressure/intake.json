@@ -1,0 +1,26 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Water pressure in my apartment has been really weak for about two weeks now. It's bad at every faucet — kitchen, both bathrooms, even the shower feels like a trickle. My neighbor in 3A mentioned their pressure seems fine so I think it might be something specific to my unit. I checked and the shutoff valves under the sinks look fully open. Attaching a video but it just saved as a photo so hopefully you can see the flow rate.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2025-02-28T11:22:09Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "plumbing",
+      "urgency": "medium",
+      "recommended_action": "Schedule a plumbing inspection within the week to check the unit's pressure-reducing valve (PRV) and supply lines for partial blockage or sediment buildup — unit-wide low pressure isolated to one apartment suggests a PRV failure or clogged aerators throughout. The plumber should test pressure at the main shutoff and compare to adjacent units.",
+      "confidence_score": 0.89
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

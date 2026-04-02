@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The trash and recycling area outside the back of the building has been absolutely swarming with flies all summer. Every time I take out my garbage I come back inside with a cloud of them following me in. I've also started seeing small flies in my kitchen near the sink drain. This has been going on for about six weeks and it seems to be getting worse not better.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-07-18T18:30:45Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-07-18T18:31:50Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "pest",
+      "urgency": "medium",
+      "recommended_action": "Inspect and deep clean the trash enclosure area to remove organic buildup that is likely serving as a breeding site, and ensure bins have tight-fitting lids. For the kitchen drain flies, treat the drain with an enzymatic cleaner or biological drain treatment to eliminate the organic film inside pipes. If outdoor fly activity continues, consider installing a residual insecticide treatment or bait stations around the trash area and increasing trash pickup frequency.",
+      "confidence_score": 0.89
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The exterior-facing wall in my bedroom has developed a large wet stain that's getting bigger every time it rains. The drywall feels soft and spongy when I press on it and it looks like the paint is starting to bubble and flake. There's a faint musty smell in the room now. I think water is getting in from outside somehow.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-11-18T08:45:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-11-18T08:47:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "structural",
+      "urgency": "medium",
+      "recommended_action": "Inspect the exterior wall cladding, flashing, and window seals to identify the water intrusion point within 3-5 days. Remove and replace saturated drywall sections and check for mold or structural framing damage behind the wall. Address the exterior waterproofing failure before completing interior repairs.",
+      "confidence_score": 0.93
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

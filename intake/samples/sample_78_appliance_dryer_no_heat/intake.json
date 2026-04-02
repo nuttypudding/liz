@@ -1,0 +1,17 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The dryer runs but it doesn't produce any heat so clothes just tumble around wet for an hour and never dry. I cleaned the lint trap and that didn't fix it. It's been about a week now and I've been hanging clothes around the apartment which is getting really old. Can someone come take a look?",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-11-20T15:30:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "appliance",
+      "urgency": "low",
+      "recommended_action": "Schedule an appliance repair visit to inspect the dryer heating element, thermal fuse, and cycling thermostat. Also check the exhaust vent for blockages which can trigger thermal cutoff. Repair or replace the faulty component as needed.",
+      "confidence_score": 0.91
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

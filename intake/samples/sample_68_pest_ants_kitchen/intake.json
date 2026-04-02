@@ -1,0 +1,17 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "For the past week I've had a steady trail of small black ants coming in through the window sill above the kitchen sink and marching straight to my fruit bowl. I've wiped the trail down a few times and they just find a new path. It's not a huge emergency but it's annoying and kind of gross to find ants in my food. Attaching a photo of the trail.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-03-12T08:20:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "pest",
+      "urgency": "low",
+      "recommended_action": "Apply ant bait gel or bait stations near the entry point along the window sill and advise tenant to store fruit in sealed containers or the refrigerator. If the infestation persists beyond 10-14 days after initial baiting, schedule a professional treatment to locate and treat the colony source. Inspect the exterior window frame for gaps or deteriorated caulk that may need sealing.",
+      "confidence_score": 0.92
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

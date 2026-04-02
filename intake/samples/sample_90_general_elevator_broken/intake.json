@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The elevator has been out of service since yesterday evening with no notice posted. I live on the 8th floor and my mother is visiting — she uses a wheelchair and cannot take the stairs. This is a serious accessibility issue and I need an update on when it will be fixed.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-07-22T09:05:11Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-07-22T09:06:33Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "general",
+      "urgency": "emergency",
+      "recommended_action": "Contact the elevator service contractor immediately to expedite repair, post a notice in the lobby with an estimated restoration time, and proactively reach out to all residents on upper floors — particularly those with mobility needs. Document ADA accommodation steps taken.",
+      "confidence_score": 0.95
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The mosquitoes around the back patio have been terrible this year and I think it's coming from a low spot in the yard that collects standing water after it rains — it stays wet for days. I can't use the patio at all in the evenings anymore and I've been getting bitten inside too when I open the door. Just wanted to flag it so maybe something can be done about the drainage.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-08-29T19:15:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "pest",
+      "urgency": "low",
+      "recommended_action": "Inspect the low-lying area in the yard to evaluate whether grading or a French drain would resolve the standing water issue long term. As an immediate measure, apply mosquito larvicide dunks (Bacillus thuringiensis israelensis) to the standing water to kill larvae without harming other wildlife. Advise tenant to check for other standing water sources such as clogged gutters, flowerpot saucers, or birdbaths on the property.",
+      "confidence_score": 0.86
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

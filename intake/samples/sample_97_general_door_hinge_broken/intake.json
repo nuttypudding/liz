@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The top hinge on my bedroom door is cracked and the door now sags and drags on the floor when I open or close it. It's also starting to scrape a groove into the hardwood floor which I don't want to be responsible for. It's been like this for about 10 days.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-06-28T16:02:37Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-06-28T16:03:15Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "general",
+      "urgency": "low",
+      "recommended_action": "Schedule a maintenance visit to replace the broken hinge and re-hang the door. Inspect the floor for existing damage and document its condition before repair to clarify liability. Straightforward fix requiring basic carpentry tools.",
+      "confidence_score": 0.94
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

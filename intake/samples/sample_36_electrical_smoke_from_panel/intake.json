@@ -1,0 +1,31 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "I just noticed a thin wisp of smoke coming from the electrical panel in my utility closet and there's a faint burnt smell around it. I haven't touched anything. I'm in the apartment right now and not sure if I should leave. Please respond urgently.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2025-01-30T16:55:00Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2025-01-30T16:56:00Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "electrical",
+      "urgency": "emergency",
+      "recommended_action": "Immediately instruct the tenant to evacuate the unit and call 911 — smoke from an electrical panel indicates active arcing or a burning breaker and is a fire emergency. Do not attempt to open or touch the panel. Contact the utility company to request an emergency shutoff if the fire department does not respond within minutes. Dispatch a licensed electrician only after the fire department clears the scene.",
+      "confidence_score": 0.99
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

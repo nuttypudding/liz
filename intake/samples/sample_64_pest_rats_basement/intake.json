@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "There is a large rat in the basement storage area — I actually saw it run across the floor when I went down to grab my bike this morning. It was huge, like the size of a small cat, not a mouse. There are droppings everywhere down there and something has chewed through a cardboard box I had stored. I'm not going back down there until this is handled.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-09-19T09:05:22Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-09-19T09:06:40Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "pest",
+      "urgency": "emergency",
+      "recommended_action": "Contact a licensed rodent exterminator today — rats pose significant health risks through disease transmission and can cause structural damage by gnawing through wiring and plumbing. Inspect the basement for entry points, particularly around utility penetrations and the foundation, and seal any gaps larger than a quarter inch. Place commercial-grade snap traps or bait stations and schedule follow-up within 3-5 days to check activity.",
+      "confidence_score": 0.96
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

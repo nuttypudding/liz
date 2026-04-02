@@ -1,0 +1,31 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Two of the outlets in my living room have just stopped working. They were fine when I moved in six months ago. Nothing is tripped at the breaker panel. The outlets on the opposite wall work fine. I need them for my work-from-home setup so it's affecting me every day.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-04-29T10:45:00Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-04-29T10:46:30Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "electrical",
+      "urgency": "low",
+      "recommended_action": "Schedule an electrician to diagnose the dead outlets. The most common cause is a tripped or faulty GFCI outlet elsewhere on the same circuit that feeds these outlets downstream. The electrician should test all GFCI outlets in the unit and check for loose backstab connections at the non-functioning outlets. Routine repair, schedule within 5–7 business days.",
+      "confidence_score": 0.85
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

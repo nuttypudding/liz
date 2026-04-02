@@ -1,0 +1,19 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "We have absolutely no hot water in the entire apartment. The water heater in the closet has a red warning light on and I can smell something slightly odd near it — not like gas exactly, but a bit musty or chemical-like. My roommate and I both can't shower or wash dishes properly. This started this morning and I really need help today.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-01-15T07:55:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-01-15T07:57:00Z"},
+        {"file_url": "photo_03.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-01-15T07:58:30Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "appliance",
+      "urgency": "emergency",
+      "recommended_action": "Dispatch a technician immediately to inspect the water heater — the warning light combined with an unusual odor may indicate a failing pilot assembly, gas valve issue, or early signs of tank failure. Do not ignore the odor; if gas is suspected, contact the gas company first. Restore hot water service same day if possible.",
+      "confidence_score": 0.96
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

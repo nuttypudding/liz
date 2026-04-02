@@ -1,0 +1,26 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The bathroom sink has been draining really slowly for the past few weeks. Water pools up when I'm brushing my teeth and takes like 5 minutes to go down. I tried one of those drain unclogger things from the store but it didn't really help. The shower drain seems fine. It's not an emergency but it's getting kind of annoying.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-09-04T09:10:00Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "plumbing",
+      "urgency": "low",
+      "recommended_action": "Schedule a routine plumbing visit to snake or clear the bathroom sink drain — a partial clog from hair and soap buildup is the most likely cause, and this is a simple fix. The plumber should also check the P-trap for buildup while on site. No immediate action required.",
+      "confidence_score": 0.94
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The railing on my balcony is very loose and wobbles significantly when I lean against it or grab it. A couple of the vertical balusters have come completely detached from the bottom rail. We're on the third floor so this feels really dangerous and I don't want my kids going out there until it's fixed.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-02-14T10:30:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-02-14T10:32:00Z"},
+        {"file_url": "photo_03.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-02-14T10:34:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "structural",
+      "urgency": "emergency",
+      "recommended_action": "Restrict balcony access immediately — this is a fall hazard requiring same-day attention. Dispatch a contractor to inspect railing post connections, fasteners, and the balcony deck surface for rot or corrosion. Railing must meet local building code load requirements (typically 200 lbs point load) before the area can be reopened to tenants.",
+      "confidence_score": 0.99
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

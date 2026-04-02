@@ -1,0 +1,17 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The smoke detector in the hallway outside my bedroom has been beeping every 30 seconds since around 2am. I tried pressing the test/reset button but it won't stop. It's keeping me and my kids awake and I'm worried there's a real issue with it.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-02-18T06:43:22Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "general",
+      "urgency": "emergency",
+      "recommended_action": "Send maintenance to replace the smoke detector battery or the entire unit same day — a chirping detector may indicate low battery or a failed sensor, both of which must be resolved promptly to ensure life-safety compliance. Verify replacement unit meets local fire code requirements.",
+      "confidence_score": 0.97
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

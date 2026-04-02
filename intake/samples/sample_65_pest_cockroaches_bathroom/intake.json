@@ -1,0 +1,19 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "Cockroaches have shown up in my bathroom and kitchen over the past two weeks and it's getting worse. At first it was just one or two at night but now when I turn the kitchen light on there are multiple scattering across the counter. I also found egg casings behind the toilet. I've tried those gel baits from the hardware store but it doesn't seem to be making a dent.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-06-27T22:11:08Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-06-27T22:12:50Z"},
+        {"file_url": "photo_03.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-06-27T22:14:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "pest",
+      "urgency": "medium",
+      "recommended_action": "Schedule a professional pest control treatment within the week, as the presence of egg casings indicates an established infestation that DIY products are unlikely to resolve. Technician should apply professional-grade gel bait, insect growth regulators, and inspect under appliances, inside wall voids, and plumbing chases. Recommend deep cleaning of kitchen and bathroom to remove food and moisture sources that sustain the colony.",
+      "confidence_score": 0.95
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

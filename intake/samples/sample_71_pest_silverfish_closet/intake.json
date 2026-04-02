@@ -1,0 +1,17 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "I keep finding silverfish in my bedroom closet, usually when I move boxes or pull clothes off the lower shelf. I've seen maybe five or six over the past month, always the same spot. They're gross but I'm not sure if it's a big deal. A few of my old paperback books on the bottom shelf have some yellowing and small holes that I didn't notice before.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-12-09T20:05:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "pest",
+      "urgency": "low",
+      "recommended_action": "Place silverfish sticky traps and desiccant-based pesticide (diatomaceous earth or silica gel) along the closet baseboards, and check the closet for moisture sources such as an exterior-facing wall or plumbing that could be promoting humidity. If the infestation does not decline within 2-3 weeks, schedule a professional treatment. Advise tenant to store books and paper goods in sealed plastic bins to protect them.",
+      "confidence_score": 0.88
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

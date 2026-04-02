@@ -1,0 +1,31 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "My garbage disposal stopped working a few days ago. When I flip the switch it just hums for a second and then nothing — no grinding sound. I tried pressing the reset button on the bottom and it clicks but still won't spin. Also now the sink drains really slow, I think something might be stuck in there. I haven't put anything weird in it, just normal food scraps.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-10-11T12:05:44Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2024-10-11T12:06:30Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "plumbing",
+      "urgency": "medium",
+      "recommended_action": "Schedule a plumbing visit within a few days to inspect the garbage disposal — humming without rotation typically means the grinding plate is jammed or the motor is failing. The plumber should attempt to free the jam with an Allen key first before considering unit replacement. The slow drain should also be cleared during the same visit.",
+      "confidence_score": 0.91
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

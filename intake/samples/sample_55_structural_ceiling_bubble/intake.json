@@ -1,0 +1,17 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "There's a big bubble in my ceiling in the hallway that's filled with water — you can actually see it sagging down and it jiggles when I tap it. It appeared overnight after heavy rain and it's about the size of a basketball. I'm scared it's going to burst and collapse. What should I do?",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-01-09T07:20:00Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "structural",
+      "urgency": "emergency",
+      "recommended_action": "This is an active structural emergency — carefully puncture the bubble with a small hole to relieve pressure and prevent a sudden collapse, then place a bucket underneath. Identify and stop the water source above (roof leak or plumbing) immediately. Have a contractor assess ceiling joist and drywall integrity before the area is used again.",
+      "confidence_score": 0.98
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

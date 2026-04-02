@@ -1,0 +1,17 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "My mailbox door has been broken for about two weeks — the lock is busted so the door just swings open and anyone can access my mail. I've been asking the mail carrier to hold my packages but that's not a long-term solution. Can this be repaired or replaced soon?",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2024-09-19T13:44:02Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "general",
+      "urgency": "medium",
+      "recommended_action": "Repair or replace the mailbox lock within one week to protect tenant mail from unauthorized access. Note that tampering with or leaving mail unsecured may have federal implications — coordinate with USPS if the entire cluster box unit needs replacement.",
+      "confidence_score": 0.89
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "The GFCI outlet in my bathroom keeps tripping every time I use my hair dryer. I reset it and it works for a minute then cuts off again. I tried a different hair dryer and the same thing happens. It's been this way for about a week and it's a real pain getting ready in the morning.",
+      "photo_upload": [
+        {
+          "file_url": "photo_01.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2025-02-06T07:45:00Z"
+        },
+        {
+          "file_url": "photo_02.jpg",
+          "file_type": "image/jpeg",
+          "uploaded_at": "2025-02-06T07:46:00Z"
+        }
+      ]
+    },
+    "ai_output": {
+      "category": "electrical",
+      "urgency": "low",
+      "recommended_action": "Schedule a non-urgent visit from a licensed electrician to test and replace the GFCI outlet. A GFCI that trips repeatedly with multiple appliances typically indicates a worn-out or faulty device rather than a genuine ground fault. Replacement is a straightforward repair and should resolve the issue. No immediate safety hazard, but replace within 1–2 weeks.",
+      "confidence_score": 0.88
+    },
+    "source": {
+      "origin": "synthetic",
+      "subreddit": null,
+      "post_url": null,
+      "post_title": null
+    }
+  }
+}

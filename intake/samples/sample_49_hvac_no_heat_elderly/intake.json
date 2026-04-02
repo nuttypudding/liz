@@ -1,0 +1,18 @@
+{
+  "ai_maintenance_intake": {
+    "input": {
+      "tenant_message": "I am writing on behalf of my mother who lives in unit 4B. She is 78 years old and has no heat since yesterday evening. The temperature outside is in the 20s and inside her apartment it is down to 56 degrees. She has a heart condition and the cold is very hard on her. We need someone there today please.",
+      "photo_upload": [
+        {"file_url": "photo_01.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-01-19T10:05:00Z"},
+        {"file_url": "photo_02.jpg", "file_type": "image/jpeg", "uploaded_at": "2025-01-19T10:06:30Z"}
+      ]
+    },
+    "ai_output": {
+      "category": "hvac",
+      "urgency": "emergency",
+      "recommended_action": "Dispatch emergency HVAC technician immediately — elderly tenant with cardiac condition in below-safe indoor temperatures during freezing outdoor conditions. Provide a temporary electric space heater as a bridge while diagnosing the heating system failure. This is a life-safety situation and potential habitability violation; same-day response is required.",
+      "confidence_score": 0.99
+    },
+    "source": {"origin": "synthetic", "subreddit": null, "post_url": null, "post_title": null}
+  }
+}
