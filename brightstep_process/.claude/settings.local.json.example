@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git reset:*)",
+      "Bash(git status:*)",
+      "Bash(docker:*)",
+      "Bash(docker ps:*)",
+      "Bash(curl:*)",
+      "Bash(ls:*)",
+      "Bash(echo:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(wc:*)",
+      "Bash(jobs:*)",
+      "Bash(set:*)",
+      "Bash(source:*)",
+      "Bash(npm install:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npx:*)",
+      "Bash(python3:*)",
+      "Bash(python3 -m venv:*)",
+      "Bash(.venv/bin/pip install:*)",
+      "Bash(.venv/bin/pip list:*)",
+      "Bash(.venv/bin/python:*)",
+      "Bash(.venv/bin/pytest:*)",
+      "Bash(psql:*)",
+      "Bash(pg_isready:*)",
+      "Bash(redis-cli:*)",
+      "mcp__ide__getDiagnostics"
+    ]
+  }
+}

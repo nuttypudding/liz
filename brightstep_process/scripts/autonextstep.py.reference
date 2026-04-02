@@ -1,0 +1,601 @@
+#!/usr/bin/env python3
+"""Auto-run /nextstep with the correct model tier (Haiku, Sonnet, or Opus).
+
+Reads the backlog, finds the next ready task, detects the model tier
+from the filename prefix, and launches Claude Code with the right --model flag.
+Loops until the backlog is empty or all remaining tasks are blocked.
+
+Each `claude -p` invocation is a SEPARATE session — no conversation history
+or context carries over between tasks. Memory is fully released when each
+claude process exits.
+
+PIVOT SUPPORT:
+  If a task discovers a fundamental blocker, it can trigger a pivot by:
+  1. Creating plan/PIVOT.md with the reason
+  2. Renaming remaining backlog tasks with a pause_ prefix
+  The runner detects plan/PIVOT.md and stops the loop automatically.
+  Use --unpause to resume after addressing the issue.
+
+TOKEN USAGE WARNING:
+  Each task consumes tokens independently. Rough estimates per task:
+    Haiku task:  ~50K-200K tokens  (cheapest model, routine work)
+    Sonnet task: ~75K-300K tokens  (mid-tier model, guided implementation)
+    Opus task:   ~100K-500K+ tokens (most capable model, complex work)
+  On Opus Max 5x plan, monitor your usage at https://console.anthropic.com.
+  Use --haiku-only or --max to control spend.
+
+Usage (from repo root):
+    python scripts/autonextstep.py              # Loop through all ready tasks
+    python scripts/autonextstep.py --once        # Run only the next task, then stop
+    python scripts/autonextstep.py --dry-run     # Show all ready tasks without executing
+    python scripts/autonextstep.py --max 5       # Run at most 5 tasks, then stop
+    python scripts/autonextstep.py --haiku-only  # Skip Opus tasks (save tokens)
+    python scripts/autonextstep.py --final-test  # Run /test-fix-dev after backlog is empty
+    python scripts/autonextstep.py --unpause     # Resume after a pivot
+"""
+
+from __future__ import annotations
+
+import argparse
+import os
+import re
+import subprocess
+import sys
+import time
+import urllib.request
+import urllib.parse
+from datetime import datetime
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+BACKLOG_DIR = REPO_ROOT / "plan" / "Backlog"
+DOING_DIR = REPO_ROOT / "plan" / "Doing"
+COMPLETED_DIRS = REPO_ROOT / "features" / "completed"
+PIVOT_FILE = REPO_ROOT / "plan" / "PIVOT.md"
+
+PUSHOVER_TOKEN = "ahfefqbmiywgyhah4gizmdzre7enta"
+PUSHOVER_USER = "u1xaswoavfko3jjne9aex27vkfg8fv"
+
+
+def send_pushover(title: str, message: str, priority: int = 0) -> bool:
+    """Send a Pushover notification. Returns True on success."""
+    try:
+        data = urllib.parse.urlencode({
+            "token": PUSHOVER_TOKEN,
+            "user": PUSHOVER_USER,
+            "title": title[:50],
+            "message": message[:500],
+            "priority": str(priority),
+        }).encode()
+        req = urllib.request.Request("https://api.pushover.net/1/messages.json", data=data)
+        urllib.request.urlopen(req, timeout=10)
+        return True
+    except Exception as e:
+        print(f"  Pushover notification failed: {e}")
+        return False
+
+
+def get_completed_ids() -> set[str]:
+    """Collect all completed task IDs from features/completed/*/."""
+    ids: set[str] = set()
+    if not COMPLETED_DIRS.exists():
+        return ids
+    for feature_dir in COMPLETED_DIRS.iterdir():
+        if not feature_dir.is_dir():
+            continue
+        for f in feature_dir.iterdir():
+            if f.suffix == ".md" and f.name != "README.md":
+                # Extract leading digits: "049-Haiku-scaffold.md" -> "049"
+                match = re.match(r"^(\d+)", f.name)
+                if match:
+                    ids.add(match.group(1).lstrip("0") or "0")
+    return ids
+
+
+def parse_frontmatter(path: Path) -> dict:
+    """Extract YAML frontmatter fields from a task file."""
+    text = path.read_text()
+    fm: dict = {}
+    in_fm = False
+    for line in text.splitlines():
+        if line.strip() == "---":
+            if in_fm:
+                break
+            in_fm = True
+            continue
+        if in_fm:
+            # Simple key: value parsing (handles strings, arrays, numbers)
+            m = re.match(r'^(\w+):\s*(.+)$', line)
+            if m:
+                key, val = m.group(1), m.group(2).strip()
+                # Parse arrays: ["148", "149"] or [148, 149]
+                if val.startswith("["):
+                    items = re.findall(r'"?(\d+)"?', val)
+                    fm[key] = items
+                else:
+                    fm[key] = val.strip('"').strip("'")
+    return fm
+
+
+def detect_tier(filename: str) -> str | None:
+    """Extract Haiku, Sonnet, or Opus from filename like '155-Haiku-test-groq.md'."""
+    match = re.match(r"^\d+-(\w+)-", filename)
+    if match:
+        tier = match.group(1).lower()
+        if tier in ("haiku", "sonnet", "opus"):
+            return tier
+    return None
+
+
+def check_pivot() -> str | None:
+    """Check for plan/PIVOT.md and return its content, or None if no pivot."""
+    if PIVOT_FILE.exists():
+        return PIVOT_FILE.read_text().strip()
+    return None
+
+
+def check_auth() -> bool:
+    """Return True if claude OAuth session is active, False if logged out."""
+    import json as _json
+    try:
+        result = subprocess.run(
+            ["claude", "auth", "status"],
+            capture_output=True, text=True, timeout=10,
+        )
+        data = _json.loads(result.stdout)
+        return bool(data.get("loggedIn", False))
+    except Exception:
+        return False  # treat parse/timeout errors as logged out
+
+
+def unpause_tasks() -> int:
+    """Remove pause_ prefix from all paused backlog tasks. Returns count."""
+    if not BACKLOG_DIR.exists():
+        return 0
+    count = 0
+    for f in sorted(BACKLOG_DIR.iterdir()):
+        if f.name.startswith("pause_") and f.suffix == ".md":
+            original_name = f.name[len("pause_"):]
+            f.rename(BACKLOG_DIR / original_name)
+            count += 1
+    # Also remove PIVOT.md if it exists
+    if PIVOT_FILE.exists():
+        PIVOT_FILE.unlink()
+        print(f"  Removed {PIVOT_FILE.relative_to(REPO_ROOT)}")
+    return count
+
+
+def find_doing_task() -> Path | None:
+    """Check if there's a task in plan/Doing/ (interrupted work)."""
+    if not DOING_DIR.exists():
+        return None
+    tasks = sorted(
+        f for f in DOING_DIR.iterdir()
+        if f.suffix == ".md" and f.name != "README.md"
+        and not f.name.startswith("pause_")
+    )
+    return tasks[0] if tasks else None
+
+
+def get_all_ready_tasks(completed_ids: set[str]) -> list[Path]:
+    """Find all backlog tasks with dependencies satisfied, sorted by ID."""
+    if not BACKLOG_DIR.exists():
+        return []
+
+    tasks = sorted(
+        f for f in BACKLOG_DIR.iterdir()
+        if f.suffix == ".md" and f.name != "README.md"
+        and not f.name.startswith("pause_")
+        and re.match(r"^\d+", f.name)
+    )
+
+    ready = []
+    for task_path in tasks:
+        fm = parse_frontmatter(task_path)
+        deps = fm.get("depends_on", [])
+
+        # Check if all dependencies are completed
+        all_satisfied = all((dep.lstrip("0") or "0") in completed_ids for dep in deps)
+        if all_satisfied:
+            ready.append(task_path)
+
+    return ready
+
+
+def find_next_backlog_task(
+    completed_ids: set[str],
+    skip: set[str] | None = None,
+    tier_filter: str | None = None,
+) -> Path | None:
+    """Find the lowest-numbered ready backlog task.
+
+    Args:
+        completed_ids: Set of completed task ID strings.
+        skip: Task ID strings to skip (used in dry-run mode).
+        tier_filter: If set, only return tasks matching this tier ("haiku" or "opus").
+    """
+    skip = skip or set()
+    for task_path in get_all_ready_tasks(completed_ids):
+        match = re.match(r"^(\d+)", task_path.name)
+        if not match or match.group(1) in skip:
+            continue
+        if tier_filter:
+            tier = detect_tier(task_path.name)
+            if tier != tier_filter:
+                continue
+        return task_path
+    return None
+
+
+def pick_next_task(
+    skip: set[str] | None = None,
+    tier_filter: str | None = None,
+) -> tuple[Path | None, str]:
+    """Find the next task to run. Returns (path, source_label) or (None, reason)."""
+    # Priority 1: Interrupted work in plan/Doing/
+    doing_task = find_doing_task()
+    if doing_task:
+        # Still respect tier filter for doing tasks
+        if tier_filter:
+            tier = detect_tier(doing_task.name)
+            if tier != tier_filter:
+                # Don't skip doing tasks silently — warn the user
+                return None, (
+                    f"Task in plan/Doing/ is {tier} but --{tier_filter}-only is set. "
+                    f"Finish or move it manually: {doing_task.name}"
+                )
+        return doing_task, "plan/Doing (resuming interrupted work)"
+
+    # Priority 2: Next ready backlog task
+    completed_ids = get_completed_ids()
+    backlog_task = find_next_backlog_task(completed_ids, skip=skip, tier_filter=tier_filter)
+    if backlog_task:
+        return backlog_task, "plan/Backlog"
+
+    filter_msg = f" (filtered to {tier_filter} only)" if tier_filter else ""
+    return None, f"No ready tasks{filter_msg} — backlog empty or all blocked"
+
+
+def run_task(
+    task_path: Path,
+    source: str,
+    *,
+    dry_run: bool = False,
+    force_model: str | None = None,
+) -> int:
+    """Run a single task. Returns the process exit code (0 = success)."""
+    tier = detect_tier(task_path.name)
+    if not tier:
+        print(f"  Could not detect tier from filename: {task_path.name}")
+        print("  Expected format: NNN-{Haiku|Sonnet|Opus}-slug.md")
+        return 1
+
+    # Override tier if --force-model is set
+    model = force_model if force_model else tier
+
+    fm = parse_frontmatter(task_path)
+    task_id = fm.get("id", "?")
+    title = fm.get("title", task_path.stem)
+
+    print(f"  Task:     #{task_id} — {title}")
+    print(f"  Source:   {source}")
+    if force_model:
+        print(f"  Model:    {model} (forced, file says {tier})")
+    else:
+        print(f"  Model:    {model}")
+    print(f"  File:     {task_path.relative_to(REPO_ROOT)}")
+
+    cmd = [
+        "claude",
+        "--model", model,
+        "--dangerously-skip-permissions",
+        "-p", "/nextstep",
+    ]
+
+    print(f"  Command:  {' '.join(cmd)}")
+    print()
+
+    if dry_run:
+        return 0
+
+    os.chdir(REPO_ROOT)
+    result = subprocess.run(cmd)
+    return result.returncode
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Auto-run /nextstep with the correct model tier. "
+        "Loops until the backlog is empty or all tasks are blocked.",
+        epilog=(
+            "TOKEN USAGE: Each task is a separate claude session (no memory "
+            "carries over). Rough cost per task: Haiku ~50K-200K tokens, "
+            "Sonnet ~75K-300K tokens, Opus ~100K-500K+ tokens. "
+            "Use --haiku-only, --sonnet-only, or --max to control spend."
+        ),
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show all ready tasks without executing.",
+    )
+    parser.add_argument(
+        "--once",
+        action="store_true",
+        help="Run only the next task, then stop (no loop).",
+    )
+    parser.add_argument(
+        "--max",
+        type=int,
+        default=0,
+        metavar="N",
+        help="Run at most N tasks, then stop. 0 = unlimited (default).",
+    )
+    parser.add_argument(
+        "--haiku-only",
+        action="store_true",
+        help="Only run Haiku-tier tasks. Skip Sonnet and Opus tasks to save tokens.",
+    )
+    parser.add_argument(
+        "--sonnet-only",
+        action="store_true",
+        help="Only run Sonnet-tier tasks. Skip Haiku and Opus tasks.",
+    )
+    parser.add_argument(
+        "--opus-only",
+        action="store_true",
+        help="Only run Opus-tier tasks. Skip Haiku and Sonnet tasks.",
+    )
+    parser.add_argument(
+        "--stop-on-failure",
+        action="store_true",
+        help="Stop the loop if a task exits with non-zero code.",
+    )
+    parser.add_argument(
+        "--pause",
+        type=int,
+        default=0,
+        metavar="SECS",
+        help="Pause N seconds between tasks (default: 0). "
+        "Useful to check usage at console.anthropic.com between runs.",
+    )
+    parser.add_argument(
+        "--unpause",
+        action="store_true",
+        help="Remove pause_ prefix from all paused tasks and delete PIVOT.md, then exit.",
+    )
+    parser.add_argument(
+        "--force-model",
+        type=str,
+        default=None,
+        metavar="MODEL",
+        help="Override the model tier for ALL tasks (e.g., --force-model opus). "
+        "Ignores the Haiku/Sonnet/Opus prefix in filenames and runs everything with this model.",
+    )
+    parser.add_argument(
+        "--final-test",
+        action="store_true",
+        help="After all backlog tasks complete, run /test-fix-dev as a comprehensive "
+        "final QA sweep. Recommended for overnight runs.",
+    )
+    parser.add_argument(
+        "--final-test-model",
+        type=str,
+        default="sonnet",
+        metavar="MODEL",
+        help="Model to use for the final /test-fix-dev run (default: sonnet).",
+    )
+    parser.add_argument(
+        "--notify",
+        action="store_true",
+        help="Send a Pushover notification when the run finishes (success or failure).",
+    )
+    args = parser.parse_args()
+
+    # Handle --unpause immediately and exit
+    if args.unpause:
+        count = unpause_tasks()
+        if count > 0:
+            print(f"Unpaused {count} task(s) in plan/Backlog/.")
+        else:
+            print("No paused tasks found.")
+        sys.exit(0)
+
+    tier_only_flags = [args.haiku_only, args.sonnet_only, args.opus_only]
+    if sum(tier_only_flags) > 1:
+        print("Error: --haiku-only, --sonnet-only, and --opus-only are mutually exclusive.")
+        sys.exit(1)
+
+    tier_filter = None
+    if args.haiku_only:
+        tier_filter = "haiku"
+    elif args.sonnet_only:
+        tier_filter = "sonnet"
+    elif args.opus_only:
+        tier_filter = "opus"
+
+    tasks_run = 0
+    tasks_failed = 0
+    max_tasks = args.max if args.max > 0 else float("inf")
+    start_time = time.time()
+    processed_ids: set[str] = set()  # Track IDs we've already handled (for dry-run)
+
+    mode_parts = []
+    if args.dry_run:
+        mode_parts.append("dry run")
+    elif args.once:
+        mode_parts.append("once")
+    elif args.max:
+        mode_parts.append(f"loop (max {args.max})")
+    else:
+        mode_parts.append("loop until done")
+    if tier_filter:
+        mode_parts.append(f"{tier_filter} only")
+    if args.force_model:
+        mode_parts.append(f"force model: {args.force_model}")
+    if args.final_test:
+        mode_parts.append(f"final /test-fix-dev ({args.final_test_model})")
+    if args.notify:
+        mode_parts.append("pushover notify")
+
+    print("=" * 60)
+    print("  BrightStep.AI — Auto Next Step Runner")
+    print(f"  Mode:    {', '.join(mode_parts)}")
+    print(f"  Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    if not args.dry_run:
+        print()
+        print("  Each task is a separate session (no memory carries over).")
+        print("  Monitor usage: https://console.anthropic.com")
+    print("=" * 60)
+    print()
+
+    # Check for existing pivot before starting
+    pivot_msg = check_pivot()
+    if pivot_msg and not args.dry_run:
+        print("!" * 60)
+        print("  PIVOT DETECTED — a previous task triggered a pivot.")
+        print("!" * 60)
+        print()
+        print(pivot_msg)
+        print()
+        print("  To resume: python scripts/autonextstep.py --unpause")
+        print()
+        sys.exit(2)
+
+    while tasks_run < max_tasks:
+        # In dry-run mode, skip tasks we've already printed (they don't move)
+        skip = processed_ids if args.dry_run else None
+        task_path, source = pick_next_task(skip=skip, tier_filter=tier_filter)
+
+        if task_path is None:
+            print(f"Stopping: {source}")
+            break
+
+        # Track this task's ID so dry-run doesn't re-pick it
+        match = re.match(r"^(\d+)", task_path.name)
+        if match:
+            processed_ids.add(match.group(1))
+
+        iteration = tasks_run + 1
+        print(f"--- Task {iteration} {'(dry run) ' if args.dry_run else ''}---")
+
+        # Auth check before each task — bail early rather than waste an Opus session
+        if not args.dry_run and not check_auth():
+            print("  ⚠️  AUTH EXPIRED — claude OAuth session is not active.")
+            print("  Run: claude auth login")
+            print("  Then restart: python scripts/autonextstep.py")
+            break
+
+        exit_code = run_task(
+            task_path, source, dry_run=args.dry_run, force_model=args.force_model
+        )
+        tasks_run += 1
+
+        if exit_code != 0:
+            tasks_failed += 1
+            print(f"  Task exited with code {exit_code}")
+            if args.stop_on_failure:
+                print("Stopping: --stop-on-failure is set")
+                break
+            print("  Continuing to next task...")
+            print()
+
+        # Check if the task triggered a pivot
+        if not args.dry_run:
+            pivot_msg = check_pivot()
+            if pivot_msg:
+                print()
+                print("!" * 60)
+                print("  PIVOT TRIGGERED by task execution")
+                print("!" * 60)
+                print()
+                print(pivot_msg)
+                print()
+                print("  Remaining backlog tasks have been paused (pause_ prefix).")
+                print("  To resume: python scripts/autonextstep.py --unpause")
+                break
+
+        if args.once:
+            break
+
+        if not args.dry_run and task_path is not None:
+            pause = max(args.pause, 2)  # Minimum 2s for filesystem settle
+            if args.pause > 2:
+                print(f"  Pausing {args.pause}s before next task (--pause)...")
+            print()
+            time.sleep(pause)
+
+    # Final test sweep
+    final_test_exit = None
+    if args.final_test and tasks_run > 0 and tasks_failed == 0:
+        # Only run final test if we actually completed tasks without failures
+        pivot_msg = check_pivot()
+        if not pivot_msg:
+            print()
+            print("=" * 60)
+            print("  FINAL TEST SWEEP — /test-fix-dev")
+            print(f"  Model: {args.final_test_model}")
+            print("=" * 60)
+            print()
+
+            final_cmd = [
+                "claude",
+                "--model", args.final_test_model,
+                "--dangerously-skip-permissions",
+                "-p", "/test-fix-dev",
+            ]
+            print(f"  Command: {' '.join(final_cmd)}")
+            print()
+
+            if not args.dry_run:
+                os.chdir(REPO_ROOT)
+                result = subprocess.run(final_cmd)
+                final_test_exit = result.returncode
+                if final_test_exit != 0:
+                    print(f"  /test-fix-dev exited with code {final_test_exit}")
+            else:
+                print("  (dry run — skipping)")
+                final_test_exit = 0
+    elif args.final_test and tasks_failed > 0:
+        print()
+        print("  Skipping /test-fix-dev — task failures occurred during run.")
+    elif args.final_test and tasks_run == 0:
+        print()
+        print("  Skipping /test-fix-dev — no tasks were run.")
+
+    # Summary
+    elapsed = time.time() - start_time
+    print()
+    print("=" * 60)
+    print(f"  Done. {tasks_run} task(s) processed, {tasks_failed} failed.")
+    if final_test_exit is not None:
+        status = "PASSED" if final_test_exit == 0 else "FAILED"
+        print(f"  Final test sweep: {status}")
+    print(f"  Elapsed: {elapsed / 60:.1f} minutes")
+    print("=" * 60)
+
+    # Pushover notification
+    if args.notify and not args.dry_run:
+        if tasks_failed == 0 and (final_test_exit is None or final_test_exit == 0):
+            send_pushover(
+                "BrightStep: Run Complete",
+                f"{tasks_run} tasks done, 0 failed. "
+                f"{'Final QA passed. ' if final_test_exit == 0 else ''}"
+                f"Elapsed: {elapsed / 60:.1f}min.",
+                priority=-1,
+            )
+        else:
+            send_pushover(
+                "BrightStep: Run Needs Attention",
+                f"{tasks_run} tasks, {tasks_failed} failed. "
+                f"{'Final QA failed. ' if final_test_exit and final_test_exit != 0 else ''}"
+                f"Check terminal.",
+                priority=1,
+            )
+
+    overall_failed = tasks_failed > 0 or (final_test_exit is not None and final_test_exit != 0)
+    sys.exit(1 if overall_failed else 0)
+
+
+if __name__ == "__main__":
+    main()
