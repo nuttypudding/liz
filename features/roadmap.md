@@ -6,8 +6,9 @@ Feature plans live at `features/planned/P{phase}-{seq}-{name}/README.md` (planne
 
 | ID | Feature | Status | Ticket | Notes |
 |----|---------|--------|--------|-------|
-| P1-001 | AI Maintenance Intake MVP | IN PROGRESS | T-001 | "The Core Four" — Gatekeeper, Estimator, Matchmaker, Ledger. Tasks 001–015 (4 Haiku, 9 Sonnet, 2 Opus). UI scaffolding [DONE], backend wiring [TODO]. |
+| P1-001 | AI Maintenance Intake MVP | COMPLETE | T-001 | "The Core Four" — Gatekeeper, Estimator, Matchmaker, Ledger. 15 tasks complete. Merged PR #1. |
 | P1-002 | Clerk Auth | PLANNED | — | Authentication, roles (landlord/tenant), subscription billing |
+| P1-003 | Landlord Onboarding & Decision Profile | COMPLETE | T-002 | Tasks 016–024 (3 Haiku, 4 Sonnet, 2 Opus). Risk appetite, delegation mode, auto-approve thresholds, vendor preferences. 5-step onboarding wizard with property/tenant/vendor collection. |
 
 ## Phase 2
 
