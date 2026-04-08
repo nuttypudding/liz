@@ -13,6 +13,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SheetFooter } from "@/components/ui/sheet";
+import { PhoneInput } from "@/components/ui/phone-input";
+import { CustomFields } from "@/components/ui/custom-fields";
 import type { Vendor } from "@/lib/types";
 
 const SPECIALTIES = [
@@ -27,12 +29,21 @@ const SPECIALTIES = [
 
 type Specialty = (typeof SPECIALTIES)[number]["value"];
 
-interface VendorFormData {
+const RANK_OPTIONS = [
+  { value: "0", label: "Unranked" },
+  { value: "1", label: "1st — Preferred" },
+  { value: "2", label: "2nd" },
+  { value: "3", label: "3rd" },
+] as const;
+
+export interface VendorFormData {
   name: string;
   phone: string;
   email: string;
-  specialty: Specialty;
+  specialty: string;
   notes: string;
+  priority_rank: number;
+  custom_fields: Record<string, string>;
 }
 
 interface VendorFormProps {
@@ -48,6 +59,8 @@ export function VendorForm({ initialData, onSave, onCancel }: VendorFormProps) {
     email: initialData?.email ?? "",
     specialty: (initialData?.specialty as Specialty) ?? "general",
     notes: initialData?.notes ?? "",
+    priority_rank: initialData?.priority_rank ?? 0,
+    custom_fields: initialData?.custom_fields ?? {},
   });
 
   function handleSubmit(e: React.FormEvent) {
@@ -71,12 +84,10 @@ export function VendorForm({ initialData, onSave, onCancel }: VendorFormProps) {
 
       <div className="space-y-1.5">
         <Label htmlFor="vendor-phone">Phone</Label>
-        <Input
+        <PhoneInput
           id="vendor-phone"
-          type="tel"
           value={form.phone}
-          onChange={(e) => setForm({ ...form, phone: e.target.value })}
-          placeholder="512-555-1001"
+          onValueChange={(digits) => setForm({ ...form, phone: digits })}
           className="min-h-11"
         />
       </div>
@@ -93,23 +104,46 @@ export function VendorForm({ initialData, onSave, onCancel }: VendorFormProps) {
         />
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="vendor-specialty">Specialty</Label>
-        <Select
-          value={form.specialty}
-          onValueChange={(v) => setForm({ ...form, specialty: v as Specialty })}
-        >
-          <SelectTrigger id="vendor-specialty" className="w-full min-h-11">
-            <SelectValue placeholder="Select specialty" />
-          </SelectTrigger>
-          <SelectContent>
-            {SPECIALTIES.map((s) => (
-              <SelectItem key={s.value} value={s.value}>
-                {s.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="vendor-specialty">Specialty</Label>
+          <Select
+            value={form.specialty}
+            onValueChange={(v) => setForm({ ...form, specialty: v as Specialty })}
+          >
+            <SelectTrigger id="vendor-specialty" className="w-full min-h-11">
+              <SelectValue placeholder="Select specialty" />
+            </SelectTrigger>
+            <SelectContent>
+              {SPECIALTIES.map((s) => (
+                <SelectItem key={s.value} value={s.value}>
+                  {s.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="vendor-rank">Rank</Label>
+          <Select
+            value={String(form.priority_rank)}
+            onValueChange={(v) =>
+              setForm({ ...form, priority_rank: parseInt(v, 10) })
+            }
+          >
+            <SelectTrigger id="vendor-rank" className="w-full min-h-11">
+              <SelectValue placeholder="Select rank" />
+            </SelectTrigger>
+            <SelectContent>
+              {RANK_OPTIONS.map((r) => (
+                <SelectItem key={r.value} value={r.value}>
+                  {r.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="space-y-1.5">
@@ -121,6 +155,14 @@ export function VendorForm({ initialData, onSave, onCancel }: VendorFormProps) {
           placeholder="Ask for Dave, usually available same-day..."
           rows={3}
           className="resize-none"
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label>Custom Fields</Label>
+        <CustomFields
+          value={form.custom_fields}
+          onChange={(fields) => setForm({ ...form, custom_fields: fields })}
         />
       </div>
 
