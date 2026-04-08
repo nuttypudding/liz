@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PropertyForm } from "@/components/forms/property-form";
-import { TenantForm } from "@/components/forms/tenant-form";
+import { TenantForm, type TenantFormData } from "@/components/forms/tenant-form";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -128,17 +128,22 @@ export default function PropertiesPage() {
     }
   }
 
-  async function handleSaveTenant(data: {
-    name: string;
-    email: string;
-    phone: string;
-    unit_number: string;
-  }) {
+  async function handleSaveTenant(data: TenantFormData) {
+    const payload = {
+      name: data.name,
+      email: data.email,
+      phone: data.phone || null,
+      move_in_date: data.move_in_date || null,
+      lease_type: data.lease_type || null,
+      rent_due_day: data.rent_due_day ? Number(data.rent_due_day) : null,
+      custom_fields: Object.keys(data.custom_fields).length > 0 ? data.custom_fields : null,
+    };
+
     if (sheetMode?.type === "add-tenant") {
       const res = await fetch(`/api/properties/${sheetMode.propertyId}/tenants`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         toast.success("Tenant added");
@@ -150,7 +155,7 @@ export default function PropertiesPage() {
       const res = await fetch(`/api/tenants/${sheetMode.tenant.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         toast.success("Tenant updated");
