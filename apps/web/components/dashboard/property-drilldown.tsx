@@ -19,6 +19,7 @@ import {
   TabsContent,
 } from "@/components/ui/tabs";
 import { WorkOrderHistory } from "@/components/dashboard/work-order-history";
+import { DrilldownTenantList } from "@/components/dashboard/drilldown-tenant-list";
 import type { Property } from "@/lib/types";
 
 type DrillDownTab = "overview" | "work-orders" | "tenants" | "documents" | "photos";
@@ -26,9 +27,10 @@ type DrillDownTab = "overview" | "work-orders" | "tenants" | "documents" | "phot
 interface PropertyDrillDownProps {
   propertyId: string;
   property: Property;
+  onRefresh?: () => void;
 }
 
-export function PropertyDrillDown({ propertyId, property }: PropertyDrillDownProps) {
+export function PropertyDrillDown({ propertyId, property, onRefresh }: PropertyDrillDownProps) {
   const [activeTab, setActiveTab] = useState<DrillDownTab>("overview");
 
   const tenantCount = property.tenants?.length ?? 0;
@@ -80,7 +82,11 @@ export function PropertyDrillDown({ propertyId, property }: PropertyDrillDownPro
         </TabsContent>
 
         <TabsContent value="tenants" className="mt-4">
-          <TenantsPlaceholder />
+          <DrilldownTenantList
+            propertyId={propertyId}
+            tenants={property.tenants ?? []}
+            onRefresh={onRefresh ?? (() => {})}
+          />
         </TabsContent>
 
         <TabsContent value="documents" className="mt-4">
@@ -165,29 +171,6 @@ function OverviewPlaceholder() {
 }
 
 
-function TenantsPlaceholder() {
-  return (
-    <div className="space-y-3">
-      {[0, 1].map((i) => (
-        <Card key={i}>
-          <CardContent className="p-4">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <Skeleton className="h-5 w-32" />
-                <Skeleton className="h-4 w-48" />
-                <Skeleton className="h-4 w-40" />
-              </div>
-              <div className="flex gap-2">
-                <Skeleton className="h-8 w-16" />
-                <Skeleton className="h-8 w-8" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
-}
 
 function DocumentsPlaceholder() {
   return (
