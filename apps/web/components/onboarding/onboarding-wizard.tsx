@@ -18,6 +18,7 @@ import {
   Users,
   Wrench,
   Pencil,
+  ChevronDown,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,11 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { CustomFields } from "@/components/ui/custom-fields";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
 import { ComboNote } from "@/components/onboarding/combo-note";
 import { OptionCard } from "@/components/onboarding/option-card";
 
@@ -69,6 +75,8 @@ interface TenantEntry {
   phone: string;
   move_in_date: string;
   lease_type: string;
+  lease_start_date: string;
+  lease_end_date: string;
   rent_due_day: string;
   custom_fields: Record<string, string>;
 }
@@ -113,9 +121,20 @@ const EMPTY_TENANT: TenantEntry = {
   phone: "",
   move_in_date: "",
   lease_type: "",
+  lease_start_date: "",
+  lease_end_date: "",
   rent_due_day: "",
   custom_fields: {},
 };
+
+const RENT_DUE_DAYS = Array.from({ length: 28 }, (_, i) => {
+  const day = i + 1;
+  const suffix =
+    day === 1 || day === 21 ? "st" :
+    day === 2 || day === 22 ? "nd" :
+    day === 3 || day === 23 ? "rd" : "th";
+  return { value: String(day), label: `${day}${suffix}` };
+});
 
 const EMPTY_VENDOR: VendorEntry = {
   name: "",
@@ -172,6 +191,7 @@ export function OnboardingWizard() {
     ...EMPTY_TENANT,
   });
   const [tenantDraftError, setTenantDraftError] = useState("");
+  const [tenantLeaseOpen, setTenantLeaseOpen] = useState(false);
 
   // Step 4: Vendors
   const [vendors, setVendors] = useState<VendorEntry[]>([]);
@@ -215,10 +235,14 @@ export function OnboardingWizard() {
       setTenantDraftError("Tenant name is required");
       return;
     }
-    setTenants((prev) => [...prev, { ...tenantDraft }]);
+    // Clear lease_end_date if month-to-month
+    const entry = { ...tenantDraft };
+    if (entry.lease_type === "month_to_month") entry.lease_end_date = "";
+    setTenants((prev) => [...prev, entry]);
     setTenantDraft({ ...EMPTY_TENANT });
     setShowTenantForm(false);
     setTenantDraftError("");
+    setTenantLeaseOpen(false);
   }
 
   function removeTenant(index: number) {
@@ -314,6 +338,8 @@ export function OnboardingWizard() {
             phone: t.phone.trim() || undefined,
             move_in_date: t.move_in_date || undefined,
             lease_type: t.lease_type || undefined,
+            lease_start_date: t.lease_start_date || undefined,
+            lease_end_date: t.lease_end_date || undefined,
             rent_due_day: t.rent_due_day
               ? parseInt(t.rent_due_day, 10)
               : undefined,
@@ -670,6 +696,8 @@ export function OnboardingWizard() {
                             : t.lease_type === "month_to_month"
                               ? "Month to Month"
                               : null,
+                          t.lease_start_date &&
+                            `from ${new Date(t.lease_start_date + "T00:00:00").toLocaleDateString("en-US", { month: "short", year: "numeric" })}`,
                           t.rent_due_day && `Due day ${t.rent_due_day}`,
                         ]
                           .filter(Boolean)
@@ -740,63 +768,118 @@ export function OnboardingWizard() {
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="tenant-move-in">Move-in date</Label>
-                    <Input
-                      id="tenant-move-in"
-                      type="date"
-                      value={tenantDraft.move_in_date}
-                      onChange={(e) =>
-                        setTenantDraft((d) => ({
-                          ...d,
-                          move_in_date: e.target.value,
-                        }))
-                      }
+                <Collapsible open={tenantLeaseOpen} onOpenChange={setTenantLeaseOpen}>
+                  <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-accent transition-colors">
+                    <ChevronDown
+                      className={`h-4 w-4 shrink-0 transition-transform duration-200 ${tenantLeaseOpen ? "rotate-0" : "-rotate-90"}`}
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="tenant-lease-type">Lease type</Label>
-                    <Select
-                      value={tenantDraft.lease_type}
-                      onValueChange={(val) =>
-                        setTenantDraft((d) => ({
-                          ...d,
-                          lease_type: val ?? "",
-                        }))
-                      }
-                    >
-                      <SelectTrigger id="tenant-lease-type">
-                        <SelectValue placeholder="Optional" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="yearly">Yearly</SelectItem>
-                        <SelectItem value="month_to_month">
-                          Month to Month
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="tenant-rent-due">Rent due day</Label>
-                    <Input
-                      id="tenant-rent-due"
-                      type="number"
-                      min={1}
-                      max={31}
-                      placeholder="1–31"
-                      value={tenantDraft.rent_due_day}
-                      onChange={(e) =>
-                        setTenantDraft((d) => ({
-                          ...d,
-                          rent_due_day: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                </div>
+                    <span>Lease Details</span>
+                    <span className="text-xs text-muted-foreground/70">(optional)</span>
+                  </CollapsibleTrigger>
+
+                  <CollapsibleContent className="mt-3 space-y-3">
+                    <p className="text-xs text-muted-foreground">
+                      You can add lease details now or later from the Properties page.
+                    </p>
+
+                    {/* Lease type — full width */}
+                    <div className="space-y-1.5">
+                      <Label htmlFor="tenant-lease-type">Lease Type</Label>
+                      <Select
+                        value={tenantDraft.lease_type}
+                        onValueChange={(val) =>
+                          setTenantDraft((d) => ({
+                            ...d,
+                            lease_type: val ?? "",
+                          }))
+                        }
+                      >
+                        <SelectTrigger id="tenant-lease-type">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="yearly">Yearly</SelectItem>
+                          <SelectItem value="month_to_month">Month to Month</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Lease start + end dates */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="tenant-lease-start">Lease Start</Label>
+                        <Input
+                          id="tenant-lease-start"
+                          type="date"
+                          value={tenantDraft.lease_start_date}
+                          onChange={(e) =>
+                            setTenantDraft((d) => ({
+                              ...d,
+                              lease_start_date: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      {tenantDraft.lease_type !== "month_to_month" && (
+                        <div className="space-y-1.5">
+                          <Label htmlFor="tenant-lease-end">Lease End</Label>
+                          <Input
+                            id="tenant-lease-end"
+                            type="date"
+                            value={tenantDraft.lease_end_date}
+                            onChange={(e) =>
+                              setTenantDraft((d) => ({
+                                ...d,
+                                lease_end_date: e.target.value,
+                              }))
+                            }
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Rent due day + Move-in date */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="tenant-rent-due">Rent Due Day</Label>
+                        <Select
+                          value={tenantDraft.rent_due_day}
+                          onValueChange={(val) =>
+                            setTenantDraft((d) => ({
+                              ...d,
+                              rent_due_day: val ?? "",
+                            }))
+                          }
+                        >
+                          <SelectTrigger id="tenant-rent-due">
+                            <SelectValue placeholder="Select day" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {RENT_DUE_DAYS.map((d) => (
+                              <SelectItem key={d.value} value={d.value}>
+                                {d.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="tenant-move-in">Move-in Date</Label>
+                        <Input
+                          id="tenant-move-in"
+                          type="date"
+                          value={tenantDraft.move_in_date}
+                          onChange={(e) =>
+                            setTenantDraft((d) => ({
+                              ...d,
+                              move_in_date: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
                 <CustomFields
                   value={tenantDraft.custom_fields}
                   onChange={(fields) =>
@@ -814,6 +897,7 @@ export function OnboardingWizard() {
                       setShowTenantForm(false);
                       setTenantDraft({ ...EMPTY_TENANT });
                       setTenantDraftError("");
+                      setTenantLeaseOpen(false);
                     }}
                   >
                     Cancel
@@ -1191,14 +1275,24 @@ export function OnboardingWizard() {
               ) : (
                 <ul className="space-y-1">
                   {tenants.map((t, i) => {
-                    const details = [
-                      t.move_in_date &&
-                        `moved in ${new Date(t.move_in_date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`,
+                    const fmtDate = (d: string) =>
+                      new Date(d + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+                    const leaseLabel =
                       t.lease_type === "yearly"
                         ? "Yearly"
                         : t.lease_type === "month_to_month"
                           ? "Month to Month"
-                          : null,
+                          : null;
+                    const leaseDates =
+                      t.lease_start_date && t.lease_end_date
+                        ? `${fmtDate(t.lease_start_date)} – ${fmtDate(t.lease_end_date)}`
+                        : t.lease_start_date
+                          ? `from ${fmtDate(t.lease_start_date)}`
+                          : null;
+                    const details = [
+                      t.move_in_date && `moved in ${fmtDate(t.move_in_date)}`,
+                      leaseLabel,
+                      leaseDates,
                       t.rent_due_day && `due day ${t.rent_due_day}`,
                     ].filter(Boolean);
                     const cfCount = Object.keys(t.custom_fields).length;
