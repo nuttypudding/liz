@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Building2, CalendarDays, ChevronDown, Pencil, Phone, Mail, Plus, Trash2, User } from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Building2, CalendarDays, ChevronDown, FileText, Pencil, Phone, Mail, Plus, Trash2, Upload, User } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -33,8 +33,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { DocumentUploader } from "@/components/documents/document-uploader";
+import { DocumentGallery } from "@/components/documents/document-gallery";
+import { DocumentPreviewDialog } from "@/components/documents/document-preview-dialog";
 import { cn } from "@/lib/utils";
-import type { Property, Tenant } from "@/lib/types";
+import type { Property, Tenant, Document as LizDocument } from "@/lib/types";
 
 function getLeaseStatus(leaseEndDate: string | null): {
   label: string;
@@ -71,6 +74,7 @@ type SheetMode =
   | { type: "edit-property"; property: Property }
   | { type: "add-tenant"; propertyId: string }
   | { type: "edit-tenant"; propertyId: string; tenant: Tenant }
+  | { type: "property-documents"; property: Property }
   | null;
 
 export default function PropertiesPage() {
@@ -80,6 +84,9 @@ export default function PropertiesPage() {
     new Set()
   );
   const [sheetMode, setSheetMode] = useState<SheetMode>(null);
+  const [documentCounts, setDocumentCounts] = useState<Record<string, number>>({});
+  const [galleryKey, setGalleryKey] = useState(0);
+  const [previewDocument, setPreviewDocument] = useState<LizDocument | null>(null);
 
   const fetchProperties = useCallback(async () => {
     try {
@@ -98,6 +105,40 @@ export default function PropertiesPage() {
   useEffect(() => {
     fetchProperties();
   }, [fetchProperties]);
+
+  // Fetch document counts when property list changes
+  const propertyIds = useMemo(
+    () => properties.map((p) => p.id).sort().join(","),
+    [properties]
+  );
+
+  useEffect(() => {
+    if (!propertyIds) return;
+    let cancelled = false;
+    const ids = propertyIds.split(",");
+
+    Promise.all(
+      ids.map(async (id) => {
+        try {
+          const r = await fetch(`/api/properties/${id}/documents`);
+          if (r.ok) {
+            const d = await r.json();
+            return [id, (d.documents ?? []).length] as const;
+          }
+        } catch {}
+        return [id, 0] as const;
+      })
+    ).then((results) => {
+      if (cancelled) return;
+      const counts: Record<string, number> = {};
+      for (const [id, count] of results) counts[id] = count;
+      setDocumentCounts(counts);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [propertyIds]);
 
   function toggleCollapsible(id: string) {
     setOpenCollapsibles((prev) => {
@@ -211,6 +252,34 @@ export default function PropertiesPage() {
     }
   }
 
+  async function refreshDocumentCount(propertyId: string) {
+    try {
+      const r = await fetch(`/api/properties/${propertyId}/documents`);
+      if (r.ok) {
+        const d = await r.json();
+        setDocumentCounts((prev) => ({
+          ...prev,
+          [propertyId]: (d.documents ?? []).length,
+        }));
+      }
+    } catch {}
+  }
+
+  function handleUploadComplete() {
+    if (sheetMode?.type === "property-documents") {
+      setGalleryKey((k) => k + 1);
+      refreshDocumentCount(sheetMode.property.id);
+    }
+  }
+
+  function handleSheetClose() {
+    if (sheetMode?.type === "property-documents") {
+      refreshDocumentCount(sheetMode.property.id);
+      setPreviewDocument(null);
+    }
+    setSheetMode(null);
+  }
+
   const sheetTitle =
     sheetMode?.type === "add-property"
       ? "Add Property"
@@ -220,7 +289,9 @@ export default function PropertiesPage() {
           ? "Add Tenant"
           : sheetMode?.type === "edit-tenant"
             ? "Edit Tenant"
-            : "";
+            : sheetMode?.type === "property-documents"
+              ? `Documents \u2014 ${sheetMode.property.name}`
+              : "";
 
   if (loading) {
     return (
@@ -332,7 +403,23 @@ export default function PropertiesPage() {
                   </div>
                 </CardHeader>
 
-                <CardContent className="px-4 pb-4">
+                <CardContent className="px-4 pb-4 space-y-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start min-h-9 -mx-1 px-1 gap-1.5"
+                    onClick={() =>
+                      setSheetMode({
+                        type: "property-documents",
+                        property,
+                      })
+                    }
+                  >
+                    <FileText className="size-3.5 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      Documents ({documentCounts[property.id] ?? 0})
+                    </span>
+                  </Button>
                   <Collapsible
                     open={isOpen}
                     onOpenChange={() => toggleCollapsible(property.id)}
@@ -493,8 +580,11 @@ export default function PropertiesPage() {
         </div>
       )}
 
-      <Sheet open={sheetMode !== null} onOpenChange={(open) => { if (!open) setSheetMode(null); }}>
-        <SheetContent side="right">
+      <Sheet open={sheetMode !== null} onOpenChange={(open) => { if (!open) handleSheetClose(); }}>
+        <SheetContent
+          side="right"
+          className={sheetMode?.type === "property-documents" ? "data-[side=right]:sm:max-w-2xl" : undefined}
+        >
           <SheetHeader>
             <SheetTitle>{sheetTitle}</SheetTitle>
           </SheetHeader>
@@ -520,8 +610,44 @@ export default function PropertiesPage() {
               onCancel={() => setSheetMode(null)}
             />
           )}
+          {sheetMode?.type === "property-documents" && (
+            <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-6">
+              <Collapsible>
+                <CollapsibleTrigger
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    "group w-full justify-between min-h-9"
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <Upload className="size-4" />
+                    Upload New Document
+                  </span>
+                  <ChevronDown className="size-4 text-muted-foreground transition-transform group-data-[panel-open]:rotate-180" />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-3">
+                  <DocumentUploader
+                    propertyId={sheetMode.property.id}
+                    tenants={sheetMode.property.tenants ?? []}
+                    onUploadComplete={handleUploadComplete}
+                  />
+                </CollapsibleContent>
+              </Collapsible>
+              <DocumentGallery
+                key={galleryKey}
+                propertyId={sheetMode.property.id}
+                onPreview={(doc) => setPreviewDocument(doc)}
+              />
+            </div>
+          )}
         </SheetContent>
       </Sheet>
+
+      <DocumentPreviewDialog
+        document={previewDocument}
+        open={previewDocument !== null}
+        onClose={() => setPreviewDocument(null)}
+      />
     </div>
   );
 }
