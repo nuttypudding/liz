@@ -39,6 +39,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { ComboNote } from "@/components/onboarding/combo-note";
 import { OptionCard } from "@/components/onboarding/option-card";
 
 type RiskAppetite = "cost_first" | "balanced" | "speed_first";
@@ -355,7 +356,7 @@ export function OnboardingWizard() {
         <Card>
           <CardHeader>
             <CardTitle>
-              Welcome to Liz! How should your AI prioritize?
+              Welcome to Liz! How should your Agent prioritize?
             </CardTitle>
             <CardDescription>
               This affects how we rank urgency and pick vendors.
@@ -388,7 +389,7 @@ export function OnboardingWizard() {
 
             <div className="pt-1 space-y-3">
               <p className="text-sm font-medium">
-                How much should Liz handle on her own?
+                How much should your agent handle on its own?
               </p>
               <OptionCard
                 icon={ShieldCheck}
@@ -440,7 +441,16 @@ export function OnboardingWizard() {
                 badgeVariant="outline"
                 disabled
               />
+              <p className="text-xs text-muted-foreground ml-13 -mt-1">
+                When available, you&apos;ll set a maximum spending amount per
+                job.
+              </p>
             </div>
+
+            <ComboNote
+              riskAppetite={riskAppetite}
+              delegationMode={delegationMode}
+            />
 
             <Button
               onClick={() => setStep(2)}
