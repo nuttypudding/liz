@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 
     const role = await getRole();
     const { searchParams } = new URL(request.url);
-    const propertyFilter = searchParams.get("property");
+    const propertyFilter = searchParams.get("propertyId") ?? searchParams.get("property");
     const urgencyFilter = searchParams.get("urgency");
     const statusFilter = searchParams.get("status");
 

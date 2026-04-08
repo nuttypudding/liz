@@ -1,9 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth();
     if (!userId) {
@@ -11,14 +11,28 @@ export async function GET() {
     }
 
     const supabase = createServerSupabaseClient();
+    const { searchParams } = new URL(request.url);
+    const propertyId = searchParams.get("propertyId");
 
-    // Get landlord's properties
-    const { data: properties } = await supabase
-      .from("properties")
-      .select("id")
-      .eq("landlord_id", userId);
+    let propertyIds: string[];
 
-    const propertyIds = (properties ?? []).map((p: { id: string }) => p.id);
+    if (propertyId) {
+      // Verify landlord owns this property
+      const { data: prop } = await supabase
+        .from("properties")
+        .select("id")
+        .eq("id", propertyId)
+        .eq("landlord_id", userId)
+        .single();
+      propertyIds = prop ? [prop.id] : [];
+    } else {
+      // Get all landlord's properties
+      const { data: properties } = await supabase
+        .from("properties")
+        .select("id")
+        .eq("landlord_id", userId);
+      propertyIds = (properties ?? []).map((p: { id: string }) => p.id);
+    }
 
     if (propertyIds.length === 0) {
       return NextResponse.json({
