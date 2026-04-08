@@ -36,6 +36,7 @@ import {
 import { DocumentUploader } from "@/components/documents/document-uploader";
 import { DocumentGallery } from "@/components/documents/document-gallery";
 import { DocumentPreviewDialog } from "@/components/documents/document-preview-dialog";
+import { UtilitySetupSheet } from "@/components/properties/utility-setup-sheet";
 import { cn } from "@/lib/utils";
 import type { Property, Tenant, Document as LizDocument } from "@/lib/types";
 
@@ -84,6 +85,7 @@ export default function PropertiesPage() {
     new Set()
   );
   const [sheetMode, setSheetMode] = useState<SheetMode>(null);
+  const [utilitySheet, setUtilitySheet] = useState<{ propertyId: string; address: string } | null>(null);
   const [documentCounts, setDocumentCounts] = useState<Record<string, number>>({});
   const [galleryKey, setGalleryKey] = useState(0);
   const [previewDocument, setPreviewDocument] = useState<LizDocument | null>(null);
@@ -166,8 +168,24 @@ export default function PropertiesPage() {
         body: JSON.stringify(data),
       });
       if (res.ok) {
-        toast.success("Property added");
+        const { property: newProperty } = await res.json();
         await fetchProperties();
+        setSheetMode(null);
+        toast.success("Property added!", {
+          description: "Would you like to auto-detect utility providers?",
+          action: {
+            label: "Auto-Detect",
+            onClick: () => {
+              if (newProperty) {
+                setUtilitySheet({
+                  propertyId: newProperty.id,
+                  address: newProperty.address ?? "",
+                });
+              }
+            },
+          },
+        });
+        return;
       } else {
         toast.error("Failed to add property");
       }
@@ -648,6 +666,17 @@ export default function PropertiesPage() {
         open={previewDocument !== null}
         onClose={() => setPreviewDocument(null)}
       />
+
+      {utilitySheet && (
+        <UtilitySetupSheet
+          propertyId={utilitySheet.propertyId}
+          address={utilitySheet.address}
+          existingUtilities={[]}
+          open={true}
+          onClose={() => setUtilitySheet(null)}
+          onSave={() => setUtilitySheet(null)}
+        />
+      )}
     </div>
   );
 }
