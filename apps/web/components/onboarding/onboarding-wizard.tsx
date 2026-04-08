@@ -417,7 +417,8 @@ export function OnboardingWizard() {
                   <Slider
                     value={[maxAutoApprove]}
                     onValueChange={(value) => {
-                      if (Array.isArray(value)) setMaxAutoApprove(value[0]);
+                      const newVal = typeof value === "number" ? value : value[0];
+                      setMaxAutoApprove(newVal);
                     }}
                     min={50}
                     max={500}

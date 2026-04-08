@@ -217,10 +217,9 @@ export default function SettingsPage() {
                     <Slider
                       value={[maxAutoApprove]}
                       onValueChange={(value) => {
-                        if (Array.isArray(value)) {
-                          setMaxAutoApprove(value[0]);
-                          markDirty();
-                        }
+                        const newVal = typeof value === "number" ? value : value[0];
+                        setMaxAutoApprove(newVal);
+                        markDirty();
                       }}
                       min={50}
                       max={500}
