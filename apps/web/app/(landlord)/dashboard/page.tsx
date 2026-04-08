@@ -11,7 +11,8 @@ import { PropertySelectorBar } from "@/components/dashboard/property-selector-ba
 import { PropertyDrillDown, PropertyDrillDownSkeleton } from "@/components/dashboard/property-drilldown";
 import { RequestCard } from "@/components/requests/request-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Property, DashboardStats, SpendChartItem, MaintenanceRequest } from "@/lib/types";
+import { LatePaymentBanner } from "@/components/dashboard/late-payment-banner";
+import type { Property, DashboardStats, SpendChartItem, MaintenanceRequest, RentStatus } from "@/lib/types";
 
 function DashboardContent() {
   const router = useRouter();
@@ -22,6 +23,7 @@ function DashboardContent() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [chartData, setChartData] = useState<SpendChartItem[]>([]);
   const [recentRequests, setRecentRequests] = useState<MaintenanceRequest[]>([]);
+  const [rentStatuses, setRentStatuses] = useState<RentStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [showOnboardingBanner, setShowOnboardingBanner] = useState(false);
 
@@ -48,9 +50,23 @@ function DashboardContent() {
         }
       }
 
+      let props: Property[] = [];
       if (propertiesRes.ok) {
-        const { properties: props } = await propertiesRes.json();
-        setProperties(props ?? []);
+        const json = await propertiesRes.json();
+        props = json.properties ?? [];
+        setProperties(props);
+      }
+
+      // Fetch rent statuses for all properties (for aggregate LatePaymentBanner)
+      if (props.length > 0) {
+        const statusResults = await Promise.all(
+          props.map((p) =>
+            fetch(`/api/properties/${p.id}/rent-status`)
+              .then((r) => (r.ok ? r.json() : null))
+              .catch(() => null)
+          )
+        );
+        setRentStatuses(statusResults.filter(Boolean) as RentStatus[]);
       }
 
       if (statsRes.ok) {
@@ -129,6 +145,13 @@ function DashboardContent() {
       {effectivePropertyId === null ? (
         <>
           {showOnboardingBanner && <OnboardingBanner />}
+          <LatePaymentBanner
+            rentStatuses={rentStatuses}
+            onReview={() => {
+              const firstOverdue = rentStatuses.find((s) => s.is_overdue);
+              if (firstOverdue) handlePropertySelect(firstOverdue.property_id);
+            }}
+          />
           <EmergencyAlertBanner count={stats?.emergency_count ?? 0} />
           <SectionCards
             emergencyCount={stats?.emergency_count ?? 0}
@@ -158,7 +181,7 @@ function DashboardContent() {
           </div>
         </>
       ) : selectedProperty ? (
-        <PropertyDrillDown propertyId={effectivePropertyId} property={selectedProperty} />
+        <PropertyDrillDown propertyId={effectivePropertyId} property={selectedProperty} onRefresh={fetchData} />
       ) : (
         <PropertyDrillDownSkeleton />
       )}
