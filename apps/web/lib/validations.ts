@@ -12,6 +12,7 @@ export const propertySchema = z.object({
   apt_or_unit_no: z.string().max(50).optional().or(z.literal("")),
   unit_count: z.number().int().min(1).max(999).default(1),
   monthly_rent: z.number().min(0).optional(),
+  rent_due_day: z.number().int().min(1).max(28).default(1),
 });
 
 export const tenantSchema = z.object({
