@@ -36,22 +36,27 @@ export function PropertySelectorBar({
 }: PropertySelectorBarProps) {
   if (loading) {
     return (
-      <div className="flex gap-3 overflow-hidden">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-[76px] w-20 shrink-0 rounded-xl" />
-        ))}
-      </div>
+      <>
+        {/* Mobile skeleton: single dropdown placeholder */}
+        <Skeleton className="h-10 w-full rounded-md sm:hidden" />
+        {/* Desktop skeleton: row of icon placeholders */}
+        <div className="hidden sm:flex gap-3 overflow-hidden">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-[68px] w-16 shrink-0 rounded-xl lg:h-[76px] lg:w-20" />
+          ))}
+        </div>
+      </>
     );
   }
 
   return (
     <>
-      {/* Desktop (lg+): Horizontal scroll with house icons */}
-      <div className="hidden lg:block">
+      {/* Tablet/Desktop (sm+): Horizontal scroll with house icons */}
+      <div className="hidden sm:block">
         <ScrollArea className="w-full">
           <div className="flex gap-2 pb-3">
             <PropertyIconButton
-              icon={<LayoutGrid className="size-6" />}
+              icon={<LayoutGrid className="size-5 lg:size-6" />}
               label="All"
               tooltipLabel="All Properties"
               selected={selectedPropertyId === null}
@@ -60,7 +65,7 @@ export function PropertySelectorBar({
             {properties.map((property) => (
               <PropertyIconButton
                 key={property.id}
-                icon={<Home className="size-6" />}
+                icon={<Home className="size-5 lg:size-6" />}
                 label={property.name}
                 tooltipLabel={property.name}
                 tooltipDetail={property.address}
@@ -73,8 +78,8 @@ export function PropertySelectorBar({
         </ScrollArea>
       </div>
 
-      {/* Mobile (< lg): Select dropdown */}
-      <div className="lg:hidden">
+      {/* Mobile (< sm): Select dropdown */}
+      <div className="sm:hidden">
         <Select
           value={selectedPropertyId ?? ALL_VALUE}
           onValueChange={(v) => onSelect(v === ALL_VALUE ? null : v)}
@@ -129,7 +134,7 @@ function PropertyIconButton({
         <TooltipTrigger
           onClick={onClick}
           className={cn(
-            "flex w-20 shrink-0 flex-col items-center gap-1.5 rounded-xl border p-3 transition-colors cursor-pointer",
+            "flex w-16 shrink-0 flex-col items-center gap-1.5 rounded-xl border p-2.5 transition-colors cursor-pointer lg:w-20 lg:p-3",
             selected
               ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
               : "border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground"

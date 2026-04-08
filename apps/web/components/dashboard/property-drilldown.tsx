@@ -134,24 +134,24 @@ export function PropertyDrillDown({ propertyId, property, onRefresh }: PropertyD
         onValueChange={(value) => setActiveTab(value as DrillDownTab)}
       >
         <div className="overflow-x-auto -mx-1 px-1">
-          <TabsList variant="line" className="w-full justify-start gap-0">
-            <TabsTrigger value="overview" className="gap-1.5 px-3 text-xs sm:text-sm">
+          <TabsList variant="line" className="w-max min-w-full justify-start gap-0">
+            <TabsTrigger value="overview" className="gap-1.5 px-3 text-xs sm:text-sm min-h-11 sm:min-h-0">
               <Building2 className="size-4 hidden sm:block" />
               Overview
             </TabsTrigger>
-            <TabsTrigger value="work-orders" className="gap-1.5 px-3 text-xs sm:text-sm">
+            <TabsTrigger value="work-orders" className="gap-1.5 px-3 text-xs sm:text-sm min-h-11 sm:min-h-0">
               <ClipboardList className="size-4 hidden sm:block" />
               Work Orders
             </TabsTrigger>
-            <TabsTrigger value="tenants" className="gap-1.5 px-3 text-xs sm:text-sm">
+            <TabsTrigger value="tenants" className="gap-1.5 px-3 text-xs sm:text-sm min-h-11 sm:min-h-0">
               <Users className="size-4 hidden sm:block" />
               Tenants
             </TabsTrigger>
-            <TabsTrigger value="documents" className="gap-1.5 px-3 text-xs sm:text-sm">
+            <TabsTrigger value="documents" className="gap-1.5 px-3 text-xs sm:text-sm min-h-11 sm:min-h-0">
               <FileText className="size-4 hidden sm:block" />
               Documents
             </TabsTrigger>
-            <TabsTrigger value="photos" className="gap-1.5 px-3 text-xs sm:text-sm">
+            <TabsTrigger value="photos" className="gap-1.5 px-3 text-xs sm:text-sm min-h-11 sm:min-h-0">
               <ImageIcon className="size-4 hidden sm:block" />
               Photos
             </TabsTrigger>

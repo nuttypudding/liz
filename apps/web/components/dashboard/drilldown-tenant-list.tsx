@@ -200,7 +200,7 @@ function TenantCard({
           <Button
             variant="ghost"
             size="sm"
-            className="min-h-9"
+            className="min-h-11 min-w-11"
             onClick={onEdit}
           >
             <Pencil className="size-3.5" />
@@ -210,7 +210,7 @@ function TenantCard({
             <AlertDialogTrigger
               className={cn(
                 buttonVariants({ variant: "ghost", size: "sm" }),
-                "min-h-9 text-destructive hover:text-destructive"
+                "min-h-11 min-w-11 text-destructive hover:text-destructive"
               )}
             >
               <Trash2 className="size-3.5" />

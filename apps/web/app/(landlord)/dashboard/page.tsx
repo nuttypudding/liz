@@ -119,7 +119,7 @@ function DashboardContent() {
           onSelect={() => {}}
           loading
         />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[0, 1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-24" />
           ))}
@@ -196,7 +196,7 @@ export default function DashboardPage() {
         <div className="space-y-6">
           <PageHeader title="Dashboard" />
           <Skeleton className="h-[76px] w-full" />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[0, 1, 2, 3].map((i) => (
               <Skeleton key={i} className="h-24" />
             ))}

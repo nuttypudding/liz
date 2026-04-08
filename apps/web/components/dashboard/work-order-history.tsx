@@ -97,8 +97,8 @@ export function WorkOrderHistory({ propertyId }: WorkOrderHistoryProps) {
 
   return (
     <div className="space-y-4">
-      {/* Desktop table */}
-      <div className="hidden lg:block">
+      {/* Table view (md+) with horizontal scroll on tablet */}
+      <div className="hidden md:block overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -140,8 +140,8 @@ export function WorkOrderHistory({ propertyId }: WorkOrderHistoryProps) {
         </Table>
       </div>
 
-      {/* Mobile card list */}
-      <div className="space-y-3 lg:hidden">
+      {/* Mobile card list (< md) */}
+      <div className="space-y-3 md:hidden">
         {orders.map((order) => (
           <RequestCard
             key={order.id}
