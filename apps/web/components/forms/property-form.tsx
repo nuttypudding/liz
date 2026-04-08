@@ -10,6 +10,7 @@ import type { Property } from "@/lib/types";
 interface PropertyFormData {
   name: string;
   address: string;
+  apt_or_unit_no: string;
   unit_count: number;
   monthly_rent: number;
 }
@@ -28,6 +29,7 @@ export function PropertyForm({
   const [form, setForm] = useState<PropertyFormData>({
     name: initialData?.name ?? "",
     address: initialData?.address ?? "",
+    apt_or_unit_no: initialData?.apt_or_unit_no ?? "",
     unit_count: initialData?.unit_count ?? 1,
     monthly_rent: initialData?.monthly_rent ?? 0,
   });
@@ -59,6 +61,19 @@ export function PropertyForm({
           onChange={(e) => setForm({ ...form, address: e.target.value })}
           placeholder="123 Oak Street, Austin TX 78701"
           required
+          className="min-h-11"
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="prop-apt-unit">Apt or Unit No.</Label>
+        <Input
+          id="prop-apt-unit"
+          value={form.apt_or_unit_no}
+          onChange={(e) =>
+            setForm({ ...form, apt_or_unit_no: e.target.value })
+          }
+          placeholder="e.g. Suite 200, Unit B"
           className="min-h-11"
         />
       </div>

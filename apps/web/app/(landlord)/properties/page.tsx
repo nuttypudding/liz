@@ -84,6 +84,7 @@ export default function PropertiesPage() {
   async function handleSaveProperty(data: {
     name: string;
     address: string;
+    apt_or_unit_no: string;
     unit_count: number;
     monthly_rent: number;
   }) {
@@ -246,6 +247,7 @@ export default function PropertiesPage() {
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {property.address}
+                        {property.apt_or_unit_no && ` — ${property.apt_or_unit_no}`}
                       </p>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
