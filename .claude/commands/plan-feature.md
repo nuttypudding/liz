@@ -4,9 +4,13 @@ Feature name: `$ARGUMENTS`
 
 If no name provided, ask the user.
 
-## Feature Plan Naming Convention
+## Feature Plan Naming Conventions
 
-Feature plans use a **phase + sequence** naming scheme that maps directly to `features/roadmap.md`:
+Two naming schemes exist, both mapping to `features/roadmap.md`:
+
+### 1. Planned Features (pre-roadmap)
+
+For features designed during upfront planning:
 
 ```
 features/planned/P{phase}-{seq:03d}-{kebab-name}/README.md
@@ -17,10 +21,25 @@ Examples:
 - `features/planned/P1-002-clerk-auth/README.md`
 - `features/planned/P2-001-rent-reminder/README.md`
 
-To determine the next ID:
+### 2. Ticket-Driven Features (reactive work)
+
+For bug fixes, product feedback, or enhancements within an existing phase:
+
+```
+features/planned/P{phase}-Tkt-{seq:03d}-{kebab-name}/README.md
+```
+
+Examples:
+- `features/planned/P1-Tkt-001-mvp-ux-overhaul/README.md`
+- `features/planned/P2-Tkt-001-rent-edge-cases/README.md`
+
+Use the `Tkt` convention when the feature originated from a ticket, bug report, or product review rather than upfront roadmap planning.
+
+### To determine the next ID:
 1. Read `features/roadmap.md` to identify which phase this feature belongs to
-2. Scan `features/planned/` for existing `P{phase}-*` directories
-3. Use the next sequence number for that phase
+2. Determine if this is a planned feature or ticket-driven work
+3. Scan `features/planned/` for existing `P{phase}-*` or `P{phase}-Tkt-*` directories
+4. Use the next sequence number for the appropriate convention
 
 ## Workflow
 

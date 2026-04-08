@@ -1,0 +1,149 @@
+---
+id: 025
+title: Database migration — all new tables and column additions
+tier: Haiku
+depends_on: []
+feature: P1-Tkt-001-mvp-ux-overhaul
+---
+
+# 025 — Database Migration: All New Tables and Column Additions
+
+## Objective
+
+Create a single Supabase migration that adds all new tables (`rent_payments`, `documents`, `property_utilities`) and extends existing tables (`properties`, `tenants`, `vendors`) with columns needed across all 4 work streams.
+
+## Context
+
+This batches all schema changes from the consolidated MVP UX Overhaul to avoid migration conflicts between work streams. See:
+- `features/inprogress/P1-Tkt-001-mvp-ux-overhaul/onboarding-ux-refinements.md` — Data Model section
+- `features/inprogress/P1-Tkt-001-mvp-ux-overhaul/property-centric-dashboard.md` — Data Model section
+- `features/inprogress/P1-Tkt-001-mvp-ux-overhaul/lease-document-management.md` — Data Model section
+- `features/inprogress/P1-Tkt-001-mvp-ux-overhaul/utility-company-integration.md` — Data Model section
+
+Existing migrations at `apps/web/supabase/migrations/`. Follow the timestamp naming convention.
+
+## Implementation
+
+1. Create migration file: `apps/web/supabase/migrations/YYYYMMDDHHMMSS_mvp_ux_overhaul.sql`
+
+2. **Extend `properties` table**:
+```sql
+alter table properties
+  add column apt_or_unit_no text,
+  add column rent_due_day int not null default 1;
+
+alter table properties
+  add constraint chk_rent_due_day check (rent_due_day >= 1 and rent_due_day <= 28);
+```
+
+3. **Extend `tenants` table**:
+```sql
+alter table tenants
+  add column move_in_date date,
+  add column lease_type text,
+  add column lease_start_date date,
+  add column lease_end_date date,
+  add column rent_due_day int,
+  add column custom_fields jsonb default '{}';
+
+alter table tenants
+  add constraint tenants_rent_due_day_check
+  check (rent_due_day is null or (rent_due_day >= 1 and rent_due_day <= 28));
+
+alter table tenants
+  add constraint tenants_lease_type_check
+  check (lease_type is null or lease_type in ('yearly', 'month_to_month'));
+```
+
+4. **Extend `vendors` table**:
+```sql
+alter table vendors
+  add column custom_fields jsonb default '{}';
+```
+
+5. **Create `rent_payments` table**:
+```sql
+create table rent_payments (
+  id uuid primary key default gen_random_uuid(),
+  property_id uuid references properties not null,
+  tenant_id uuid references tenants,
+  amount decimal(10,2) not null,
+  paid_at timestamptz not null,
+  period_start date not null,
+  period_end date not null,
+  notes text,
+  created_at timestamptz default now()
+);
+
+create index idx_rent_payments_property on rent_payments(property_id);
+create index idx_rent_payments_paid_at on rent_payments(property_id, paid_at desc);
+```
+
+6. **Create `documents` table + storage bucket**:
+```sql
+create table documents (
+  id uuid primary key default gen_random_uuid(),
+  property_id uuid references properties not null,
+  tenant_id uuid references tenants,
+  landlord_id text not null,
+  document_type text not null,
+  storage_path text not null,
+  file_name text not null,
+  file_type text not null,
+  file_size int not null,
+  description text,
+  uploaded_at timestamptz default now()
+);
+
+create index idx_documents_property_id on documents(property_id);
+create index idx_documents_property_type on documents(property_id, document_type);
+create index idx_documents_tenant_id on documents(tenant_id);
+
+alter table documents
+  add constraint documents_type_check
+  check (document_type in ('lease', 'receipt', 'inspection_move_in', 'inspection_move_out', 'property_photo', 'other'));
+
+insert into storage.buckets (id, name, public)
+values ('property-documents', 'property-documents', false);
+```
+
+7. **Create `property_utilities` table**:
+```sql
+create table property_utilities (
+  id uuid primary key default gen_random_uuid(),
+  property_id uuid references properties not null,
+  utility_type text not null,
+  provider_name text,
+  provider_phone text,
+  provider_website text,
+  account_number text,
+  confirmation_status text not null default 'ai_suggested',
+  ai_confidence text,
+  notes text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now(),
+  unique(property_id, utility_type)
+);
+
+create index idx_property_utilities_property on property_utilities(property_id);
+
+create trigger set_updated_at_property_utilities
+  before update on property_utilities
+  for each row execute function update_updated_at();
+```
+
+8. Run `supabase db reset` locally to verify migration applies cleanly.
+
+## Acceptance Criteria
+
+1. [ ] Verify correct model tier (Haiku)
+2. [ ] Migration file created with correct timestamp naming
+3. [ ] `properties` table has `apt_or_unit_no` and `rent_due_day` columns
+4. [ ] `tenants` table has all lease fields + `custom_fields`
+5. [ ] `vendors` table has `custom_fields`
+6. [ ] `rent_payments` table created with indexes
+7. [ ] `documents` table created with indexes and constraints
+8. [ ] `property-documents` storage bucket created (private)
+9. [ ] `property_utilities` table created with unique constraint and trigger
+10. [ ] `supabase db reset` runs cleanly with no errors
+11. [ ] All constraints and checks validated

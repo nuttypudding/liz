@@ -90,6 +90,21 @@ fix/*       ────●──●──>                   (bug fixes)
 
 Branch naming: `feature/T-NNN-name` or `fix/T-NNN-name`.
 
+## Feature Naming Conventions
+
+Two naming conventions exist for feature plans:
+
+| Convention | Pattern | Use When |
+|------------|---------|----------|
+| **Planned** | `P{phase}-{seq}-{name}` | Pre-roadmap features designed during planning (e.g., `P1-002-clerk-auth`, `P2-001-rent-reminder`) |
+| **Ticket-driven** | `P{phase}-Tkt-{seq}-{name}` | Reactive work within an existing phase — bug fixes, product feedback, enhancements (e.g., `P1-Tkt-001-mvp-ux-overhaul`) |
+
+Both live in `features/planned/` (or `features/inprogress/` when active). The `Tkt` convention signals work that originated from a ticket, bug report, or product review rather than upfront roadmap planning.
+
+**When to use `Tkt`**: Any feature or bug fix that responds to feedback on an existing phase. If Liz (product owner) reviews Phase 1 and requests changes, those become `P1-Tkt-{seq}`. If a bug is found in production Phase 1 code, the fix becomes `P1-Tkt-{seq}`.
+
+**When to use sequential**: Planned roadmap features designed before implementation begins (`P1-001`, `P2-001`, etc.).
+
 ## Repository Structure
 
 ```
