@@ -54,6 +54,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | PUT | `/api/properties/[id]` | Update a property |
 | DELETE | `/api/properties/[id]` | Delete a property |
 | POST | `/api/properties/[id]/tenants` | Add tenant to property |
+| GET | `/api/properties/[id]/rent-status` | Rent status for a property (overdue, last paid) |
 | GET | `/api/tenants/[id]` | Get single tenant |
 | PUT | `/api/tenants/[id]` | Update a tenant |
 | DELETE | `/api/tenants/[id]` | Delete a tenant |
