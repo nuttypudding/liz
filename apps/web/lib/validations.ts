@@ -24,7 +24,7 @@ export const tenantSchema = z.object({
   lease_type: z.enum(["yearly", "month_to_month"]).optional().nullable(),
   lease_start_date: z.string().optional().nullable(),
   lease_end_date: z.string().optional().nullable(),
-  rent_due_day: z.number().int().min(1).max(31).optional().nullable(),
+  rent_due_day: z.number().int().min(1).max(28).optional().nullable(),
   custom_fields: z.record(z.string(), z.string()).optional(),
 });
 

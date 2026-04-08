@@ -51,6 +51,8 @@ export function DrilldownTenantList({
       phone: data.phone || null,
       move_in_date: data.move_in_date || null,
       lease_type: data.lease_type || null,
+      lease_start_date: data.lease_start_date || null,
+      lease_end_date: data.lease_end_date || null,
       rent_due_day: data.rent_due_day ? Number(data.rent_due_day) : null,
       custom_fields:
         Object.keys(data.custom_fields).length > 0 ? data.custom_fields : null,
