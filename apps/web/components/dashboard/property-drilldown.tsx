@@ -18,6 +18,7 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/components/ui/tabs";
+import { WorkOrderHistory } from "@/components/dashboard/work-order-history";
 import type { Property } from "@/lib/types";
 
 type DrillDownTab = "overview" | "work-orders" | "tenants" | "documents" | "photos";
@@ -75,7 +76,7 @@ export function PropertyDrillDown({ propertyId, property }: PropertyDrillDownPro
         </TabsContent>
 
         <TabsContent value="work-orders" className="mt-4">
-          <WorkOrdersPlaceholder />
+          <WorkOrderHistory propertyId={propertyId} />
         </TabsContent>
 
         <TabsContent value="tenants" className="mt-4">
@@ -163,20 +164,6 @@ function OverviewPlaceholder() {
   );
 }
 
-function WorkOrdersPlaceholder() {
-  return (
-    <Card>
-      <CardContent className="p-4">
-        <p className="text-sm text-muted-foreground">Work Order History</p>
-        <div className="mt-2 space-y-2">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-12 w-full" />
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
 
 function TenantsPlaceholder() {
   return (

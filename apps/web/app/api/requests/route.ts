@@ -16,6 +16,8 @@ export async function GET(request: NextRequest) {
     const propertyFilter = searchParams.get("propertyId") ?? searchParams.get("property");
     const urgencyFilter = searchParams.get("urgency");
     const statusFilter = searchParams.get("status");
+    const limitParam = searchParams.get("limit");
+    const offsetParam = searchParams.get("offset");
 
     const supabase = createServerSupabaseClient();
 
@@ -72,6 +74,14 @@ export async function GET(request: NextRequest) {
     }
     if (statusFilter) {
       query = query.eq("status", statusFilter);
+    }
+
+    if (limitParam) {
+      const limit = parseInt(limitParam, 10);
+      const offset = offsetParam ? parseInt(offsetParam, 10) : 0;
+      if (!isNaN(limit) && limit > 0) {
+        query = query.range(offset, offset + limit - 1);
+      }
     }
 
     const { data, error } = await query;
