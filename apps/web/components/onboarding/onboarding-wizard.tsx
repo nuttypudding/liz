@@ -90,7 +90,7 @@ const DEFAULTS = {
 };
 
 const STEP_LABELS = [
-  "AI Preferences",
+  "Agent Preferences",
   "Property",
   "Tenants",
   "Vendors",
@@ -1076,10 +1076,10 @@ export function OnboardingWizard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* AI Preferences summary */}
+            {/* Agent Preferences summary */}
             <div className="rounded-lg border bg-muted/30 p-4 space-y-2">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium">AI Preferences</p>
+                <p className="text-sm font-medium">Agent Preferences</p>
                 <button
                   type="button"
                   onClick={() => setStep(1)}
@@ -1190,26 +1190,36 @@ export function OnboardingWizard() {
                 </p>
               ) : (
                 <ul className="space-y-1">
-                  {tenants.map((t, i) => (
-                    <li key={i} className="text-sm">
-                      {t.name}
-                      {(t.lease_type || t.rent_due_day) && (
-                        <span className="text-muted-foreground">
-                          {" — "}
-                          {[
-                            t.lease_type === "yearly"
-                              ? "Yearly"
-                              : t.lease_type === "month_to_month"
-                                ? "Month to Month"
-                                : null,
-                            t.rent_due_day && `due day ${t.rent_due_day}`,
-                          ]
-                            .filter(Boolean)
-                            .join(", ")}
-                        </span>
-                      )}
-                    </li>
-                  ))}
+                  {tenants.map((t, i) => {
+                    const details = [
+                      t.move_in_date &&
+                        `moved in ${new Date(t.move_in_date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`,
+                      t.lease_type === "yearly"
+                        ? "Yearly"
+                        : t.lease_type === "month_to_month"
+                          ? "Month to Month"
+                          : null,
+                      t.rent_due_day && `due day ${t.rent_due_day}`,
+                    ].filter(Boolean);
+                    const cfCount = Object.keys(t.custom_fields).length;
+                    return (
+                      <li key={i} className="text-sm">
+                        {t.name}
+                        {details.length > 0 && (
+                          <span className="text-muted-foreground">
+                            {" — "}
+                            {details.join(", ")}
+                          </span>
+                        )}
+                        {cfCount > 0 && (
+                          <span className="text-muted-foreground">
+                            {details.length > 0 ? ", " : " — "}
+                            {cfCount} custom field{cfCount !== 1 ? "s" : ""}
+                          </span>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>
@@ -1237,15 +1247,26 @@ export function OnboardingWizard() {
                 </p>
               ) : (
                 <ul className="space-y-1">
-                  {vendors.map((v, i) => (
-                    <li key={i} className="text-sm">
-                      {v.name}
-                      <span className="text-muted-foreground">
-                        {" "}
-                        — {SPECIALTY_LABELS[v.specialty]}
-                      </span>
-                    </li>
-                  ))}
+                  {vendors.map((v, i) => {
+                    const cfCount = Object.keys(v.custom_fields).length;
+                    return (
+                      <li key={i} className="text-sm">
+                        {v.name}
+                        <span className="text-muted-foreground">
+                          {" — "}
+                          {SPECIALTY_LABELS[v.specialty]}
+                          {v.priority_rank > 0 &&
+                            ` (${RANK_LABELS[v.priority_rank] || `#${v.priority_rank}`})`}
+                        </span>
+                        {cfCount > 0 && (
+                          <span className="text-muted-foreground">
+                            {", "}
+                            {cfCount} custom field{cfCount !== 1 ? "s" : ""}
+                          </span>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>
