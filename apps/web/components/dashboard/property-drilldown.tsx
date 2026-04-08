@@ -30,6 +30,8 @@ import { WorkOrderHistory } from "@/components/dashboard/work-order-history";
 import { DrilldownTenantList } from "@/components/dashboard/drilldown-tenant-list";
 import { RequestCard } from "@/components/requests/request-card";
 import { UtilityInfoCard } from "@/components/properties/utility-info-card";
+import { DocumentUploader } from "@/components/documents/document-uploader";
+import { DocumentGallery } from "@/components/documents/document-gallery";
 import type {
   Property,
   PropertyUtility,
@@ -204,11 +206,11 @@ export function PropertyDrillDown({ propertyId, property, onRefresh }: PropertyD
         </TabsContent>
 
         <TabsContent value="documents" className="mt-4">
-          <DocumentsPlaceholder />
+          <DocumentsTab propertyId={propertyId} tenants={property.tenants ?? []} />
         </TabsContent>
 
         <TabsContent value="photos" className="mt-4">
-          <PhotosPlaceholder />
+          <PhotosTab propertyId={propertyId} />
         </TabsContent>
       </Tabs>
     </div>
@@ -376,39 +378,37 @@ function OverviewSkeleton() {
   );
 }
 
-function DocumentsPlaceholder() {
+interface DocumentsTabProps {
+  propertyId: string;
+  tenants: Property["tenants"];
+}
+
+function DocumentsTab({ propertyId, tenants }: DocumentsTabProps) {
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  function handleUploadComplete() {
+    setRefreshKey((prev) => prev + 1);
+  }
+
   return (
-    <Card>
-      <CardContent className="flex flex-col items-center justify-center p-8 text-center">
-        <FileText className="size-10 text-muted-foreground/50 mb-3" />
-        <p className="text-base font-medium">Lease & Document Management</p>
-        <p className="mt-2 text-sm text-muted-foreground max-w-md">
-          This section will include lease agreements & end dates,
-          month-to-month status tracking, work order receipts, and inspection reports.
-        </p>
-        <p className="mt-3 text-xs text-muted-foreground">
-          Coming in P1-006: Lease & Document Management
-        </p>
-      </CardContent>
-    </Card>
+    <div className="space-y-4">
+      <DocumentUploader
+        propertyId={propertyId}
+        tenants={tenants ?? []}
+        onUploadComplete={handleUploadComplete}
+      />
+      <DocumentGallery key={refreshKey} propertyId={propertyId} onPreview={() => {}} />
+    </div>
   );
 }
 
-function PhotosPlaceholder() {
+interface PhotosTabProps {
+  propertyId: string;
+}
+
+function PhotosTab({ propertyId }: PhotosTabProps) {
   return (
-    <Card>
-      <CardContent className="flex flex-col items-center justify-center p-8 text-center">
-        <ImageIcon className="size-10 text-muted-foreground/50 mb-3" />
-        <p className="text-base font-medium">Property Photos</p>
-        <p className="mt-2 text-sm text-muted-foreground max-w-md">
-          This section will include property exterior & interior photos,
-          move-in / move-out inspection photos, and before & after maintenance photos.
-        </p>
-        <p className="mt-3 text-xs text-muted-foreground">
-          Coming in P1-006: Lease & Document Management
-        </p>
-      </CardContent>
-    </Card>
+    <DocumentGallery propertyId={propertyId} onPreview={() => {}} />
   );
 }
 
