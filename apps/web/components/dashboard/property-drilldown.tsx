@@ -29,8 +29,10 @@ import { LatePaymentBanner } from "@/components/dashboard/late-payment-banner";
 import { WorkOrderHistory } from "@/components/dashboard/work-order-history";
 import { DrilldownTenantList } from "@/components/dashboard/drilldown-tenant-list";
 import { RequestCard } from "@/components/requests/request-card";
+import { UtilityInfoCard } from "@/components/properties/utility-info-card";
 import type {
   Property,
+  PropertyUtility,
   DashboardStats,
   SpendChartItem,
   RentStatus,
@@ -61,6 +63,7 @@ export function PropertyDrillDown({ propertyId, property, onRefresh }: PropertyD
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [chartData, setChartData] = useState<SpendChartItem[]>([]);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+  const [utilities, setUtilities] = useState<PropertyUtility[]>([]);
 
   const [overviewLoading, setOverviewLoading] = useState(true);
   const [overviewError, setOverviewError] = useState(false);
@@ -71,11 +74,12 @@ export function PropertyDrillDown({ propertyId, property, onRefresh }: PropertyD
     setOverviewLoading(true);
     setOverviewError(false);
     try {
-      const [rentRes, statsRes, chartRes, ordersRes] = await Promise.all([
+      const [rentRes, statsRes, chartRes, ordersRes, utilRes] = await Promise.all([
         fetch(`/api/properties/${propertyId}/rent-status`),
         fetch(`/api/dashboard/stats?propertyId=${propertyId}`),
         fetch(`/api/dashboard/spend-chart?propertyId=${propertyId}`),
         fetch(`/api/requests?propertyId=${propertyId}&limit=3&offset=0`),
+        fetch(`/api/properties/${propertyId}/utilities`),
       ]);
 
       if (rentRes.ok) setRentStatus(await rentRes.json());
@@ -106,6 +110,13 @@ export function PropertyDrillDown({ propertyId, property, onRefresh }: PropertyD
         );
       } else {
         setRecentOrders([]);
+      }
+
+      if (utilRes.ok) {
+        const { utilities: utils } = await utilRes.json();
+        setUtilities(utils ?? []);
+      } else {
+        setUtilities([]);
       }
     } catch {
       setOverviewError(true);
@@ -172,8 +183,10 @@ export function PropertyDrillDown({ propertyId, property, onRefresh }: PropertyD
               stats={stats}
               chartData={chartData}
               recentOrders={recentOrders}
+              utilities={utilities}
               onPaymentRecorded={handlePaymentRecorded}
               onViewAllOrders={() => setActiveTab("work-orders")}
+              onRefreshUtilities={fetchOverviewData}
             />
           )}
         </TabsContent>
@@ -208,16 +221,20 @@ function OverviewTab({
   stats,
   chartData,
   recentOrders,
+  utilities,
   onPaymentRecorded,
   onViewAllOrders,
+  onRefreshUtilities,
 }: {
   propertyId: string;
   rentStatus: RentStatus | null;
   stats: DashboardStats | null;
   chartData: SpendChartItem[];
   recentOrders: RecentOrder[];
+  utilities: PropertyUtility[];
   onPaymentRecorded: () => void;
   onViewAllOrders: () => void;
+  onRefreshUtilities: () => void;
 }) {
   return (
     <div className="space-y-4">
@@ -228,6 +245,15 @@ function OverviewTab({
           onPaymentRecorded={onPaymentRecorded}
         />
       )}
+
+      <UtilityInfoCard
+        propertyId={propertyId}
+        utilities={utilities}
+        onEdit={() => {
+          // UtilitySetupSheet integration (task 069)
+          onRefreshUtilities();
+        }}
+      />
 
       <SectionCards
         emergencyCount={stats?.emergency_count ?? 0}
