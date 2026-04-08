@@ -117,7 +117,9 @@ liz/
 │   │       ├── doing/         # Current task (max 1)
 │   │       └── done/          # Completed tasks
 │   └── completed/             # Archived completed features
-├── docs/                      # Project documentation
+├── docs/
+│   ├── endpoints.md           # All URLs: local, QA, prod, API routes, app pages
+│   └── ui-process.md          # UI process documentation
 ├── scripts/
 │   └── autonextstep.py        # Automated task runner
 ├── brightstep_process/        # BrightStep process reference (source material)
@@ -167,6 +169,10 @@ Supabase CLI runs the full stack locally via Docker (`supabase start`):
 - **Storage**: `localhost:54321/storage/v1`
 
 Production uses Supabase cloud. Same migrations work in both environments.
+
+## Endpoint Registry
+
+All environment URLs, API routes, and app pages are documented in `docs/endpoints.md`. **Update that file whenever you add, rename, or remove an API route, app page, or environment URL.**
 
 ## Key Product Constraints
 
