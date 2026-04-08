@@ -8,6 +8,7 @@ import { EmergencyAlertBanner } from "@/components/dashboard/emergency-alert-ban
 import { OnboardingBanner } from "@/components/dashboard/onboarding-banner";
 import { SpendChart } from "@/components/dashboard/spend-chart";
 import { PropertySelectorBar } from "@/components/dashboard/property-selector-bar";
+import { PropertyDrillDown, PropertyDrillDownSkeleton } from "@/components/dashboard/property-drilldown";
 import { RequestCard } from "@/components/requests/request-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Property, DashboardStats, SpendChartItem, MaintenanceRequest } from "@/lib/types";
@@ -80,6 +81,9 @@ function DashboardContent() {
     properties.some((p) => p.id === selectedPropertyId);
 
   const effectivePropertyId = isValidPropertyId ? selectedPropertyId : null;
+  const selectedProperty = effectivePropertyId
+    ? properties.find((p) => p.id === effectivePropertyId) ?? null
+    : null;
 
   function handlePropertySelect(id: string | null) {
     if (id === null) {
@@ -153,23 +157,11 @@ function DashboardContent() {
             </div>
           </div>
         </>
+      ) : selectedProperty ? (
+        <PropertyDrillDown propertyId={effectivePropertyId} property={selectedProperty} />
       ) : (
-        <PropertyDrillDownPlaceholder propertyId={effectivePropertyId} />
+        <PropertyDrillDownSkeleton />
       )}
-    </div>
-  );
-}
-
-function PropertyDrillDownPlaceholder({ propertyId }: { propertyId: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
-      <p className="text-lg font-medium">Property Drill-Down</p>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Property ID: {propertyId}
-      </p>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Full drill-down view coming in task 047.
-      </p>
     </div>
   );
 }
