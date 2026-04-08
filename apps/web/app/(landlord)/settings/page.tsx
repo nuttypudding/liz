@@ -146,7 +146,7 @@ export default function SettingsPage() {
                 <OptionCard
                   icon={PiggyBank}
                   title="Save Money"
-                  description="Minimize repair costs. AI suggests the most affordable options."
+                  description="Minimize repair costs. Your agent suggests the most affordable options."
                   selected={riskAppetite === "cost_first"}
                   onSelect={() => {
                     setRiskAppetite("cost_first");
@@ -156,7 +156,7 @@ export default function SettingsPage() {
                 <OptionCard
                   icon={Scale}
                   title="Balanced"
-                  description="AI weighs both cost and speed equally."
+                  description="Your agent weighs both cost and speed equally."
                   selected={riskAppetite === "balanced"}
                   onSelect={() => {
                     setRiskAppetite("balanced");
@@ -168,7 +168,7 @@ export default function SettingsPage() {
                 <OptionCard
                   icon={Zap}
                   title="Move Fast"
-                  description="Minimize resolution time. AI prioritizes fast vendor response."
+                  description="Minimize resolution time. Your agent prioritizes fast vendor response."
                   selected={riskAppetite === "speed_first"}
                   onSelect={() => {
                     setRiskAppetite("speed_first");
@@ -186,7 +186,7 @@ export default function SettingsPage() {
                 <OptionCard
                   icon={ShieldCheck}
                   title="I approve everything"
-                  description="AI classifies and suggests — you make every call."
+                  description="Your agent classifies and suggests — you make every call."
                   selected={delegationMode === "manual"}
                   onSelect={() => {
                     setDelegationMode("manual");
@@ -196,7 +196,7 @@ export default function SettingsPage() {
                 <OptionCard
                   icon={Sparkles}
                   title="Auto-approve small jobs"
-                  description="AI handles jobs under your threshold. You approve the rest."
+                  description="Your agent handles jobs under your threshold. You approve the rest."
                   selected={delegationMode === "assist"}
                   onSelect={() => {
                     setDelegationMode("assist");
@@ -235,13 +235,16 @@ export default function SettingsPage() {
                 <OptionCard
                   icon={Bot}
                   title="Full autopilot"
-                  description="AI handles routine jobs. You review after."
+                  description="Your agent handles routine jobs. You review after."
                   selected={delegationMode === "auto"}
                   onSelect={() => {}}
                   badge="Coming soon"
                   badgeVariant="outline"
                   disabled
                 />
+                <p className="text-xs text-muted-foreground ml-13 -mt-1">
+                  When available, you&apos;ll set a maximum spending amount per job.
+                </p>
               </CardContent>
             </Card>
           </div>
