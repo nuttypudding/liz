@@ -39,6 +39,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { PhoneInput } from "@/components/ui/phone-input";
+import { CustomFields } from "@/components/ui/custom-fields";
 import { ComboNote } from "@/components/onboarding/combo-note";
 import { OptionCard } from "@/components/onboarding/option-card";
 
@@ -65,7 +67,10 @@ interface TenantEntry {
   name: string;
   email: string;
   phone: string;
-  unit_number: string;
+  move_in_date: string;
+  lease_type: string;
+  rent_due_day: string;
+  custom_fields: Record<string, string>;
 }
 
 interface VendorEntry {
@@ -104,7 +109,10 @@ const EMPTY_TENANT: TenantEntry = {
   name: "",
   email: "",
   phone: "",
-  unit_number: "",
+  move_in_date: "",
+  lease_type: "",
+  rent_due_day: "",
+  custom_fields: {},
 };
 
 const EMPTY_VENDOR: VendorEntry = {
@@ -279,7 +287,15 @@ export function OnboardingWizard() {
             name: t.name.trim(),
             email: t.email.trim() || undefined,
             phone: t.phone.trim() || undefined,
-            unit_number: t.unit_number.trim() || undefined,
+            move_in_date: t.move_in_date || undefined,
+            lease_type: t.lease_type || undefined,
+            rent_due_day: t.rent_due_day
+              ? parseInt(t.rent_due_day, 10)
+              : undefined,
+            custom_fields:
+              Object.keys(t.custom_fields).length > 0
+                ? t.custom_fields
+                : undefined,
           }),
         });
         if (!tRes.ok)
@@ -598,11 +614,10 @@ export function OnboardingWizard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="size-5" />
-              Add tenants
+              Add tenants for {property.name || "your property"}
             </CardTitle>
             <CardDescription>
-              Add tenants for {property.name || "your property"}. You can
-              always add more later.
+              You can always add more later.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -618,7 +633,15 @@ export function OnboardingWizard() {
                         {t.name}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">
-                        {[t.unit_number && `Unit ${t.unit_number}`, t.email]
+                        {[
+                          t.email,
+                          t.lease_type === "yearly"
+                            ? "Yearly"
+                            : t.lease_type === "month_to_month"
+                              ? "Month to Month"
+                              : null,
+                          t.rent_due_day && `Due day ${t.rent_due_day}`,
+                        ]
                           .filter(Boolean)
                           .join(" · ") || "No details"}
                       </p>
@@ -674,33 +697,85 @@ export function OnboardingWizard() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="tenant-phone">Phone</Label>
-                    <Input
+                    <PhoneInput
                       id="tenant-phone"
                       placeholder="Optional"
                       value={tenantDraft.phone}
-                      onChange={(e) =>
+                      onValueChange={(digits) =>
                         setTenantDraft((d) => ({
                           ...d,
-                          phone: e.target.value,
+                          phone: digits,
                         }))
                       }
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="tenant-unit">Unit number</Label>
-                  <Input
-                    id="tenant-unit"
-                    placeholder="Optional"
-                    value={tenantDraft.unit_number}
-                    onChange={(e) =>
-                      setTenantDraft((d) => ({
-                        ...d,
-                        unit_number: e.target.value,
-                      }))
-                    }
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="tenant-move-in">Move-in date</Label>
+                    <Input
+                      id="tenant-move-in"
+                      type="date"
+                      value={tenantDraft.move_in_date}
+                      onChange={(e) =>
+                        setTenantDraft((d) => ({
+                          ...d,
+                          move_in_date: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tenant-lease-type">Lease type</Label>
+                    <Select
+                      value={tenantDraft.lease_type}
+                      onValueChange={(val) =>
+                        setTenantDraft((d) => ({
+                          ...d,
+                          lease_type: val ?? "",
+                        }))
+                      }
+                    >
+                      <SelectTrigger id="tenant-lease-type">
+                        <SelectValue placeholder="Optional" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="yearly">Yearly</SelectItem>
+                        <SelectItem value="month_to_month">
+                          Month to Month
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="tenant-rent-due">Rent due day</Label>
+                    <Input
+                      id="tenant-rent-due"
+                      type="number"
+                      min={1}
+                      max={31}
+                      placeholder="1–31"
+                      value={tenantDraft.rent_due_day}
+                      onChange={(e) =>
+                        setTenantDraft((d) => ({
+                          ...d,
+                          rent_due_day: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+                <CustomFields
+                  value={tenantDraft.custom_fields}
+                  onChange={(fields) =>
+                    setTenantDraft((d) => ({
+                      ...d,
+                      custom_fields: fields,
+                    }))
+                  }
+                />
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
@@ -1058,10 +1133,19 @@ export function OnboardingWizard() {
                   {tenants.map((t, i) => (
                     <li key={i} className="text-sm">
                       {t.name}
-                      {t.unit_number && (
+                      {(t.lease_type || t.rent_due_day) && (
                         <span className="text-muted-foreground">
-                          {" "}
-                          (Unit {t.unit_number})
+                          {" — "}
+                          {[
+                            t.lease_type === "yearly"
+                              ? "Yearly"
+                              : t.lease_type === "month_to_month"
+                                ? "Month to Month"
+                                : null,
+                            t.rent_due_day && `due day ${t.rent_due_day}`,
+                          ]
+                            .filter(Boolean)
+                            .join(", ")}
                         </span>
                       )}
                     </li>
