@@ -1,18 +1,23 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useEffect, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { PageHeader } from "@/components/shared/page-header";
 import { SectionCards } from "@/components/dashboard/section-cards";
 import { EmergencyAlertBanner } from "@/components/dashboard/emergency-alert-banner";
 import { OnboardingBanner } from "@/components/dashboard/onboarding-banner";
 import { SpendChart } from "@/components/dashboard/spend-chart";
+import { PropertySelectorBar } from "@/components/dashboard/property-selector-bar";
 import { RequestCard } from "@/components/requests/request-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { DashboardStats, SpendChartItem, MaintenanceRequest } from "@/lib/types";
+import type { Property, DashboardStats, SpendChartItem, MaintenanceRequest } from "@/lib/types";
 
-export default function DashboardPage() {
+function DashboardContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const selectedPropertyId = searchParams.get("property");
+
+  const [properties, setProperties] = useState<Property[]>([]);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [chartData, setChartData] = useState<SpendChartItem[]>([]);
   const [recentRequests, setRecentRequests] = useState<MaintenanceRequest[]>([]);
@@ -22,11 +27,12 @@ export default function DashboardPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [statsRes, chartRes, requestsRes, profileRes] = await Promise.all([
+      const [statsRes, chartRes, requestsRes, profileRes, propertiesRes] = await Promise.all([
         fetch("/api/dashboard/stats"),
         fetch("/api/dashboard/spend-chart"),
         fetch("/api/requests"),
         fetch("/api/settings/profile"),
+        fetch("/api/properties"),
       ]);
 
       // Check profile — redirect if no profile, show banner if incomplete
@@ -39,6 +45,11 @@ export default function DashboardPage() {
         if (!profile?.onboarding_completed) {
           setShowOnboardingBanner(true);
         }
+      }
+
+      if (propertiesRes.ok) {
+        const { properties: props } = await propertiesRes.json();
+        setProperties(props ?? []);
       }
 
       if (statsRes.ok) {
@@ -57,17 +68,37 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
+  // Validate selectedPropertyId — fall back to aggregate view if invalid
+  const isValidPropertyId =
+    selectedPropertyId === null ||
+    properties.some((p) => p.id === selectedPropertyId);
+
+  const effectivePropertyId = isValidPropertyId ? selectedPropertyId : null;
+
+  function handlePropertySelect(id: string | null) {
+    if (id === null) {
+      router.push("/dashboard", { scroll: false });
+    } else {
+      router.push(`/dashboard?property=${id}`, { scroll: false });
+    }
+  }
+
   if (loading) {
     return (
       <div className="space-y-6">
         <PageHeader title="Dashboard" />
-        <Skeleton className="h-12 w-full" />
+        <PropertySelectorBar
+          properties={[]}
+          selectedPropertyId={null}
+          onSelect={() => {}}
+          loading
+        />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[0, 1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-24" />
@@ -86,34 +117,80 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Dashboard" />
-      {showOnboardingBanner && <OnboardingBanner />}
-      <EmergencyAlertBanner count={stats?.emergency_count ?? 0} />
-      <SectionCards
-        emergencyCount={stats?.emergency_count ?? 0}
-        openCount={stats?.open_count ?? 0}
-        avgResolutionDays={stats?.avg_resolution_days ?? 0}
-        monthlySpend={stats?.monthly_spend ?? 0}
+      <PropertySelectorBar
+        properties={properties}
+        selectedPropertyId={effectivePropertyId}
+        onSelect={handlePropertySelect}
       />
-      <SpendChart data={chartData} />
-      <div className="space-y-3">
-        <h2 className="text-base font-semibold">Recent Requests</h2>
-        <div className="space-y-2">
-          {recentRequests.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No recent requests.</p>
-          ) : (
-            recentRequests.map((request) => (
-              <RequestCard
-                key={request.id}
-                request={{
-                  ...request,
-                  property_name: request.properties?.name ?? null,
-                }}
-                href={`/requests/${request.id}`}
-              />
-            ))
-          )}
-        </div>
-      </div>
+      {effectivePropertyId === null ? (
+        <>
+          {showOnboardingBanner && <OnboardingBanner />}
+          <EmergencyAlertBanner count={stats?.emergency_count ?? 0} />
+          <SectionCards
+            emergencyCount={stats?.emergency_count ?? 0}
+            openCount={stats?.open_count ?? 0}
+            avgResolutionDays={stats?.avg_resolution_days ?? 0}
+            monthlySpend={stats?.monthly_spend ?? 0}
+          />
+          <SpendChart data={chartData} />
+          <div className="space-y-3">
+            <h2 className="text-base font-semibold">Recent Requests</h2>
+            <div className="space-y-2">
+              {recentRequests.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No recent requests.</p>
+              ) : (
+                recentRequests.map((request) => (
+                  <RequestCard
+                    key={request.id}
+                    request={{
+                      ...request,
+                      property_name: request.properties?.name ?? null,
+                    }}
+                    href={`/requests/${request.id}`}
+                  />
+                ))
+              )}
+            </div>
+          </div>
+        </>
+      ) : (
+        <PropertyDrillDownPlaceholder propertyId={effectivePropertyId} />
+      )}
     </div>
+  );
+}
+
+function PropertyDrillDownPlaceholder({ propertyId }: { propertyId: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
+      <p className="text-lg font-medium">Property Drill-Down</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Property ID: {propertyId}
+      </p>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Full drill-down view coming in task 047.
+      </p>
+    </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="space-y-6">
+          <PageHeader title="Dashboard" />
+          <Skeleton className="h-[76px] w-full" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[0, 1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-24" />
+            ))}
+          </div>
+          <Skeleton className="h-64 w-full" />
+        </div>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
   );
 }
