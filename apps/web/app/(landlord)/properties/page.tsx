@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Building2, ChevronDown, Pencil, Phone, Mail, Plus, Trash2, User } from "lucide-react";
+import { Building2, CalendarDays, ChevronDown, Pencil, Phone, Mail, Plus, Trash2, User } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -35,6 +35,36 @@ import {
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import type { Property, Tenant } from "@/lib/types";
+
+function getLeaseStatus(leaseEndDate: string | null): {
+  label: string;
+  variant: "default" | "secondary" | "destructive" | "outline";
+  className?: string;
+} {
+  if (!leaseEndDate) {
+    return { label: "Active", variant: "default", className: "bg-green-600 hover:bg-green-600" };
+  }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const end = new Date(leaseEndDate + "T00:00:00");
+  const diffMs = end.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) {
+    return { label: "Expired", variant: "destructive" };
+  }
+  if (diffDays <= 60) {
+    return { label: "Expiring Soon", variant: "default", className: "bg-yellow-500 hover:bg-yellow-500 text-black" };
+  }
+  return { label: "Active", variant: "default", className: "bg-green-600 hover:bg-green-600" };
+}
+
+function formatLeaseDate(date: string): string {
+  return new Date(date + "T00:00:00").toLocaleDateString("en-US", {
+    month: "short",
+    year: "numeric",
+  });
+}
 
 type SheetMode =
   | { type: "add-property" }
@@ -355,6 +385,36 @@ export default function PropertiesPage() {
                                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                     <Phone className="size-3 shrink-0" />
                                     <span>{tenant.phone}</span>
+                                  </div>
+                                )}
+                                {tenant.lease_type && (
+                                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1 flex-wrap">
+                                    <CalendarDays className="size-3 shrink-0" />
+                                    <span>
+                                      {tenant.lease_type === "yearly" ? "Yearly" : "Month-to-Month"}
+                                      {tenant.lease_start_date && (
+                                        <>
+                                          {" \u00B7 "}
+                                          {tenant.lease_type === "yearly" && tenant.lease_end_date
+                                            ? `${formatLeaseDate(tenant.lease_start_date)} \u2013 ${formatLeaseDate(tenant.lease_end_date)}`
+                                            : `Started ${formatLeaseDate(tenant.lease_start_date)}`}
+                                        </>
+                                      )}
+                                      {tenant.rent_due_day != null && (
+                                        <>
+                                          {" \u00B7 "}
+                                          Due {tenant.rent_due_day === 1 ? "1st" : tenant.rent_due_day === 2 ? "2nd" : tenant.rent_due_day === 3 ? "3rd" : `${tenant.rent_due_day}th`}
+                                        </>
+                                      )}
+                                    </span>
+                                    {(() => {
+                                      const status = getLeaseStatus(tenant.lease_end_date);
+                                      return (
+                                        <Badge variant={status.variant} className={cn("text-[10px] px-1.5 py-0", status.className)}>
+                                          {status.label}
+                                        </Badge>
+                                      );
+                                    })()}
                                   </div>
                                 )}
                               </div>
