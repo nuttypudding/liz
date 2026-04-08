@@ -56,6 +56,9 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | POST | `/api/properties/[id]/tenants` | Add tenant to property |
 | GET | `/api/properties/[id]/rent-status` | Rent status for a property (overdue, last paid) |
 | POST | `/api/properties/[id]/rent-payments` | Record a rent payment for a property |
+| GET | `/api/properties/[id]/documents` | List documents for a property (landlord or tenant) |
+| GET | `/api/properties/[id]/utilities` | List utility info for a property (landlord or tenant; tenant view omits account numbers and N/A rows) |
+| PUT | `/api/properties/[id]/utilities` | Upsert utility info for a property (landlord only; bulk upsert all utility types) |
 | GET | `/api/tenants/[id]` | Get single tenant |
 | PUT | `/api/tenants/[id]` | Update a tenant |
 | DELETE | `/api/tenants/[id]` | Delete a tenant |
