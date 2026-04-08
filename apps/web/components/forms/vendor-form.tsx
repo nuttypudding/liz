@@ -129,7 +129,7 @@ export function VendorForm({ initialData, onSave, onCancel }: VendorFormProps) {
           <Select
             value={String(form.priority_rank)}
             onValueChange={(v) =>
-              setForm({ ...form, priority_rank: parseInt(v, 10) })
+              setForm({ ...form, priority_rank: parseInt(v ?? "0", 10) })
             }
           >
             <SelectTrigger id="vendor-rank" className="w-full min-h-11">
