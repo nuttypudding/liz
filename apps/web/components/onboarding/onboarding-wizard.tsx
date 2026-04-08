@@ -56,6 +56,7 @@ type Specialty =
 interface PropertyDraft {
   name: string;
   address: string;
+  apt_or_unit_no: string;
   unit_count: string;
   monthly_rent: string;
 }
@@ -135,6 +136,7 @@ export function OnboardingWizard() {
   const [property, setProperty] = useState<PropertyDraft>({
     name: "",
     address: "",
+    apt_or_unit_no: "",
     unit_count: "1",
     monthly_rent: "",
   });
@@ -254,6 +256,7 @@ export function OnboardingWizard() {
           body: JSON.stringify({
             name: property.name.trim(),
             address: property.address.trim(),
+            apt_or_unit_no: property.apt_or_unit_no.trim() || undefined,
             unit_count: parseInt(property.unit_count, 10) || 1,
             monthly_rent: property.monthly_rent
               ? parseFloat(property.monthly_rent)
@@ -519,6 +522,20 @@ export function OnboardingWizard() {
                   {propertyErrors.address}
                 </p>
               )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="apt_or_unit_no">Apt or Unit No.</Label>
+              <Input
+                id="apt_or_unit_no"
+                placeholder="e.g. Suite 200, Unit B"
+                value={property.apt_or_unit_no}
+                onChange={(e) =>
+                  setProperty((p) => ({
+                    ...p,
+                    apt_or_unit_no: e.target.value,
+                  }))
+                }
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -993,6 +1010,14 @@ export function OnboardingWizard() {
                   {property.address}
                 </span>
               </div>
+              {property.apt_or_unit_no && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Apt/Unit</span>
+                  <span className="font-medium">
+                    {property.apt_or_unit_no}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Units</span>
                 <span className="font-medium">{property.unit_count}</span>
