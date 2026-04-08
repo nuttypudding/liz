@@ -38,7 +38,7 @@ import { DocumentGallery } from "@/components/documents/document-gallery";
 import { DocumentPreviewDialog } from "@/components/documents/document-preview-dialog";
 import { UtilitySetupSheet } from "@/components/properties/utility-setup-sheet";
 import { cn } from "@/lib/utils";
-import type { Property, Tenant, Document as LizDocument } from "@/lib/types";
+import type { Property, PropertyUtility, Tenant, Document as LizDocument } from "@/lib/types";
 
 function getLeaseStatus(leaseEndDate: string | null): {
   label: string;
@@ -85,7 +85,13 @@ export default function PropertiesPage() {
     new Set()
   );
   const [sheetMode, setSheetMode] = useState<SheetMode>(null);
-  const [utilitySheet, setUtilitySheet] = useState<{ propertyId: string; address: string } | null>(null);
+  const [utilitySheet, setUtilitySheet] = useState<{
+    propertyId: string;
+    address: string;
+    existingUtilities: PropertyUtility[];
+    autoFetch?: boolean;
+  } | null>(null);
+  const [redetectDialog, setRedetectDialog] = useState<{ propertyId: string; newAddress: string } | null>(null);
   const [documentCounts, setDocumentCounts] = useState<Record<string, number>>({});
   const [galleryKey, setGalleryKey] = useState(0);
   const [previewDocument, setPreviewDocument] = useState<LizDocument | null>(null);
@@ -180,6 +186,7 @@ export default function PropertiesPage() {
                 setUtilitySheet({
                   propertyId: newProperty.id,
                   address: newProperty.address ?? "",
+                  existingUtilities: [],
                 });
               }
             },
@@ -190,19 +197,59 @@ export default function PropertiesPage() {
         toast.error("Failed to add property");
       }
     } else if (sheetMode?.type === "edit-property") {
-      const res = await fetch(`/api/properties/${sheetMode.property.id}`, {
+      const propertyId = sheetMode.property.id;
+      const addressChanged =
+        data.address.trim() !== (sheetMode.property.address ?? "").trim();
+      const res = await fetch(`/api/properties/${propertyId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
       if (res.ok) {
-        toast.success("Property updated");
         await fetchProperties();
+        setSheetMode(null);
+        if (addressChanged && data.address) {
+          setRedetectDialog({ propertyId, newAddress: data.address });
+        } else {
+          toast.success("Property updated");
+        }
+        return;
       } else {
         toast.error("Failed to update property");
       }
     }
     setSheetMode(null);
+  }
+
+  async function handleRedetectConfirm() {
+    if (!redetectDialog) return;
+    const { propertyId, newAddress } = redetectDialog;
+    setRedetectDialog(null);
+
+    let existingUtils: PropertyUtility[] = [];
+    try {
+      const r = await fetch(`/api/properties/${propertyId}/utilities`);
+      if (r.ok) {
+        const { utilities } = await r.json();
+        existingUtils = utilities ?? [];
+      }
+    } catch {
+      // proceed with empty; auto-detect will run from scratch
+    }
+
+    setUtilitySheet({
+      propertyId,
+      address: newAddress,
+      existingUtilities: existingUtils,
+      autoFetch: true,
+    });
+  }
+
+  function handleRedetectClose() {
+    if (redetectDialog) {
+      toast.success("Property updated");
+      setRedetectDialog(null);
+    }
   }
 
   async function handleDeleteProperty(propertyId: string) {
@@ -671,12 +718,36 @@ export default function PropertiesPage() {
         <UtilitySetupSheet
           propertyId={utilitySheet.propertyId}
           address={utilitySheet.address}
-          existingUtilities={[]}
+          existingUtilities={utilitySheet.existingUtilities}
+          autoFetch={utilitySheet.autoFetch}
           open={true}
           onClose={() => setUtilitySheet(null)}
           onSave={() => setUtilitySheet(null)}
         />
       )}
+
+      <AlertDialog
+        open={redetectDialog !== null}
+        onOpenChange={(open) => { if (!open) handleRedetectClose(); }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Address Changed</AlertDialogTitle>
+            <AlertDialogDescription>
+              Re-detect utility providers for the new address? Only unconfirmed
+              entries will be updated — confirmed and N/A entries are preserved.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleRedetectClose}>
+              No, keep existing
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleRedetectConfirm}>
+              Re-detect utilities
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

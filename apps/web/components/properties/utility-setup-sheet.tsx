@@ -51,6 +51,8 @@ interface UtilitySetupSheetProps {
   open: boolean;
   onClose: () => void;
   onSave: () => void;
+  /** When true, auto-fetch suggestions on open even if existingUtilities is non-empty */
+  autoFetch?: boolean;
 }
 
 const UTILITY_CONFIG: Record<
@@ -333,6 +335,7 @@ export function UtilitySetupSheet({
   open,
   onClose,
   onSave,
+  autoFetch = false,
 }: UtilitySetupSheetProps) {
   const [rows, setRows] = useState<UtilityFormRow[]>([]);
   const [suggestLoading, setSuggestLoading] = useState(false);
@@ -360,17 +363,17 @@ export function UtilitySetupSheet({
     }
   }, [open, initializeRows]);
 
-  // Auto-fetch suggestions when opening with no existing data
+  // Auto-fetch suggestions when opening with no existing data, or when forced via autoFetch
   useEffect(() => {
     if (
       open &&
       initializedRef.current &&
-      existingUtilities.length === 0 &&
+      (existingUtilities.length === 0 || autoFetch) &&
       address
     ) {
       fetchSuggestions();
     }
-    // Only run once when sheet opens with no data
+    // Only run once when sheet opens
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
