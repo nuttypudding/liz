@@ -79,6 +79,8 @@ interface VendorEntry {
   email: string;
   specialty: Specialty;
   notes: string;
+  priority_rank: number;
+  custom_fields: Record<string, string>;
 }
 
 const DEFAULTS = {
@@ -121,6 +123,17 @@ const EMPTY_VENDOR: VendorEntry = {
   email: "",
   specialty: "general",
   notes: "",
+  priority_rank: 0,
+  custom_fields: {},
+};
+
+const RANK_LABELS: Record<number, string> = {
+  0: "—",
+  1: "1st",
+  2: "2nd",
+  3: "3rd",
+  4: "4th",
+  5: "5th",
 };
 
 export function OnboardingWizard() {
@@ -227,6 +240,18 @@ export function OnboardingWizard() {
     setVendors((prev) => prev.filter((_, i) => i !== index));
   }
 
+  function setVendorRank(index: number, rank: number) {
+    setVendors((prev) =>
+      prev.map((v, i) => {
+        if (i === index) return { ...v, priority_rank: rank };
+        // Bump other vendor if it had the same rank
+        if (rank > 0 && v.priority_rank === rank)
+          return { ...v, priority_rank: 0 };
+        return v;
+      })
+    );
+  }
+
   function handleSkipAI() {
     setRiskAppetite(DEFAULTS.risk_appetite);
     setDelegationMode(DEFAULTS.delegation_mode);
@@ -315,6 +340,11 @@ export function OnboardingWizard() {
             email: v.email.trim() || undefined,
             specialty: v.specialty,
             notes: v.notes.trim() || undefined,
+            priority_rank: v.priority_rank || undefined,
+            custom_fields:
+              Object.keys(v.custom_fields).length > 0
+                ? v.custom_fields
+                : undefined,
           }),
         });
         if (!vRes.ok)
@@ -845,22 +875,43 @@ export function OnboardingWizard() {
                     key={i}
                     className="flex items-center justify-between rounded-lg border px-3 py-2"
                   >
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium truncate">
                         {v.name}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">
                         {SPECIALTY_LABELS[v.specialty]}
                         {v.phone && ` · ${v.phone}`}
+                        {Object.keys(v.custom_fields).length > 0 &&
+                          ` · ${Object.keys(v.custom_fields).length} custom field${Object.keys(v.custom_fields).length === 1 ? "" : "s"}`}
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => removeVendor(i)}
-                      className="ml-2 text-muted-foreground hover:text-destructive shrink-0"
-                    >
-                      <X className="size-4" />
-                    </button>
+                    <div className="flex items-center gap-2 shrink-0 ml-2">
+                      <Select
+                        value={String(v.priority_rank)}
+                        onValueChange={(val) =>
+                          setVendorRank(i, parseInt(val ?? "0", 10))
+                        }
+                      >
+                        <SelectTrigger className="h-7 w-[70px] text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(RANK_LABELS).map(([rank, label]) => (
+                            <SelectItem key={rank} value={rank}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <button
+                        type="button"
+                        onClick={() => removeVendor(i)}
+                        className="text-muted-foreground hover:text-destructive shrink-0"
+                      >
+                        <X className="size-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -915,14 +966,14 @@ export function OnboardingWizard() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label htmlFor="vendor-phone">Phone</Label>
-                    <Input
+                    <PhoneInput
                       id="vendor-phone"
                       placeholder="Optional"
                       value={vendorDraft.phone}
-                      onChange={(e) =>
+                      onValueChange={(digits) =>
                         setVendorDraft((d) => ({
                           ...d,
-                          phone: e.target.value,
+                          phone: digits,
                         }))
                       }
                     />
@@ -957,6 +1008,15 @@ export function OnboardingWizard() {
                     }
                   />
                 </div>
+                <CustomFields
+                  value={vendorDraft.custom_fields}
+                  onChange={(fields) =>
+                    setVendorDraft((d) => ({
+                      ...d,
+                      custom_fields: fields,
+                    }))
+                  }
+                />
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
