@@ -13,16 +13,18 @@ export async function GET(request: NextRequest) {
 
     const role = await getRole();
     const { searchParams } = new URL(request.url);
-    const propertyFilter = searchParams.get("property");
+    const propertyFilter = searchParams.get("propertyId") ?? searchParams.get("property");
     const urgencyFilter = searchParams.get("urgency");
     const statusFilter = searchParams.get("status");
+    const limitParam = searchParams.get("limit");
+    const offsetParam = searchParams.get("offset");
 
     const supabase = createServerSupabaseClient();
 
     let query = supabase
       .from("maintenance_requests")
       .select(
-        `*, properties(id, name, address, landlord_id), tenants(id, name, email, phone, unit_number), vendors(id, name, phone, email, specialty), request_photos(id, storage_path, file_type)`
+        `*, properties(id, name, address_line1, city, state, postal_code, landlord_id), tenants(id, first_name, last_name, email, phone, unit_number), vendors(id, name, phone, email, specialty), request_photos(id, storage_path, file_type)`
       )
       .order("created_at", { ascending: false });
 
@@ -72,6 +74,14 @@ export async function GET(request: NextRequest) {
     }
     if (statusFilter) {
       query = query.eq("status", statusFilter);
+    }
+
+    if (limitParam) {
+      const limit = parseInt(limitParam, 10);
+      const offset = offsetParam ? parseInt(offsetParam, 10) : 0;
+      if (!isNaN(limit) && limit > 0) {
+        query = query.range(offset, offset + limit - 1);
+      }
     }
 
     const { data, error } = await query;

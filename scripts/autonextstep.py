@@ -43,6 +43,7 @@ Usage (from repo root):
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import subprocess
@@ -57,6 +58,21 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 FEATURES_DIR = REPO_ROOT / "features"
 INPROGRESS_DIR = FEATURES_DIR / "inprogress"
 COMPLETED_DIR = FEATURES_DIR / "completed"
+STATUS_FILE = REPO_ROOT / ".claude" / "autonextstep_status.json"
+
+DEFAULT_TASK_TIMEOUT_MINS = 90  # kill the claude process after this many minutes
+
+
+def ts() -> str:
+    """Return a short HH:MM:SS timestamp string."""
+    return datetime.now().strftime("%H:%M:%S")
+
+
+def write_status(data: dict) -> None:
+    """Write runner state to .claude/autonextstep_status.json for external monitoring."""
+    data["updated_at"] = datetime.now().isoformat()
+    STATUS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    STATUS_FILE.write_text(json.dumps(data, indent=2))
 
 PUSHOVER_TOKEN = "ahfefqbmiywgyhah4gizmdzre7enta"
 PUSHOVER_USER = "u1xaswoavfko3jjne9aex27vkfg8fv"
@@ -149,14 +165,25 @@ def check_pivot() -> str | None:
 
 def check_auth() -> bool:
     """Return True if claude OAuth session is active, False if logged out."""
-    import json as _json
     try:
         result = subprocess.run(
             ["claude", "auth", "status"],
             capture_output=True, text=True, timeout=10,
         )
-        data = _json.loads(result.stdout)
-        return bool(data.get("loggedIn", False))
+        # Try JSON first (some versions output JSON)
+        try:
+            data = json.loads(result.stdout)
+            return bool(data.get("loggedIn", False))
+        except (ValueError, KeyError):
+            pass
+        # Fall back to text scan
+        combined = (result.stdout + result.stderr).lower()
+        if "logged in" in combined or "authenticated" in combined:
+            return True
+        if "not logged in" in combined or "unauthenticated" in combined:
+            return False
+        # If the command succeeded (exit 0) and nothing says "not logged in", assume ok
+        return result.returncode == 0
     except Exception:
         return False
 
@@ -280,6 +307,7 @@ def run_task(
     *,
     dry_run: bool = False,
     force_model: str | None = None,
+    timeout_mins: int = DEFAULT_TASK_TIMEOUT_MINS,
 ) -> int:
     """Run a single task. Returns the process exit code (0 = success)."""
     tier = detect_tier(task_path.name)
@@ -301,6 +329,7 @@ def run_task(
     else:
         print(f"  Model:    {model}")
     print(f"  File:     {task_path.relative_to(REPO_ROOT)}")
+    print(f"  Timeout:  {timeout_mins} min")
 
     cmd = [
         "claude",
@@ -310,14 +339,23 @@ def run_task(
     ]
 
     print(f"  Command:  {' '.join(cmd)}")
+    print(f"[{ts()}] Task started")
     print()
 
     if dry_run:
         return 0
 
     os.chdir(REPO_ROOT)
-    result = subprocess.run(cmd)
-    return result.returncode
+    task_start = time.time()
+    try:
+        result = subprocess.run(cmd, timeout=timeout_mins * 60)
+        elapsed_min = (time.time() - task_start) / 60
+        print(f"\n[{ts()}] Task finished in {elapsed_min:.1f} min (exit {result.returncode})")
+        return result.returncode
+    except subprocess.TimeoutExpired:
+        elapsed_min = (time.time() - task_start) / 60
+        print(f"\n[{ts()}] TIMEOUT — task exceeded {timeout_mins} min limit ({elapsed_min:.1f} min elapsed). Process killed.")
+        return 124  # same as bash timeout exit code
 
 
 def main():
@@ -403,6 +441,14 @@ def main():
         help="Model to use for the final /test-fix-dev run (default: sonnet).",
     )
     parser.add_argument(
+        "--timeout",
+        type=int,
+        default=DEFAULT_TASK_TIMEOUT_MINS,
+        metavar="MINS",
+        help=f"Kill a task if it runs longer than this many minutes (default: {DEFAULT_TASK_TIMEOUT_MINS}). "
+        "Prevents hung claude processes from blocking the runner indefinitely.",
+    )
+    parser.add_argument(
         "--notify",
         action="store_true",
         help="Send a Pushover notification when the run finishes (success or failure).",
@@ -436,6 +482,8 @@ def main():
     max_tasks = args.max if args.max > 0 else float("inf")
     start_time = time.time()
     processed_ids: set[str] = set()
+
+    write_status({"status": "starting", "tasks_done": 0, "tasks_failed": 0})
 
     mode_parts = []
     if args.dry_run:
@@ -496,17 +544,36 @@ def main():
 
         # Auth check before each task
         if not args.dry_run and not check_auth():
-            print("  AUTH EXPIRED — claude OAuth session is not active.")
+            print(f"[{ts()}] AUTH EXPIRED — claude OAuth session is not active.")
             print("  Run: claude auth login")
             print("  Then restart: python scripts/autonextstep.py")
+            write_status({"status": "auth_error", "tasks_done": tasks_run, "tasks_failed": tasks_failed})
             break
 
+        fm = parse_frontmatter(task_path)
+        write_status({
+            "status": "running",
+            "current_task_id": fm.get("id", "?"),
+            "current_task_title": fm.get("title", task_path.stem),
+            "current_task_file": str(task_path.relative_to(REPO_ROOT)),
+            "tasks_done": tasks_run,
+            "tasks_failed": tasks_failed,
+        })
+
         exit_code = run_task(
-            task_path, source, dry_run=args.dry_run, force_model=args.force_model
+            task_path, source,
+            dry_run=args.dry_run,
+            force_model=args.force_model,
+            timeout_mins=args.timeout,
         )
         tasks_run += 1
 
-        if exit_code != 0:
+        if exit_code == 124:
+            tasks_failed += 1
+            print(f"  Task timed out after {args.timeout} min. Stopping to avoid runaway spend.")
+            write_status({"status": "timeout", "tasks_done": tasks_run, "tasks_failed": tasks_failed})
+            break
+        elif exit_code != 0:
             tasks_failed += 1
             print(f"  Task exited with code {exit_code}")
             if args.stop_on_failure:
@@ -579,6 +646,13 @@ def main():
 
     # Summary
     elapsed = time.time() - start_time
+    overall_failed = tasks_failed > 0 or (final_test_exit is not None and final_test_exit != 0)
+    write_status({
+        "status": "failed" if overall_failed else "done",
+        "tasks_done": tasks_run,
+        "tasks_failed": tasks_failed,
+        "elapsed_min": round(elapsed / 60, 1),
+    })
     print()
     print("=" * 60)
     print(f"  Done. {tasks_run} task(s) processed, {tasks_failed} failed.")
@@ -586,6 +660,7 @@ def main():
         status = "PASSED" if final_test_exit == 0 else "FAILED"
         print(f"  Final test sweep: {status}")
     print(f"  Elapsed: {elapsed / 60:.1f} minutes")
+    print(f"  Status file: {STATUS_FILE.relative_to(REPO_ROOT)}")
     print("=" * 60)
 
     # Pushover notification
@@ -607,7 +682,6 @@ def main():
                 priority=1,
             )
 
-    overall_failed = tasks_failed > 0 or (final_test_exit is not None and final_test_exit != 0)
     sys.exit(1 if overall_failed else 0)
 
 

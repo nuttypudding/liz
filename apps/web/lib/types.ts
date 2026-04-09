@@ -3,9 +3,14 @@
 export interface Property {
   id: string;
   name: string;
-  address: string;
+  address_line1: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  apt_or_unit_no: string | null;
   unit_count: number | null;
   monthly_rent: number | null;
+  rent_due_day: number;
   landlord_id: string;
   created_at: string;
   tenants?: Tenant[];
@@ -13,12 +18,19 @@ export interface Property {
 
 export interface Tenant {
   id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string | null;
   phone: string | null;
   unit_number: string | null;
   property_id: string;
   clerk_user_id?: string | null;
+  move_in_date: string | null;
+  lease_type: 'yearly' | 'month_to_month' | null;
+  lease_start_date: string | null;
+  lease_end_date: string | null;
+  rent_due_day: number | null;
+  custom_fields: Record<string, string> | null;
 }
 
 export interface Vendor {
@@ -31,6 +43,7 @@ export interface Vendor {
   landlord_id: string;
   preferred: boolean;
   priority_rank: number;
+  custom_fields: Record<string, string> | null;
 }
 
 export interface LandlordProfile {
@@ -66,8 +79,23 @@ export interface MaintenanceRequest {
   created_at: string;
   resolved_at: string | null;
   dispatched_at: string | null;
-  properties: { id: string; name: string; address: string; landlord_id: string } | null;
-  tenants: { id: string; name: string; email: string | null; phone: string | null; unit_number: string | null } | null;
+  properties: {
+    id: string;
+    name: string;
+    address_line1: string;
+    city: string;
+    state: string;
+    postal_code: string;
+    landlord_id: string;
+  } | null;
+  tenants: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string | null;
+    phone: string | null;
+    unit_number: string | null;
+  } | null;
   vendors: { id: string; name: string; phone: string | null; email: string | null; specialty: string } | null;
   request_photos: { id: string; storage_path: string; file_type: string }[];
 }
@@ -83,4 +111,95 @@ export interface SpendChartItem {
   property_name: string;
   spend: number;
   rent: number;
+}
+
+export interface RentPayment {
+  id: string;
+  property_id: string;
+  tenant_id: string | null;
+  amount: number;
+  paid_at: string;
+  period_start: string;
+  period_end: string;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface RentStatus {
+  property_id: string;
+  monthly_rent: number;
+  rent_due_day: number;
+  last_paid_at: string | null;
+  last_paid_amount: number | null;
+  is_overdue: boolean;
+  days_overdue: number;
+}
+
+export type DocumentType =
+  | 'lease'
+  | 'receipt'
+  | 'inspection_move_in'
+  | 'inspection_move_out'
+  | 'property_photo'
+  | 'other';
+
+export interface Document {
+  id: string;
+  property_id: string;
+  tenant_id: string | null;
+  landlord_id: string;
+  document_type: DocumentType;
+  storage_path: string;
+  file_name: string;
+  file_type: string;
+  file_size: number;
+  description: string | null;
+  uploaded_at: string;
+  tenant_name?: string | null;
+}
+
+export type UtilityType =
+  | 'electric'
+  | 'gas'
+  | 'water_sewer'
+  | 'trash_recycling'
+  | 'internet_cable'
+  | 'hoa';
+
+export type ConfirmationStatus = 'ai_suggested' | 'confirmed' | 'not_applicable';
+export type AiConfidence = 'high' | 'medium' | 'low';
+
+export interface PropertyUtility {
+  id: string;
+  property_id: string;
+  utility_type: UtilityType;
+  provider_name: string | null;
+  provider_phone: string | null;
+  provider_website: string | null;
+  account_number: string | null;
+  confirmation_status: ConfirmationStatus;
+  ai_confidence: AiConfidence | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UtilitySuggestion {
+  utility_type: UtilityType;
+  provider_name: string | null;
+  provider_phone: string | null;
+  provider_website: string | null;
+  confidence: AiConfidence;
+}
+
+export interface UtilityUpsertPayload {
+  utilities: Array<{
+    utility_type: UtilityType;
+    provider_name: string | null;
+    provider_phone: string | null;
+    provider_website: string | null;
+    account_number: string | null;
+    confirmation_status: ConfirmationStatus;
+    notes: string | null;
+  }>;
 }

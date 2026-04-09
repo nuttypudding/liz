@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Building2, ChevronDown, Pencil, Phone, Mail, Plus, Trash2, User } from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Building2, CalendarDays, ChevronDown, FileText, Pencil, Phone, Mail, Plus, Trash2, Upload, User } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
-import { PropertyForm } from "@/components/forms/property-form";
-import { TenantForm } from "@/components/forms/tenant-form";
+import { PropertyForm, type PropertyFormData } from "@/components/forms/property-form";
+import { TenantForm, type TenantFormData } from "@/components/forms/tenant-form";
+import { fullName, formatAddress } from "@/lib/format";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -33,14 +34,49 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { DocumentUploader } from "@/components/documents/document-uploader";
+import { DocumentGallery } from "@/components/documents/document-gallery";
+import { DocumentPreviewDialog } from "@/components/documents/document-preview-dialog";
+import { UtilitySetupSheet } from "@/components/properties/utility-setup-sheet";
 import { cn } from "@/lib/utils";
-import type { Property, Tenant } from "@/lib/types";
+import type { Property, PropertyUtility, Tenant, Document as LizDocument } from "@/lib/types";
+
+function getLeaseStatus(leaseEndDate: string | null): {
+  label: string;
+  variant: "default" | "secondary" | "destructive" | "outline";
+  className?: string;
+} {
+  if (!leaseEndDate) {
+    return { label: "Active", variant: "default", className: "bg-green-600 hover:bg-green-600" };
+  }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const end = new Date(leaseEndDate + "T00:00:00");
+  const diffMs = end.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) {
+    return { label: "Expired", variant: "destructive" };
+  }
+  if (diffDays <= 60) {
+    return { label: "Expiring Soon", variant: "default", className: "bg-yellow-500 hover:bg-yellow-500 text-black" };
+  }
+  return { label: "Active", variant: "default", className: "bg-green-600 hover:bg-green-600" };
+}
+
+function formatLeaseDate(date: string): string {
+  return new Date(date + "T00:00:00").toLocaleDateString("en-US", {
+    month: "short",
+    year: "numeric",
+  });
+}
 
 type SheetMode =
   | { type: "add-property" }
   | { type: "edit-property"; property: Property }
   | { type: "add-tenant"; propertyId: string }
   | { type: "edit-tenant"; propertyId: string; tenant: Tenant }
+  | { type: "property-documents"; property: Property }
   | null;
 
 export default function PropertiesPage() {
@@ -50,6 +86,16 @@ export default function PropertiesPage() {
     new Set()
   );
   const [sheetMode, setSheetMode] = useState<SheetMode>(null);
+  const [utilitySheet, setUtilitySheet] = useState<{
+    propertyId: string;
+    address: string;
+    existingUtilities: PropertyUtility[];
+    autoFetch?: boolean;
+  } | null>(null);
+  const [redetectDialog, setRedetectDialog] = useState<{ propertyId: string; newAddress: string } | null>(null);
+  const [documentCounts, setDocumentCounts] = useState<Record<string, number>>({});
+  const [galleryKey, setGalleryKey] = useState(0);
+  const [previewDocument, setPreviewDocument] = useState<LizDocument | null>(null);
 
   const fetchProperties = useCallback(async () => {
     try {
@@ -69,6 +115,40 @@ export default function PropertiesPage() {
     fetchProperties();
   }, [fetchProperties]);
 
+  // Fetch document counts when property list changes
+  const propertyIds = useMemo(
+    () => properties.map((p) => p.id).sort().join(","),
+    [properties]
+  );
+
+  useEffect(() => {
+    if (!propertyIds) return;
+    let cancelled = false;
+    const ids = propertyIds.split(",");
+
+    Promise.all(
+      ids.map(async (id) => {
+        try {
+          const r = await fetch(`/api/properties/${id}/documents`);
+          if (r.ok) {
+            const d = await r.json();
+            return [id, (d.documents ?? []).length] as const;
+          }
+        } catch {}
+        return [id, 0] as const;
+      })
+    ).then((results) => {
+      if (cancelled) return;
+      const counts: Record<string, number> = {};
+      for (const [id, count] of results) counts[id] = count;
+      setDocumentCounts(counts);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [propertyIds]);
+
   function toggleCollapsible(id: string) {
     setOpenCollapsibles((prev) => {
       const next = new Set(prev);
@@ -81,12 +161,7 @@ export default function PropertiesPage() {
     });
   }
 
-  async function handleSaveProperty(data: {
-    name: string;
-    address: string;
-    unit_count: number;
-    monthly_rent: number;
-  }) {
+  async function handleSaveProperty(data: PropertyFormData) {
     if (sheetMode?.type === "add-property") {
       const res = await fetch("/api/properties", {
         method: "POST",
@@ -94,25 +169,88 @@ export default function PropertiesPage() {
         body: JSON.stringify(data),
       });
       if (res.ok) {
-        toast.success("Property added");
+        const { property: newProperty } = await res.json();
         await fetchProperties();
+        setSheetMode(null);
+        toast.success("Property added!", {
+          description: "Would you like to auto-detect utility providers?",
+          action: {
+            label: "Auto-Detect",
+            onClick: () => {
+              if (newProperty) {
+                setUtilitySheet({
+                  propertyId: newProperty.id,
+                  address: formatAddress(newProperty),
+                  existingUtilities: [],
+                });
+              }
+            },
+          },
+        });
+        return;
       } else {
         toast.error("Failed to add property");
       }
     } else if (sheetMode?.type === "edit-property") {
-      const res = await fetch(`/api/properties/${sheetMode.property.id}`, {
+      const propertyId = sheetMode.property.id;
+      const newAddress = formatAddress({
+        address_line1: data.address_line1,
+        city: data.city,
+        state: data.state,
+        postal_code: data.postal_code,
+      });
+      const oldAddress = formatAddress(sheetMode.property);
+      const addressChanged = newAddress !== oldAddress;
+      const res = await fetch(`/api/properties/${propertyId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
       if (res.ok) {
-        toast.success("Property updated");
         await fetchProperties();
+        setSheetMode(null);
+        if (addressChanged && newAddress) {
+          setRedetectDialog({ propertyId, newAddress });
+        } else {
+          toast.success("Property updated");
+        }
+        return;
       } else {
         toast.error("Failed to update property");
       }
     }
     setSheetMode(null);
+  }
+
+  async function handleRedetectConfirm() {
+    if (!redetectDialog) return;
+    const { propertyId, newAddress } = redetectDialog;
+    setRedetectDialog(null);
+
+    let existingUtils: PropertyUtility[] = [];
+    try {
+      const r = await fetch(`/api/properties/${propertyId}/utilities`);
+      if (r.ok) {
+        const { utilities } = await r.json();
+        existingUtils = utilities ?? [];
+      }
+    } catch {
+      // proceed with empty; auto-detect will run from scratch
+    }
+
+    setUtilitySheet({
+      propertyId,
+      address: newAddress,
+      existingUtilities: existingUtils,
+      autoFetch: true,
+    });
+  }
+
+  function handleRedetectClose() {
+    if (redetectDialog) {
+      toast.success("Property updated");
+      setRedetectDialog(null);
+    }
   }
 
   async function handleDeleteProperty(propertyId: string) {
@@ -127,17 +265,25 @@ export default function PropertiesPage() {
     }
   }
 
-  async function handleSaveTenant(data: {
-    name: string;
-    email: string;
-    phone: string;
-    unit_number: string;
-  }) {
+  async function handleSaveTenant(data: TenantFormData) {
+    const payload = {
+      first_name: data.first_name,
+      last_name: data.last_name,
+      email: data.email,
+      phone: data.phone || null,
+      move_in_date: data.move_in_date || null,
+      lease_type: data.lease_type || null,
+      lease_start_date: data.lease_start_date || null,
+      lease_end_date: data.lease_end_date || null,
+      rent_due_day: data.rent_due_day ? Number(data.rent_due_day) : null,
+      custom_fields: Object.keys(data.custom_fields).length > 0 ? data.custom_fields : null,
+    };
+
     if (sheetMode?.type === "add-tenant") {
       const res = await fetch(`/api/properties/${sheetMode.propertyId}/tenants`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         toast.success("Tenant added");
@@ -149,7 +295,7 @@ export default function PropertiesPage() {
       const res = await fetch(`/api/tenants/${sheetMode.tenant.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         toast.success("Tenant updated");
@@ -173,6 +319,34 @@ export default function PropertiesPage() {
     }
   }
 
+  async function refreshDocumentCount(propertyId: string) {
+    try {
+      const r = await fetch(`/api/properties/${propertyId}/documents`);
+      if (r.ok) {
+        const d = await r.json();
+        setDocumentCounts((prev) => ({
+          ...prev,
+          [propertyId]: (d.documents ?? []).length,
+        }));
+      }
+    } catch {}
+  }
+
+  function handleUploadComplete() {
+    if (sheetMode?.type === "property-documents") {
+      setGalleryKey((k) => k + 1);
+      refreshDocumentCount(sheetMode.property.id);
+    }
+  }
+
+  function handleSheetClose() {
+    if (sheetMode?.type === "property-documents") {
+      refreshDocumentCount(sheetMode.property.id);
+      setPreviewDocument(null);
+    }
+    setSheetMode(null);
+  }
+
   const sheetTitle =
     sheetMode?.type === "add-property"
       ? "Add Property"
@@ -182,7 +356,9 @@ export default function PropertiesPage() {
           ? "Add Tenant"
           : sheetMode?.type === "edit-tenant"
             ? "Edit Tenant"
-            : "";
+            : sheetMode?.type === "property-documents"
+              ? `Documents \u2014 ${sheetMode.property.name}`
+              : "";
 
   if (loading) {
     return (
@@ -245,7 +421,9 @@ export default function PropertiesPage() {
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        {property.address}
+                        {formatAddress(property, {
+                          apt_or_unit_no: property.apt_or_unit_no,
+                        })}
                       </p>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
@@ -293,7 +471,23 @@ export default function PropertiesPage() {
                   </div>
                 </CardHeader>
 
-                <CardContent className="px-4 pb-4">
+                <CardContent className="px-4 pb-4 space-y-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start min-h-9 -mx-1 px-1 gap-1.5"
+                    onClick={() =>
+                      setSheetMode({
+                        type: "property-documents",
+                        property,
+                      })
+                    }
+                  >
+                    <FileText className="size-3.5 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      Documents ({documentCounts[property.id] ?? 0})
+                    </span>
+                  </Button>
                   <Collapsible
                     open={isOpen}
                     onOpenChange={() => toggleCollapsible(property.id)}
@@ -328,7 +522,7 @@ export default function PropertiesPage() {
                                 <div className="flex items-center gap-1.5">
                                   <User className="size-3.5 text-muted-foreground shrink-0" />
                                   <span className="text-sm font-medium">
-                                    {tenant.name}
+                                    {fullName(tenant)}
                                   </span>
                                   {tenant.unit_number && (
                                     <Badge variant="outline" className="text-xs">
@@ -346,6 +540,36 @@ export default function PropertiesPage() {
                                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                     <Phone className="size-3 shrink-0" />
                                     <span>{tenant.phone}</span>
+                                  </div>
+                                )}
+                                {tenant.lease_type && (
+                                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1 flex-wrap">
+                                    <CalendarDays className="size-3 shrink-0" />
+                                    <span>
+                                      {tenant.lease_type === "yearly" ? "Yearly" : "Month-to-Month"}
+                                      {tenant.lease_start_date && (
+                                        <>
+                                          {" \u00B7 "}
+                                          {tenant.lease_type === "yearly" && tenant.lease_end_date
+                                            ? `${formatLeaseDate(tenant.lease_start_date)} \u2013 ${formatLeaseDate(tenant.lease_end_date)}`
+                                            : `Started ${formatLeaseDate(tenant.lease_start_date)}`}
+                                        </>
+                                      )}
+                                      {tenant.rent_due_day != null && (
+                                        <>
+                                          {" \u00B7 "}
+                                          Due {tenant.rent_due_day === 1 ? "1st" : tenant.rent_due_day === 2 ? "2nd" : tenant.rent_due_day === 3 ? "3rd" : `${tenant.rent_due_day}th`}
+                                        </>
+                                      )}
+                                    </span>
+                                    {(() => {
+                                      const status = getLeaseStatus(tenant.lease_end_date);
+                                      return (
+                                        <Badge variant={status.variant} className={cn("text-[10px] px-1.5 py-0", status.className)}>
+                                          {status.label}
+                                        </Badge>
+                                      );
+                                    })()}
                                   </div>
                                 )}
                               </div>
@@ -375,7 +599,7 @@ export default function PropertiesPage() {
                                   <AlertDialogContent>
                                     <AlertDialogHeader>
                                       <AlertDialogTitle>
-                                        Remove {tenant.name}?
+                                        Remove {fullName(tenant)}?
                                       </AlertDialogTitle>
                                       <AlertDialogDescription>
                                         This will remove the tenant from the
@@ -424,8 +648,11 @@ export default function PropertiesPage() {
         </div>
       )}
 
-      <Sheet open={sheetMode !== null} onOpenChange={(open) => { if (!open) setSheetMode(null); }}>
-        <SheetContent side="right">
+      <Sheet open={sheetMode !== null} onOpenChange={(open) => { if (!open) handleSheetClose(); }}>
+        <SheetContent
+          side="right"
+          className={sheetMode?.type === "property-documents" ? "data-[side=right]:sm:max-w-2xl" : undefined}
+        >
           <SheetHeader>
             <SheetTitle>{sheetTitle}</SheetTitle>
           </SheetHeader>
@@ -451,8 +678,79 @@ export default function PropertiesPage() {
               onCancel={() => setSheetMode(null)}
             />
           )}
+          {sheetMode?.type === "property-documents" && (
+            <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-6">
+              <Collapsible>
+                <CollapsibleTrigger
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    "group w-full justify-between min-h-9"
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <Upload className="size-4" />
+                    Upload New Document
+                  </span>
+                  <ChevronDown className="size-4 text-muted-foreground transition-transform group-data-[panel-open]:rotate-180" />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-3">
+                  <DocumentUploader
+                    propertyId={sheetMode.property.id}
+                    tenants={sheetMode.property.tenants ?? []}
+                    onUploadComplete={handleUploadComplete}
+                  />
+                </CollapsibleContent>
+              </Collapsible>
+              <DocumentGallery
+                key={galleryKey}
+                propertyId={sheetMode.property.id}
+                onPreview={(doc) => setPreviewDocument(doc)}
+              />
+            </div>
+          )}
         </SheetContent>
       </Sheet>
+
+      <DocumentPreviewDialog
+        document={previewDocument}
+        open={previewDocument !== null}
+        onClose={() => setPreviewDocument(null)}
+      />
+
+      {utilitySheet && (
+        <UtilitySetupSheet
+          propertyId={utilitySheet.propertyId}
+          address={utilitySheet.address}
+          existingUtilities={utilitySheet.existingUtilities}
+          autoFetch={utilitySheet.autoFetch}
+          open={true}
+          onClose={() => setUtilitySheet(null)}
+          onSave={() => setUtilitySheet(null)}
+        />
+      )}
+
+      <AlertDialog
+        open={redetectDialog !== null}
+        onOpenChange={(open) => { if (!open) handleRedetectClose(); }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Address Changed</AlertDialogTitle>
+            <AlertDialogDescription>
+              Re-detect utility providers for the new address? Only unconfirmed
+              entries will be updated — confirmed and N/A entries are preserved.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleRedetectClose}>
+              No, keep existing
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleRedetectConfirm}>
+              Re-detect utilities
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

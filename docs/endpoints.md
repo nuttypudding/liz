@@ -38,7 +38,7 @@
 | Sign In | `/sign-in` |
 | Sign Up | `/sign-up` |
 | Clerk Dashboard | `https://dashboard.clerk.com` |
-| Webhook endpoint | `/api/webhooks/clerk` |
+| Webhook endpoint | `/api/webhook/clerk` |
 
 ## API Routes (Next.js)
 
@@ -48,35 +48,62 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 |--------|-------|---------|
 | GET | `/api/settings/profile` | Fetch landlord profile |
 | PUT | `/api/settings/profile` | Update landlord profile / complete onboarding |
-| GET | `/api/properties` | List landlord's properties (with tenants) |
-| POST | `/api/properties` | Create a property |
+| GET | `/api/properties` | List landlord's properties (with tenants, apt_or_unit_no, rent_due_day) |
+| POST | `/api/properties` | Create a property (accepts apt_or_unit_no, rent_due_day) |
 | GET | `/api/properties/[id]` | Get single property |
 | PUT | `/api/properties/[id]` | Update a property |
 | DELETE | `/api/properties/[id]` | Delete a property |
-| POST | `/api/properties/[id]/tenants` | Add tenant to property |
+| POST | `/api/properties/[id]/tenants` | Add tenant to property (accepts lease fields + custom_fields) |
+| GET | `/api/properties/[id]/rent-status` | Rent status for a property (overdue, last paid) |
+| POST | `/api/properties/[id]/rent-payments` | Record a rent payment for a property |
+| GET | `/api/properties/[id]/documents` | List documents for a property (landlord or tenant) |
+| DELETE | `/api/documents/[id]` | Delete a document |
+| GET | `/api/documents/[id]/url` | Get signed download URL for a document |
+| POST | `/api/documents/upload` | Upload document to property-documents bucket |
+| GET | `/api/properties/[id]/utilities` | List utility info for a property (landlord or tenant; tenant view omits account numbers and N/A rows) |
+| PUT | `/api/properties/[id]/utilities` | Upsert utility info for a property (landlord only; bulk upsert all utility types) |
+| POST | `/api/properties/[id]/utilities/suggest` | AI-suggest utility providers for a property |
 | GET | `/api/tenants/[id]` | Get single tenant |
 | PUT | `/api/tenants/[id]` | Update a tenant |
+| PATCH | `/api/tenants/[id]` | Partially update a tenant (accepts lease fields + custom_fields) |
 | DELETE | `/api/tenants/[id]` | Delete a tenant |
 | GET | `/api/vendors` | List vendors (sorted by preferred/priority) |
-| POST | `/api/vendors` | Create a vendor |
+| POST | `/api/vendors` | Create a vendor (accepts priority_rank + custom_fields) |
 | GET | `/api/vendors/[id]` | Get single vendor |
-| PUT | `/api/vendors/[id]` | Update a vendor |
+| PUT | `/api/vendors/[id]` | Update a vendor (accepts priority_rank + custom_fields) |
+| PATCH | `/api/vendors/[id]` | Partially update a vendor (accepts priority_rank + custom_fields) |
 | DELETE | `/api/vendors/[id]` | Delete a vendor |
+| GET | `/api/dashboard/stats` | Get dashboard statistics (supports optional ?propertyId= filter) |
+| GET | `/api/dashboard/spend-chart` | Get spend chart data (supports optional ?propertyId= filter) |
+| GET | `/api/requests` | List maintenance requests (supports optional ?propertyId= filter) |
+| POST | `/api/classify` | AI classification of maintenance request |
 | POST | `/api/intake` | Submit maintenance intake |
-| POST | `/api/webhooks/clerk` | Clerk webhook for user sync |
+| GET | `/api/requests/[id]` | Get single maintenance request |
+| PATCH | `/api/requests/[id]` | Update a maintenance request |
+| POST | `/api/requests/[id]/dispatch` | Dispatch request to vendor |
+| POST | `/api/requests/[id]/resolve` | Resolve a maintenance request |
+| POST | `/api/requests/[id]/work-order` | Create work order for a request |
+| GET | `/api/tenant/me` | Get current tenant's profile |
+| POST | `/api/upload` | General file upload |
+| POST | `/api/webhook/clerk` | Clerk webhook for user sync |
 
 ## App Pages
 
 | Route | Purpose |
 |-------|---------|
+| `/` | Landing / home page |
 | `/sign-in` | Clerk sign-in |
 | `/sign-up` | Clerk sign-up |
 | `/onboarding` | 5-step onboarding wizard |
 | `/dashboard` | Main landlord dashboard |
-| `/dashboard/properties` | Properties list |
-| `/dashboard/tenants` | Tenants list |
-| `/dashboard/vendors` | Vendors list |
-| `/dashboard/settings` | Landlord settings / AI preferences |
+| `/properties` | Properties list |
+| `/requests` | Maintenance requests list (landlord) |
+| `/requests/[id]` | Request detail / triage (landlord) |
+| `/vendors` | Vendors list |
+| `/settings` | Landlord settings / AI preferences |
+| `/submit` | Tenant maintenance request submission |
+| `/my-requests` | Tenant's submitted requests |
+| `/my-requests/[id]` | Tenant request detail |
 
 ## Environment Files
 

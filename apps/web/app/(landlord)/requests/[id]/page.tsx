@@ -16,6 +16,7 @@ import { CostEstimateCard } from "@/components/requests/cost-estimate-card";
 import { VendorSelector } from "@/components/requests/vendor-selector";
 import { ApproveButton } from "@/components/requests/approve-button";
 import { WorkOrderDraft } from "@/components/requests/work-order-draft";
+import { fullName } from "@/lib/format";
 import type { MaintenanceRequest, Vendor } from "@/lib/types";
 
 interface RequestDetailPageProps {
@@ -112,7 +113,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
 
   const urgency = (request.ai_urgency ?? "low") as "low" | "medium" | "emergency";
   const propertyName = request.properties?.name ?? "Unknown Property";
-  const tenantName = request.tenants?.name ?? "Unknown Tenant";
+  const tenantName = request.tenants ? fullName(request.tenants) : "Unknown Tenant";
   const selectedVendor = vendors.find((v) => v.id === selectedVendorId);
 
   const workOrderDefault = `Work Order — ${propertyName}

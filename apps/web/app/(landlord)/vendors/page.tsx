@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Mail, Pencil, Phone, Plus, Trash2, Wrench } from "lucide-react";
+import { FileText, Mail, Pencil, Phone, Plus, Trash2, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { VendorForm } from "@/components/forms/vendor-form";
+import type { VendorFormData } from "@/components/forms/vendor-form";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -39,18 +40,23 @@ const SPECIALTY_LABELS: Record<string, string> = {
   general: "General",
 };
 
+const RANK_LABELS: Record<number, string> = {
+  1: "1st",
+  2: "2nd",
+  3: "3rd",
+};
+
+function formatPhoneDisplay(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
 type SheetMode =
   | { type: "add" }
   | { type: "edit"; vendor: Vendor }
   | null;
-
-interface VendorFormData {
-  name: string;
-  phone: string;
-  email: string;
-  specialty: string;
-  notes: string;
-}
 
 export default function VendorsPage() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -160,89 +166,108 @@ export default function VendorsPage() {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {vendors.map((vendor) => (
-            <Card key={vendor.id} className="flex flex-col">
-              <CardHeader className="px-4 pt-4 pb-2">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="space-y-1 min-w-0">
-                    <h3 className="text-base font-semibold leading-snug">
-                      {vendor.name}
-                    </h3>
-                    <Badge variant="secondary">
-                      {SPECIALTY_LABELS[vendor.specialty] ?? vendor.specialty}
-                    </Badge>
-                  </div>
-                </div>
-              </CardHeader>
+          {vendors.map((vendor) => {
+            const customFieldCount = vendor.custom_fields
+              ? Object.keys(vendor.custom_fields).length
+              : 0;
 
-              <CardContent className="px-4 pb-3 space-y-1.5 flex-1">
-                {vendor.phone && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Phone className="size-3.5 text-muted-foreground shrink-0" />
-                    <a
-                      href={`tel:${vendor.phone}`}
-                      className="hover:underline"
-                    >
-                      {vendor.phone}
-                    </a>
+            return (
+              <Card key={vendor.id} className="flex flex-col">
+                <CardHeader className="px-4 pt-4 pb-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="space-y-1 min-w-0">
+                      <h3 className="text-base font-semibold leading-snug">
+                        {vendor.name}
+                      </h3>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <Badge variant="secondary">
+                          {SPECIALTY_LABELS[vendor.specialty] ?? vendor.specialty}
+                        </Badge>
+                        {vendor.priority_rank > 0 && (
+                          <Badge variant="outline" className="text-xs">
+                            {RANK_LABELS[vendor.priority_rank] ?? `#${vendor.priority_rank}`}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                )}
-                {vendor.email && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Mail className="size-3.5 text-muted-foreground shrink-0" />
-                    <a
-                      href={`mailto:${vendor.email}`}
-                      className="hover:underline truncate"
-                    >
-                      {vendor.email}
-                    </a>
-                  </div>
-                )}
-                {vendor.notes && (
-                  <p className="text-xs text-muted-foreground line-clamp-2 pt-1">
-                    {vendor.notes}
-                  </p>
-                )}
-              </CardContent>
+                </CardHeader>
 
-              <CardFooter className="px-4 pb-4 flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="min-h-9"
-                  onClick={() => setSheetMode({ type: "edit", vendor })}
-                >
-                  <Pencil className="size-3.5" />
-                  Edit
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger
-                    className={buttonVariants({ variant: "outline", size: "sm", className: "min-h-9 text-destructive hover:text-destructive border-destructive/30" })}
+                <CardContent className="px-4 pb-3 space-y-1.5 flex-1">
+                  {vendor.phone && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="size-3.5 text-muted-foreground shrink-0" />
+                      <a
+                        href={`tel:${vendor.phone}`}
+                        className="hover:underline"
+                      >
+                        {formatPhoneDisplay(vendor.phone)}
+                      </a>
+                    </div>
+                  )}
+                  {vendor.email && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Mail className="size-3.5 text-muted-foreground shrink-0" />
+                      <a
+                        href={`mailto:${vendor.email}`}
+                        className="hover:underline truncate"
+                      >
+                        {vendor.email}
+                      </a>
+                    </div>
+                  )}
+                  {vendor.notes && (
+                    <p className="text-xs text-muted-foreground line-clamp-2 pt-1">
+                      {vendor.notes}
+                    </p>
+                  )}
+                  {customFieldCount > 0 && (
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1">
+                      <FileText className="size-3 shrink-0" />
+                      {customFieldCount} custom field{customFieldCount !== 1 ? "s" : ""}
+                    </div>
+                  )}
+                </CardContent>
+
+                <CardFooter className="px-4 pb-4 flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="min-h-9"
+                    onClick={() => setSheetMode({ type: "edit", vendor })}
                   >
-                    <Trash2 className="size-3.5" />
-                    Delete
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Remove {vendor.name}?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This vendor will be removed from your account. This
-                        action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDelete(vendor.id)}>
-                        Remove
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </CardFooter>
-            </Card>
-          ))}
+                    <Pencil className="size-3.5" />
+                    Edit
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger
+                      className={buttonVariants({ variant: "outline", size: "sm", className: "min-h-9 text-destructive hover:text-destructive border-destructive/30" })}
+                    >
+                      <Trash2 className="size-3.5" />
+                      Delete
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Remove {vendor.name}?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This vendor will be removed from your account. This
+                          action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDelete(vendor.id)}>
+                          Remove
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </CardFooter>
+              </Card>
+            );
+          })}
         </div>
       )}
 

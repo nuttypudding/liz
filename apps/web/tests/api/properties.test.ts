@@ -61,12 +61,19 @@ describe("GET /api/properties", () => {
 describe("POST /api/properties", () => {
   beforeEach(() => resetAllMocks());
 
+  const validAddress = {
+    address_line1: "123 Main St",
+    city: "Austin",
+    state: "TX",
+    postal_code: "78701",
+  };
+
   it("returns 401 when unauthenticated", async () => {
     setMockAuth(null);
     const res = await POST(
       buildRequest("/api/properties", {
         method: "POST",
-        body: { name: "Test", address: "123 Main St" },
+        body: { name: "Test", ...validAddress },
       })
     );
     expect(res.status).toBe(401);
@@ -77,7 +84,7 @@ describe("POST /api/properties", () => {
     const res = await POST(
       buildRequest("/api/properties", {
         method: "POST",
-        body: { name: "Test", address: "123 Main St" },
+        body: { name: "Test", ...validAddress },
       })
     );
     expect(res.status).toBe(403);
@@ -87,7 +94,7 @@ describe("POST /api/properties", () => {
     const res = await POST(
       buildRequest("/api/properties", {
         method: "POST",
-        body: { name: "" }, // missing required address
+        body: { name: "" }, // missing required address fields
       })
     );
     expect(res.status).toBe(400);
@@ -96,14 +103,14 @@ describe("POST /api/properties", () => {
   it("creates property with valid data", async () => {
     setSupabaseResults([
       {
-        data: { id: "p1", name: "Test Property", address: "123 Main St" },
+        data: { id: "p1", name: "Test Property", ...validAddress },
         error: null,
       },
     ]);
     const res = await POST(
       buildRequest("/api/properties", {
         method: "POST",
-        body: { name: "Test Property", address: "123 Main St" },
+        body: { name: "Test Property", ...validAddress },
       })
     );
     expect(res.status).toBe(201);

@@ -7,9 +7,13 @@ import { Button } from "@/components/ui/button";
 import { SheetFooter } from "@/components/ui/sheet";
 import type { Property } from "@/lib/types";
 
-interface PropertyFormData {
+export interface PropertyFormData {
   name: string;
-  address: string;
+  address_line1: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  apt_or_unit_no: string;
   unit_count: number;
   monthly_rent: number;
 }
@@ -27,7 +31,11 @@ export function PropertyForm({
 }: PropertyFormProps) {
   const [form, setForm] = useState<PropertyFormData>({
     name: initialData?.name ?? "",
-    address: initialData?.address ?? "",
+    address_line1: initialData?.address_line1 ?? "",
+    city: initialData?.city ?? "",
+    state: initialData?.state ?? "",
+    postal_code: initialData?.postal_code ?? "",
+    apt_or_unit_no: initialData?.apt_or_unit_no ?? "",
     unit_count: initialData?.unit_count ?? 1,
     monthly_rent: initialData?.monthly_rent ?? 0,
   });
@@ -45,6 +53,18 @@ export function PropertyForm({
           id="prop-name"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
+          placeholder="e.g. Oak Street House"
+          required
+          className="min-h-11"
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="prop-address-line1">Street Address</Label>
+        <Input
+          id="prop-address-line1"
+          value={form.address_line1}
+          onChange={(e) => setForm({ ...form, address_line1: e.target.value })}
           placeholder="123 Oak Street"
           required
           className="min-h-11"
@@ -52,15 +72,53 @@ export function PropertyForm({
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="prop-address">Address</Label>
+        <Label htmlFor="prop-apt-unit">Apt or Unit No.</Label>
         <Input
-          id="prop-address"
-          value={form.address}
-          onChange={(e) => setForm({ ...form, address: e.target.value })}
-          placeholder="123 Oak Street, Austin TX 78701"
+          id="prop-apt-unit"
+          value={form.apt_or_unit_no}
+          onChange={(e) =>
+            setForm({ ...form, apt_or_unit_no: e.target.value })
+          }
+          placeholder="e.g. Suite 200, Unit B"
+          className="min-h-11"
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="prop-city">City</Label>
+        <Input
+          id="prop-city"
+          value={form.city}
+          onChange={(e) => setForm({ ...form, city: e.target.value })}
+          placeholder="Austin"
           required
           className="min-h-11"
         />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="prop-state">State</Label>
+          <Input
+            id="prop-state"
+            value={form.state}
+            onChange={(e) => setForm({ ...form, state: e.target.value })}
+            placeholder="TX"
+            required
+            className="min-h-11"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="prop-postal">ZIP Code</Label>
+          <Input
+            id="prop-postal"
+            value={form.postal_code}
+            onChange={(e) => setForm({ ...form, postal_code: e.target.value })}
+            placeholder="78701"
+            required
+            className="min-h-11"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">

@@ -3,6 +3,7 @@ import {
   resetAllMocks,
   setMockAuth,
   setSupabaseResults,
+  buildRequest,
   mockAuth,
   mockCreateServerSupabaseClient,
 } from "../helpers";
@@ -23,13 +24,13 @@ describe("GET /api/dashboard/stats", () => {
 
   it("returns 401 when unauthenticated", async () => {
     setMockAuth(null);
-    const res = await getStats();
+    const res = await getStats(buildRequest("/api/dashboard/stats"));
     expect(res.status).toBe(401);
   });
 
   it("returns zero stats when no properties", async () => {
     setSupabaseResults([{ data: [], error: null }]);
-    const res = await getStats();
+    const res = await getStats(buildRequest("/api/dashboard/stats"));
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.emergency_count).toBe(0);
@@ -51,7 +52,7 @@ describe("GET /api/dashboard/stats", () => {
         error: null,
       },
     ]);
-    const res = await getStats();
+    const res = await getStats(buildRequest("/api/dashboard/stats"));
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.emergency_count).toBe(1);
@@ -64,13 +65,13 @@ describe("GET /api/dashboard/spend-chart", () => {
 
   it("returns 401 when unauthenticated", async () => {
     setMockAuth(null);
-    const res = await getSpendChart();
+    const res = await getSpendChart(buildRequest("/api/dashboard/spend-chart"));
     expect(res.status).toBe(401);
   });
 
   it("returns empty data when no properties", async () => {
     setSupabaseResults([{ data: [], error: null }]);
-    const res = await getSpendChart();
+    const res = await getSpendChart(buildRequest("/api/dashboard/spend-chart"));
     const json = await res.json();
     expect(json.data).toEqual([]);
   });
@@ -95,7 +96,7 @@ describe("GET /api/dashboard/spend-chart", () => {
         error: null,
       },
     ]);
-    const res = await getSpendChart();
+    const res = await getSpendChart(buildRequest("/api/dashboard/spend-chart"));
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.data).toHaveLength(2);

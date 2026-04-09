@@ -64,6 +64,10 @@ function createChain(): Record<string, unknown> {
     "not",
     "order",
     "is",
+    "gte",
+    "lte",
+    "gt",
+    "lt",
   ];
 
   for (const method of chainMethods) {

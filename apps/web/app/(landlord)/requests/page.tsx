@@ -26,6 +26,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Wrench } from "lucide-react";
+import { fullName } from "@/lib/format";
 import type { MaintenanceRequest, Property } from "@/lib/types";
 
 type TabValue = "all" | "emergency" | "in-progress" | "resolved";
@@ -86,7 +87,7 @@ export default function RequestsPage() {
       if (search) {
         const q = search.toLowerCase();
         const message = r.tenant_message.toLowerCase();
-        const tenantName = (r.tenants?.name ?? "").toLowerCase();
+        const tenantName = (r.tenants ? fullName(r.tenants) : "").toLowerCase();
         if (!message.includes(q) && !tenantName.includes(q)) return false;
       }
       return true;
@@ -242,7 +243,7 @@ export default function RequestsPage() {
                                   href={`/requests/${r.id}`}
                                   className="text-sm"
                                 >
-                                  {r.tenants?.name ?? "Unknown"}
+                                  {r.tenants ? fullName(r.tenants) : "Unknown"}
                                 </Link>
                               </TableCell>
                               <TableCell>

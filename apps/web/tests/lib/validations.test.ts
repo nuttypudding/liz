@@ -70,10 +70,17 @@ describe("intakeSchema", () => {
 });
 
 describe("propertySchema", () => {
+  const validAddress = {
+    address_line1: "123 Main St",
+    city: "Austin",
+    state: "TX",
+    postal_code: "78701",
+  };
+
   it("accepts valid property", () => {
     const result = propertySchema.safeParse({
       name: "Test Property",
-      address: "123 Main St",
+      ...validAddress,
     });
     expect(result.success).toBe(true);
   });
@@ -81,7 +88,7 @@ describe("propertySchema", () => {
   it("applies default unit_count of 1", () => {
     const result = propertySchema.safeParse({
       name: "Test",
-      address: "123 Main St",
+      ...validAddress,
     });
     expect(result.success).toBe(true);
     if (result.success) {
@@ -92,7 +99,43 @@ describe("propertySchema", () => {
   it("rejects empty name", () => {
     const result = propertySchema.safeParse({
       name: "",
-      address: "123 Main St",
+      ...validAddress,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects empty address_line1", () => {
+    const result = propertySchema.safeParse({
+      name: "Test",
+      ...validAddress,
+      address_line1: "",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects empty city", () => {
+    const result = propertySchema.safeParse({
+      name: "Test",
+      ...validAddress,
+      city: "",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects empty state", () => {
+    const result = propertySchema.safeParse({
+      name: "Test",
+      ...validAddress,
+      state: "",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects empty postal_code", () => {
+    const result = propertySchema.safeParse({
+      name: "Test",
+      ...validAddress,
+      postal_code: "",
     });
     expect(result.success).toBe(false);
   });
@@ -100,7 +143,7 @@ describe("propertySchema", () => {
   it("rejects negative unit_count", () => {
     const result = propertySchema.safeParse({
       name: "Test",
-      address: "123 Main St",
+      ...validAddress,
       unit_count: -1,
     });
     expect(result.success).toBe(false);
@@ -109,7 +152,7 @@ describe("propertySchema", () => {
   it("rejects unit_count over 999", () => {
     const result = propertySchema.safeParse({
       name: "Test",
-      address: "123 Main St",
+      ...validAddress,
       unit_count: 1000,
     });
     expect(result.success).toBe(false);
@@ -118,8 +161,17 @@ describe("propertySchema", () => {
   it("accepts optional monthly_rent", () => {
     const result = propertySchema.safeParse({
       name: "Test",
-      address: "123 Main St",
+      ...validAddress,
       monthly_rent: 1500,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts optional apt_or_unit_no", () => {
+    const result = propertySchema.safeParse({
+      name: "Test",
+      ...validAddress,
+      apt_or_unit_no: "Suite 200",
     });
     expect(result.success).toBe(true);
   });
@@ -127,18 +179,33 @@ describe("propertySchema", () => {
 
 describe("tenantSchema", () => {
   it("accepts valid tenant", () => {
-    const result = tenantSchema.safeParse({ name: "John Doe" });
+    const result = tenantSchema.safeParse({
+      first_name: "John",
+      last_name: "Doe",
+    });
     expect(result.success).toBe(true);
   });
 
-  it("rejects empty name", () => {
-    const result = tenantSchema.safeParse({ name: "" });
+  it("rejects empty first_name", () => {
+    const result = tenantSchema.safeParse({
+      first_name: "",
+      last_name: "Doe",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects empty last_name", () => {
+    const result = tenantSchema.safeParse({
+      first_name: "John",
+      last_name: "",
+    });
     expect(result.success).toBe(false);
   });
 
   it("accepts email, phone, unit_number as optional", () => {
     const result = tenantSchema.safeParse({
-      name: "John Doe",
+      first_name: "John",
+      last_name: "Doe",
       email: "john@test.com",
       phone: "555-0100",
       unit_number: "1A",
@@ -147,12 +214,20 @@ describe("tenantSchema", () => {
   });
 
   it("accepts empty string for email (or pattern)", () => {
-    const result = tenantSchema.safeParse({ name: "John", email: "" });
+    const result = tenantSchema.safeParse({
+      first_name: "John",
+      last_name: "Doe",
+      email: "",
+    });
     expect(result.success).toBe(true);
   });
 
   it("rejects invalid email format", () => {
-    const result = tenantSchema.safeParse({ name: "John", email: "not-email" });
+    const result = tenantSchema.safeParse({
+      first_name: "John",
+      last_name: "Doe",
+      email: "not-email",
+    });
     expect(result.success).toBe(false);
   });
 });

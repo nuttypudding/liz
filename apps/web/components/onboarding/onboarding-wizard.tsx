@@ -18,6 +18,7 @@ import {
   Users,
   Wrench,
   Pencil,
+  ChevronDown,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { PhoneInput } from "@/components/ui/phone-input";
+import { CustomFields } from "@/components/ui/custom-fields";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
+import { ComboNote } from "@/components/onboarding/combo-note";
 import { OptionCard } from "@/components/onboarding/option-card";
+import { fullName, formatAddress } from "@/lib/format";
 
 type RiskAppetite = "cost_first" | "balanced" | "speed_first";
 type DelegationMode = "manual" | "assist" | "auto";
@@ -54,16 +64,26 @@ type Specialty =
 
 interface PropertyDraft {
   name: string;
-  address: string;
+  address_line1: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  apt_or_unit_no: string;
   unit_count: string;
   monthly_rent: string;
 }
 
 interface TenantEntry {
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string;
   phone: string;
-  unit_number: string;
+  move_in_date: string;
+  lease_type: string;
+  lease_start_date: string;
+  lease_end_date: string;
+  rent_due_day: string;
+  custom_fields: Record<string, string>;
 }
 
 interface VendorEntry {
@@ -72,6 +92,8 @@ interface VendorEntry {
   email: string;
   specialty: Specialty;
   notes: string;
+  priority_rank: number;
+  custom_fields: Record<string, string>;
 }
 
 const DEFAULTS = {
@@ -81,7 +103,7 @@ const DEFAULTS = {
 };
 
 const STEP_LABELS = [
-  "AI Preferences",
+  "Agent Preferences",
   "Property",
   "Tenants",
   "Vendors",
@@ -99,11 +121,26 @@ const SPECIALTY_LABELS: Record<Specialty, string> = {
 };
 
 const EMPTY_TENANT: TenantEntry = {
-  name: "",
+  first_name: "",
+  last_name: "",
   email: "",
   phone: "",
-  unit_number: "",
+  move_in_date: "",
+  lease_type: "",
+  lease_start_date: "",
+  lease_end_date: "",
+  rent_due_day: "",
+  custom_fields: {},
 };
+
+const RENT_DUE_DAYS = Array.from({ length: 28 }, (_, i) => {
+  const day = i + 1;
+  const suffix =
+    day === 1 || day === 21 ? "st" :
+    day === 2 || day === 22 ? "nd" :
+    day === 3 || day === 23 ? "rd" : "th";
+  return { value: String(day), label: `${day}${suffix}` };
+});
 
 const EMPTY_VENDOR: VendorEntry = {
   name: "",
@@ -111,6 +148,17 @@ const EMPTY_VENDOR: VendorEntry = {
   email: "",
   specialty: "general",
   notes: "",
+  priority_rank: 0,
+  custom_fields: {},
+};
+
+const RANK_LABELS: Record<number, string> = {
+  0: "—",
+  1: "1st",
+  2: "2nd",
+  3: "3rd",
+  4: "4th",
+  5: "5th",
 };
 
 export function OnboardingWizard() {
@@ -133,7 +181,11 @@ export function OnboardingWizard() {
   // Step 2: Property
   const [property, setProperty] = useState<PropertyDraft>({
     name: "",
-    address: "",
+    address_line1: "",
+    city: "",
+    state: "",
+    postal_code: "",
+    apt_or_unit_no: "",
     unit_count: "1",
     monthly_rent: "",
   });
@@ -148,6 +200,7 @@ export function OnboardingWizard() {
     ...EMPTY_TENANT,
   });
   const [tenantDraftError, setTenantDraftError] = useState("");
+  const [tenantLeaseOpen, setTenantLeaseOpen] = useState(false);
 
   // Step 4: Vendors
   const [vendors, setVendors] = useState<VendorEntry[]>([]);
@@ -177,7 +230,12 @@ export function OnboardingWizard() {
   function validateProperty(): boolean {
     const errors: Record<string, string> = {};
     if (!property.name.trim()) errors.name = "Property name is required";
-    if (!property.address.trim()) errors.address = "Address is required";
+    if (!property.address_line1.trim())
+      errors.address_line1 = "Street address is required";
+    if (!property.city.trim()) errors.city = "City is required";
+    if (!property.state.trim()) errors.state = "State is required";
+    if (!property.postal_code.trim())
+      errors.postal_code = "ZIP code is required";
     setPropertyErrors(errors);
     return Object.keys(errors).length === 0;
   }
@@ -187,14 +245,18 @@ export function OnboardingWizard() {
   }
 
   function addTenant() {
-    if (!tenantDraft.name.trim()) {
-      setTenantDraftError("Tenant name is required");
+    if (!tenantDraft.first_name.trim() || !tenantDraft.last_name.trim()) {
+      setTenantDraftError("First and last name are required");
       return;
     }
-    setTenants((prev) => [...prev, { ...tenantDraft }]);
+    // Clear lease_end_date if month-to-month
+    const entry = { ...tenantDraft };
+    if (entry.lease_type === "month_to_month") entry.lease_end_date = "";
+    setTenants((prev) => [...prev, entry]);
     setTenantDraft({ ...EMPTY_TENANT });
     setShowTenantForm(false);
     setTenantDraftError("");
+    setTenantLeaseOpen(false);
   }
 
   function removeTenant(index: number) {
@@ -214,6 +276,18 @@ export function OnboardingWizard() {
 
   function removeVendor(index: number) {
     setVendors((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function setVendorRank(index: number, rank: number) {
+    setVendors((prev) =>
+      prev.map((v, i) => {
+        if (i === index) return { ...v, priority_rank: rank };
+        // Bump other vendor if it had the same rank
+        if (rank > 0 && v.priority_rank === rank)
+          return { ...v, priority_rank: 0 };
+        return v;
+      })
+    );
   }
 
   function handleSkipAI() {
@@ -252,7 +326,11 @@ export function OnboardingWizard() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: property.name.trim(),
-            address: property.address.trim(),
+            address_line1: property.address_line1.trim(),
+            city: property.city.trim(),
+            state: property.state.trim(),
+            postal_code: property.postal_code.trim(),
+            apt_or_unit_no: property.apt_or_unit_no.trim() || undefined,
             unit_count: parseInt(property.unit_count, 10) || 1,
             monthly_rent: property.monthly_rent
               ? parseFloat(property.monthly_rent)
@@ -272,14 +350,25 @@ export function OnboardingWizard() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: t.name.trim(),
+            first_name: t.first_name.trim(),
+            last_name: t.last_name.trim(),
             email: t.email.trim() || undefined,
             phone: t.phone.trim() || undefined,
-            unit_number: t.unit_number.trim() || undefined,
+            move_in_date: t.move_in_date || undefined,
+            lease_type: t.lease_type || undefined,
+            lease_start_date: t.lease_start_date || undefined,
+            lease_end_date: t.lease_end_date || undefined,
+            rent_due_day: t.rent_due_day
+              ? parseInt(t.rent_due_day, 10)
+              : undefined,
+            custom_fields:
+              Object.keys(t.custom_fields).length > 0
+                ? t.custom_fields
+                : undefined,
           }),
         });
         if (!tRes.ok)
-          throw new Error(`Failed to add tenant "${t.name}"`);
+          throw new Error(`Failed to add tenant "${fullName(t)}"`);
         setSavedTenantCount(i + 1);
       }
 
@@ -295,6 +384,11 @@ export function OnboardingWizard() {
             email: v.email.trim() || undefined,
             specialty: v.specialty,
             notes: v.notes.trim() || undefined,
+            priority_rank: v.priority_rank || undefined,
+            custom_fields:
+              Object.keys(v.custom_fields).length > 0
+                ? v.custom_fields
+                : undefined,
           }),
         });
         if (!vRes.ok)
@@ -355,7 +449,7 @@ export function OnboardingWizard() {
         <Card>
           <CardHeader>
             <CardTitle>
-              Welcome to Liz! How should your AI prioritize?
+              Welcome to Liz! How should your Agent prioritize?
             </CardTitle>
             <CardDescription>
               This affects how we rank urgency and pick vendors.
@@ -388,7 +482,7 @@ export function OnboardingWizard() {
 
             <div className="pt-1 space-y-3">
               <p className="text-sm font-medium">
-                How much should Liz handle on her own?
+                How much should your agent handle on its own?
               </p>
               <OptionCard
                 icon={ShieldCheck}
@@ -417,7 +511,8 @@ export function OnboardingWizard() {
                   <Slider
                     value={[maxAutoApprove]}
                     onValueChange={(value) => {
-                      if (Array.isArray(value)) setMaxAutoApprove(value[0]);
+                      const newVal = typeof value === "number" ? value : value[0];
+                      setMaxAutoApprove(newVal);
                     }}
                     min={50}
                     max={500}
@@ -439,7 +534,16 @@ export function OnboardingWizard() {
                 badgeVariant="outline"
                 disabled
               />
+              <p className="text-xs text-muted-foreground ml-13 -mt-1">
+                When available, you&apos;ll set a maximum spending amount per
+                job.
+              </p>
             </div>
+
+            <ComboNote
+              riskAppetite={riskAppetite}
+              delegationMode={delegationMode}
+            />
 
             <Button
               onClick={() => setStep(2)}
@@ -488,26 +592,114 @@ export function OnboardingWizard() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="prop-address">Address</Label>
+              <Label htmlFor="prop-address-line1">Street address</Label>
               <Input
-                id="prop-address"
-                placeholder="123 Main St, City, State"
-                value={property.address}
+                id="prop-address-line1"
+                placeholder="123 Main St"
+                value={property.address_line1}
                 onChange={(e) => {
-                  setProperty((p) => ({ ...p, address: e.target.value }));
-                  if (propertyErrors.address)
+                  setProperty((p) => ({
+                    ...p,
+                    address_line1: e.target.value,
+                  }));
+                  if (propertyErrors.address_line1)
                     setPropertyErrors((prev) => {
                       const next = { ...prev };
-                      delete next.address;
+                      delete next.address_line1;
                       return next;
                     });
                 }}
               />
-              {propertyErrors.address && (
+              {propertyErrors.address_line1 && (
                 <p className="text-xs text-destructive">
-                  {propertyErrors.address}
+                  {propertyErrors.address_line1}
                 </p>
               )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="apt_or_unit_no">Apt or Unit No.</Label>
+              <Input
+                id="apt_or_unit_no"
+                placeholder="e.g. Suite 200, Unit B"
+                value={property.apt_or_unit_no}
+                onChange={(e) =>
+                  setProperty((p) => ({
+                    ...p,
+                    apt_or_unit_no: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="prop-city">City</Label>
+              <Input
+                id="prop-city"
+                placeholder="Austin"
+                value={property.city}
+                onChange={(e) => {
+                  setProperty((p) => ({ ...p, city: e.target.value }));
+                  if (propertyErrors.city)
+                    setPropertyErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.city;
+                      return next;
+                    });
+                }}
+              />
+              {propertyErrors.city && (
+                <p className="text-xs text-destructive">
+                  {propertyErrors.city}
+                </p>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="prop-state">State</Label>
+                <Input
+                  id="prop-state"
+                  placeholder="TX"
+                  value={property.state}
+                  onChange={(e) => {
+                    setProperty((p) => ({ ...p, state: e.target.value }));
+                    if (propertyErrors.state)
+                      setPropertyErrors((prev) => {
+                        const next = { ...prev };
+                        delete next.state;
+                        return next;
+                      });
+                  }}
+                />
+                {propertyErrors.state && (
+                  <p className="text-xs text-destructive">
+                    {propertyErrors.state}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="prop-postal">ZIP code</Label>
+                <Input
+                  id="prop-postal"
+                  placeholder="78701"
+                  value={property.postal_code}
+                  onChange={(e) => {
+                    setProperty((p) => ({
+                      ...p,
+                      postal_code: e.target.value,
+                    }));
+                    if (propertyErrors.postal_code)
+                      setPropertyErrors((prev) => {
+                        const next = { ...prev };
+                        delete next.postal_code;
+                        return next;
+                      });
+                  }}
+                />
+                {propertyErrors.postal_code && (
+                  <p className="text-xs text-destructive">
+                    {propertyErrors.postal_code}
+                  </p>
+                )}
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -570,11 +762,10 @@ export function OnboardingWizard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="size-5" />
-              Add tenants
+              Add tenants for {property.name || "your property"}
             </CardTitle>
             <CardDescription>
-              Add tenants for {property.name || "your property"}. You can
-              always add more later.
+              You can always add more later.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -587,10 +778,20 @@ export function OnboardingWizard() {
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-medium truncate">
-                        {t.name}
+                        {fullName(t)}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">
-                        {[t.unit_number && `Unit ${t.unit_number}`, t.email]
+                        {[
+                          t.email,
+                          t.lease_type === "yearly"
+                            ? "Yearly"
+                            : t.lease_type === "month_to_month"
+                              ? "Month to Month"
+                              : null,
+                          t.lease_start_date &&
+                            `from ${new Date(t.lease_start_date + "T00:00:00").toLocaleDateString("en-US", { month: "short", year: "numeric" })}`,
+                          t.rent_due_day && `Due day ${t.rent_due_day}`,
+                        ]
                           .filter(Boolean)
                           .join(" · ") || "No details"}
                       </p>
@@ -609,25 +810,41 @@ export function OnboardingWizard() {
 
             {showTenantForm ? (
               <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
-                <div className="space-y-2">
-                  <Label htmlFor="tenant-name">Name</Label>
-                  <Input
-                    id="tenant-name"
-                    placeholder="Tenant name"
-                    value={tenantDraft.name}
-                    onChange={(e) =>
-                      setTenantDraft((d) => ({
-                        ...d,
-                        name: e.target.value,
-                      }))
-                    }
-                  />
-                  {tenantDraftError && (
-                    <p className="text-xs text-destructive">
-                      {tenantDraftError}
-                    </p>
-                  )}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="tenant-first-name">First name</Label>
+                    <Input
+                      id="tenant-first-name"
+                      placeholder="Jane"
+                      value={tenantDraft.first_name}
+                      onChange={(e) =>
+                        setTenantDraft((d) => ({
+                          ...d,
+                          first_name: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tenant-last-name">Last name</Label>
+                    <Input
+                      id="tenant-last-name"
+                      placeholder="Smith"
+                      value={tenantDraft.last_name}
+                      onChange={(e) =>
+                        setTenantDraft((d) => ({
+                          ...d,
+                          last_name: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
                 </div>
+                {tenantDraftError && (
+                  <p className="text-xs text-destructive">
+                    {tenantDraftError}
+                  </p>
+                )}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label htmlFor="tenant-email">Email</Label>
@@ -646,33 +863,140 @@ export function OnboardingWizard() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="tenant-phone">Phone</Label>
-                    <Input
+                    <PhoneInput
                       id="tenant-phone"
                       placeholder="Optional"
                       value={tenantDraft.phone}
-                      onChange={(e) =>
+                      onValueChange={(digits) =>
                         setTenantDraft((d) => ({
                           ...d,
-                          phone: e.target.value,
+                          phone: digits,
                         }))
                       }
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="tenant-unit">Unit number</Label>
-                  <Input
-                    id="tenant-unit"
-                    placeholder="Optional"
-                    value={tenantDraft.unit_number}
-                    onChange={(e) =>
-                      setTenantDraft((d) => ({
-                        ...d,
-                        unit_number: e.target.value,
-                      }))
-                    }
-                  />
-                </div>
+                <Collapsible open={tenantLeaseOpen} onOpenChange={setTenantLeaseOpen}>
+                  <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-accent transition-colors">
+                    <ChevronDown
+                      className={`h-4 w-4 shrink-0 transition-transform duration-200 ${tenantLeaseOpen ? "rotate-0" : "-rotate-90"}`}
+                    />
+                    <span>Lease Details</span>
+                    <span className="text-xs text-muted-foreground/70">(optional)</span>
+                  </CollapsibleTrigger>
+
+                  <CollapsibleContent className="mt-3 space-y-3">
+                    <p className="text-xs text-muted-foreground">
+                      You can add lease details now or later from the Properties page.
+                    </p>
+
+                    {/* Lease type — full width */}
+                    <div className="space-y-1.5">
+                      <Label htmlFor="tenant-lease-type">Lease Type</Label>
+                      <Select
+                        value={tenantDraft.lease_type}
+                        onValueChange={(val) =>
+                          setTenantDraft((d) => ({
+                            ...d,
+                            lease_type: val ?? "",
+                          }))
+                        }
+                      >
+                        <SelectTrigger id="tenant-lease-type">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="yearly">Yearly</SelectItem>
+                          <SelectItem value="month_to_month">Month to Month</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Lease start + end dates */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="tenant-lease-start">Lease Start</Label>
+                        <Input
+                          id="tenant-lease-start"
+                          type="date"
+                          value={tenantDraft.lease_start_date}
+                          onChange={(e) =>
+                            setTenantDraft((d) => ({
+                              ...d,
+                              lease_start_date: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      {tenantDraft.lease_type !== "month_to_month" && (
+                        <div className="space-y-1.5">
+                          <Label htmlFor="tenant-lease-end">Lease End</Label>
+                          <Input
+                            id="tenant-lease-end"
+                            type="date"
+                            value={tenantDraft.lease_end_date}
+                            onChange={(e) =>
+                              setTenantDraft((d) => ({
+                                ...d,
+                                lease_end_date: e.target.value,
+                              }))
+                            }
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Rent due day + Move-in date */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="tenant-rent-due">Rent Due Day</Label>
+                        <Select
+                          value={tenantDraft.rent_due_day}
+                          onValueChange={(val) =>
+                            setTenantDraft((d) => ({
+                              ...d,
+                              rent_due_day: val ?? "",
+                            }))
+                          }
+                        >
+                          <SelectTrigger id="tenant-rent-due">
+                            <SelectValue placeholder="Select day" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {RENT_DUE_DAYS.map((d) => (
+                              <SelectItem key={d.value} value={d.value}>
+                                {d.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="tenant-move-in">Move-in Date</Label>
+                        <Input
+                          id="tenant-move-in"
+                          type="date"
+                          value={tenantDraft.move_in_date}
+                          onChange={(e) =>
+                            setTenantDraft((d) => ({
+                              ...d,
+                              move_in_date: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+                <CustomFields
+                  value={tenantDraft.custom_fields}
+                  onChange={(fields) =>
+                    setTenantDraft((d) => ({
+                      ...d,
+                      custom_fields: fields,
+                    }))
+                  }
+                />
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
@@ -681,6 +1005,7 @@ export function OnboardingWizard() {
                       setShowTenantForm(false);
                       setTenantDraft({ ...EMPTY_TENANT });
                       setTenantDraftError("");
+                      setTenantLeaseOpen(false);
                     }}
                   >
                     Cancel
@@ -742,22 +1067,43 @@ export function OnboardingWizard() {
                     key={i}
                     className="flex items-center justify-between rounded-lg border px-3 py-2"
                   >
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium truncate">
                         {v.name}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">
                         {SPECIALTY_LABELS[v.specialty]}
                         {v.phone && ` · ${v.phone}`}
+                        {Object.keys(v.custom_fields).length > 0 &&
+                          ` · ${Object.keys(v.custom_fields).length} custom field${Object.keys(v.custom_fields).length === 1 ? "" : "s"}`}
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => removeVendor(i)}
-                      className="ml-2 text-muted-foreground hover:text-destructive shrink-0"
-                    >
-                      <X className="size-4" />
-                    </button>
+                    <div className="flex items-center gap-2 shrink-0 ml-2">
+                      <Select
+                        value={String(v.priority_rank)}
+                        onValueChange={(val) =>
+                          setVendorRank(i, parseInt(val ?? "0", 10))
+                        }
+                      >
+                        <SelectTrigger className="h-7 w-[70px] text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(RANK_LABELS).map(([rank, label]) => (
+                            <SelectItem key={rank} value={rank}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <button
+                        type="button"
+                        onClick={() => removeVendor(i)}
+                        className="text-muted-foreground hover:text-destructive shrink-0"
+                      >
+                        <X className="size-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -812,14 +1158,14 @@ export function OnboardingWizard() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label htmlFor="vendor-phone">Phone</Label>
-                    <Input
+                    <PhoneInput
                       id="vendor-phone"
                       placeholder="Optional"
                       value={vendorDraft.phone}
-                      onChange={(e) =>
+                      onValueChange={(digits) =>
                         setVendorDraft((d) => ({
                           ...d,
-                          phone: e.target.value,
+                          phone: digits,
                         }))
                       }
                     />
@@ -854,6 +1200,15 @@ export function OnboardingWizard() {
                     }
                   />
                 </div>
+                <CustomFields
+                  value={vendorDraft.custom_fields}
+                  onChange={(fields) =>
+                    setVendorDraft((d) => ({
+                      ...d,
+                      custom_fields: fields,
+                    }))
+                  }
+                />
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
@@ -913,10 +1268,10 @@ export function OnboardingWizard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* AI Preferences summary */}
+            {/* Agent Preferences summary */}
             <div className="rounded-lg border bg-muted/30 p-4 space-y-2">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium">AI Preferences</p>
+                <p className="text-sm font-medium">Agent Preferences</p>
                 <button
                   type="button"
                   onClick={() => setStep(1)}
@@ -979,7 +1334,9 @@ export function OnboardingWizard() {
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Address</span>
                 <span className="font-medium text-right max-w-[60%] truncate">
-                  {property.address}
+                  {formatAddress(property, {
+                    apt_or_unit_no: property.apt_or_unit_no,
+                  })}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
@@ -1019,17 +1376,46 @@ export function OnboardingWizard() {
                 </p>
               ) : (
                 <ul className="space-y-1">
-                  {tenants.map((t, i) => (
-                    <li key={i} className="text-sm">
-                      {t.name}
-                      {t.unit_number && (
-                        <span className="text-muted-foreground">
-                          {" "}
-                          (Unit {t.unit_number})
-                        </span>
-                      )}
-                    </li>
-                  ))}
+                  {tenants.map((t, i) => {
+                    const fmtDate = (d: string) =>
+                      new Date(d + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+                    const leaseLabel =
+                      t.lease_type === "yearly"
+                        ? "Yearly"
+                        : t.lease_type === "month_to_month"
+                          ? "Month to Month"
+                          : null;
+                    const leaseDates =
+                      t.lease_start_date && t.lease_end_date
+                        ? `${fmtDate(t.lease_start_date)} – ${fmtDate(t.lease_end_date)}`
+                        : t.lease_start_date
+                          ? `from ${fmtDate(t.lease_start_date)}`
+                          : null;
+                    const details = [
+                      t.move_in_date && `moved in ${fmtDate(t.move_in_date)}`,
+                      leaseLabel,
+                      leaseDates,
+                      t.rent_due_day && `due day ${t.rent_due_day}`,
+                    ].filter(Boolean);
+                    const cfCount = Object.keys(t.custom_fields).length;
+                    return (
+                      <li key={i} className="text-sm">
+                        {fullName(t)}
+                        {details.length > 0 && (
+                          <span className="text-muted-foreground">
+                            {" — "}
+                            {details.join(", ")}
+                          </span>
+                        )}
+                        {cfCount > 0 && (
+                          <span className="text-muted-foreground">
+                            {details.length > 0 ? ", " : " — "}
+                            {cfCount} custom field{cfCount !== 1 ? "s" : ""}
+                          </span>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>
@@ -1057,15 +1443,26 @@ export function OnboardingWizard() {
                 </p>
               ) : (
                 <ul className="space-y-1">
-                  {vendors.map((v, i) => (
-                    <li key={i} className="text-sm">
-                      {v.name}
-                      <span className="text-muted-foreground">
-                        {" "}
-                        — {SPECIALTY_LABELS[v.specialty]}
-                      </span>
-                    </li>
-                  ))}
+                  {vendors.map((v, i) => {
+                    const cfCount = Object.keys(v.custom_fields).length;
+                    return (
+                      <li key={i} className="text-sm">
+                        {v.name}
+                        <span className="text-muted-foreground">
+                          {" — "}
+                          {SPECIALTY_LABELS[v.specialty]}
+                          {v.priority_rank > 0 &&
+                            ` (${RANK_LABELS[v.priority_rank] || `#${v.priority_rank}`})`}
+                        </span>
+                        {cfCount > 0 && (
+                          <span className="text-muted-foreground">
+                            {", "}
+                            {cfCount} custom field{cfCount !== 1 ? "s" : ""}
+                          </span>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>

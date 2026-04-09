@@ -5,6 +5,7 @@ import { z } from "zod";
 import { anthropic } from "@/lib/anthropic";
 import { getRole } from "@/lib/clerk";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { fullName, formatAddress } from "@/lib/format";
 
 const workOrderRequestSchema = z.object({
   vendor_id: z.string().uuid(),
@@ -18,8 +19,21 @@ type RequestWithJoins = {
   ai_recommended_action: string | null;
   ai_cost_estimate_low: number | null;
   ai_cost_estimate_high: number | null;
-  properties: { name: string; address: string; landlord_id: string } | null;
-  tenants: { name: string; phone: string | null; email: string | null; unit_number: string | null } | null;
+  properties: {
+    name: string;
+    address_line1: string;
+    city: string;
+    state: string;
+    postal_code: string;
+    landlord_id: string;
+  } | null;
+  tenants: {
+    first_name: string;
+    last_name: string;
+    phone: string | null;
+    email: string | null;
+    unit_number: string | null;
+  } | null;
 };
 
 type Vendor = {
@@ -30,6 +44,10 @@ type Vendor = {
 function fallbackWorkOrder(req: RequestWithJoins, vendor: Vendor): string {
   const property = req.properties;
   const tenant = req.tenants;
+  const propertyLine = property
+    ? `${property.name}, ${formatAddress(property)}`
+    : "N/A";
+  const tenantName = tenant ? fullName(tenant) || "N/A" : "N/A";
   return [
     `WORK ORDER`,
     ``,
@@ -37,9 +55,9 @@ function fallbackWorkOrder(req: RequestWithJoins, vendor: Vendor): string {
     `Category: ${req.ai_category ?? "general"}`,
     `Urgency: ${req.ai_urgency ?? "medium"}`,
     ``,
-    `Property: ${property?.name ?? "N/A"}, ${property?.address ?? "N/A"}`,
+    `Property: ${propertyLine}`,
     `Unit: ${tenant?.unit_number ?? "N/A"}`,
-    `Tenant Contact: ${tenant?.name ?? "N/A"}, ${tenant?.phone ?? tenant?.email ?? "N/A"}`,
+    `Tenant Contact: ${tenantName}, ${tenant?.phone ?? tenant?.email ?? "N/A"}`,
     ``,
     `Assigned Vendor: ${vendor.name} (${vendor.specialty})`,
     ``,
@@ -80,7 +98,7 @@ export async function POST(
     const { data: req, error: fetchError } = await supabase
       .from("maintenance_requests")
       .select(
-        `id, tenant_message, ai_category, ai_urgency, ai_recommended_action, ai_cost_estimate_low, ai_cost_estimate_high, properties(name, address, landlord_id), tenants(name, phone, email, unit_number)`
+        `id, tenant_message, ai_category, ai_urgency, ai_recommended_action, ai_cost_estimate_low, ai_cost_estimate_high, properties(name, address_line1, city, state, postal_code, landlord_id), tenants(first_name, last_name, phone, email, unit_number)`
       )
       .eq("id", id)
       .single();
@@ -123,9 +141,9 @@ Urgency: ${maintenanceReq.ai_urgency ?? "medium"}
 AI Assessment: ${maintenanceReq.ai_recommended_action ?? "Inspect and repair as needed."}
 ${maintenanceReq.ai_cost_estimate_low != null ? `Estimated Cost: $${maintenanceReq.ai_cost_estimate_low} - $${maintenanceReq.ai_cost_estimate_high}` : ""}
 
-Property: ${property.name}, ${property.address}
+Property: ${property.name}, ${formatAddress(property)}
 Unit: ${maintenanceReq.tenants?.unit_number ?? "N/A"}
-Tenant Contact: ${maintenanceReq.tenants?.name ?? "N/A"}, ${maintenanceReq.tenants?.phone ?? maintenanceReq.tenants?.email ?? "N/A"}
+Tenant Contact: ${maintenanceReq.tenants ? fullName(maintenanceReq.tenants) || "N/A" : "N/A"}, ${maintenanceReq.tenants?.phone ?? maintenanceReq.tenants?.email ?? "N/A"}
 
 Vendor: ${vendor.name} (${vendor.specialty})
 
