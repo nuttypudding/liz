@@ -3,7 +3,10 @@
 export interface Property {
   id: string;
   name: string;
-  address: string;
+  address_line1: string;
+  city: string;
+  state: string;
+  postal_code: string;
   apt_or_unit_no: string | null;
   unit_count: number | null;
   monthly_rent: number | null;
@@ -15,7 +18,8 @@ export interface Property {
 
 export interface Tenant {
   id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string | null;
   phone: string | null;
   unit_number: string | null;
@@ -75,8 +79,23 @@ export interface MaintenanceRequest {
   created_at: string;
   resolved_at: string | null;
   dispatched_at: string | null;
-  properties: { id: string; name: string; address: string; landlord_id: string } | null;
-  tenants: { id: string; name: string; email: string | null; phone: string | null; unit_number: string | null } | null;
+  properties: {
+    id: string;
+    name: string;
+    address_line1: string;
+    city: string;
+    state: string;
+    postal_code: string;
+    landlord_id: string;
+  } | null;
+  tenants: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string | null;
+    phone: string | null;
+    unit_number: string | null;
+  } | null;
   vendors: { id: string; name: string; phone: string | null; email: string | null; specialty: string } | null;
   request_photos: { id: string; storage_path: string; file_type: string }[];
 }

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { Document, DocumentType } from "@/lib/types";
+import { fullName } from "@/lib/format";
 
 const VALID_DOCUMENT_TYPES = new Set<string>([
   "lease",
@@ -55,7 +56,7 @@ export async function GET(
 
     let query = supabase
       .from("documents")
-      .select("*, tenants(name)")
+      .select("*, tenants(first_name, last_name)")
       .eq("property_id", propertyId)
       .order("uploaded_at", { ascending: false });
 
@@ -73,9 +74,9 @@ export async function GET(
     // Flatten the joined tenant name into tenant_name
     const documents: Document[] = (data ?? []).map((row) => {
       const { tenants: tenant, ...rest } = row as typeof row & {
-        tenants: { name: string } | null;
+        tenants: { first_name: string; last_name: string } | null;
       };
-      return { ...rest, tenant_name: tenant?.name ?? null };
+      return { ...rest, tenant_name: tenant ? fullName(tenant) : null };
     });
 
     return NextResponse.json({ documents });

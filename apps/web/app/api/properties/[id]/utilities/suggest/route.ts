@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { anthropic } from "@/lib/anthropic";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { formatAddress } from "@/lib/format";
 
 type AiConfidence = "high" | "medium" | "low";
 type UtilityType = "electric" | "gas" | "water_sewer" | "trash_recycling";
@@ -125,7 +126,7 @@ export async function POST(
     // Landlord only — verify ownership
     const { data: property } = await supabase
       .from("properties")
-      .select("id, address")
+      .select("id, address_line1, city, state, postal_code")
       .eq("id", propertyId)
       .eq("landlord_id", userId)
       .maybeSingle();
@@ -134,8 +135,15 @@ export async function POST(
       return NextResponse.json({ error: "Property not found" }, { status: 404 });
     }
 
-    const address = (property as { id: string; address: string }).address;
-    if (!address) {
+    const propertyAddress = property as {
+      id: string;
+      address_line1: string;
+      city: string;
+      state: string;
+      postal_code: string;
+    };
+    const address = formatAddress(propertyAddress);
+    if (!address || !propertyAddress.address_line1) {
       return NextResponse.json(
         { error: "Property has no address. Add an address before auto-detecting utilities." },
         { status: 422 }

@@ -36,7 +36,13 @@ describe("GET /api/tenant/me", () => {
   it("returns tenant profile", async () => {
     setSupabaseResults([
       {
-        data: { id: "t1", property_id: "p1", name: "Sarah", email: "sarah@test.com" },
+        data: {
+          id: "t1",
+          property_id: "p1",
+          first_name: "Sarah",
+          last_name: "Chen",
+          email: "sarah@test.com",
+        },
         error: null,
       },
     ]);
@@ -44,6 +50,7 @@ describe("GET /api/tenant/me", () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.tenant.property_id).toBe("p1");
-    expect(json.tenant.name).toBe("Sarah");
+    expect(json.tenant.first_name).toBe("Sarah");
+    expect(json.tenant.last_name).toBe("Chen");
   });
 });

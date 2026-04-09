@@ -24,23 +24,36 @@ describe("POST /api/properties/[id]/tenants", () => {
 
   beforeEach(() => resetAllMocks());
 
+  const validTenant = { first_name: "Test", last_name: "Tenant" };
+
   it("returns 401 when unauthenticated", async () => {
     setMockAuth(null);
     const res = await POST(
       buildRequest("/api/properties/p1/tenants", {
         method: "POST",
-        body: { name: "Test Tenant" },
+        body: validTenant,
       }),
       { params: PARAMS }
     );
     expect(res.status).toBe(401);
   });
 
-  it("returns 400 for missing name", async () => {
+  it("returns 400 for missing first_name", async () => {
     const res = await POST(
       buildRequest("/api/properties/p1/tenants", {
         method: "POST",
-        body: { name: "" },
+        body: { first_name: "", last_name: "Tenant" },
+      }),
+      { params: PARAMS }
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 400 for missing last_name", async () => {
+    const res = await POST(
+      buildRequest("/api/properties/p1/tenants", {
+        method: "POST",
+        body: { first_name: "Test", last_name: "" },
       }),
       { params: PARAMS }
     );
@@ -55,7 +68,7 @@ describe("POST /api/properties/[id]/tenants", () => {
     const res = await POST(
       buildRequest("/api/properties/p1/tenants", {
         method: "POST",
-        body: { name: "Test Tenant" },
+        body: validTenant,
       }),
       { params: PARAMS }
     );
@@ -67,18 +80,27 @@ describe("POST /api/properties/[id]/tenants", () => {
       // property ownership check
       { data: { id: "p1" }, error: null },
       // tenant insert
-      { data: { id: "t1", name: "Test Tenant", property_id: "p1" }, error: null },
+      {
+        data: {
+          id: "t1",
+          first_name: "Test",
+          last_name: "Tenant",
+          property_id: "p1",
+        },
+        error: null,
+      },
     ]);
     const res = await POST(
       buildRequest("/api/properties/p1/tenants", {
         method: "POST",
-        body: { name: "Test Tenant" },
+        body: validTenant,
       }),
       { params: PARAMS }
     );
     expect(res.status).toBe(201);
     const json = await res.json();
-    expect(json.tenant.name).toBe("Test Tenant");
+    expect(json.tenant.first_name).toBe("Test");
+    expect(json.tenant.last_name).toBe("Tenant");
   });
 });
 
@@ -90,7 +112,10 @@ describe("PATCH /api/tenants/[id]", () => {
   it("returns 401 when unauthenticated", async () => {
     setMockAuth(null);
     const res = await PATCH(
-      buildRequest("/api/tenants/t1", { method: "PATCH", body: { name: "New" } }),
+      buildRequest("/api/tenants/t1", {
+        method: "PATCH",
+        body: { first_name: "New", last_name: "Name" },
+      }),
       { params: PARAMS }
     );
     expect(res.status).toBe(401);
@@ -102,7 +127,10 @@ describe("PATCH /api/tenants/[id]", () => {
       { data: null, error: { message: "not found" } },
     ]);
     const res = await PATCH(
-      buildRequest("/api/tenants/t1", { method: "PATCH", body: { name: "New" } }),
+      buildRequest("/api/tenants/t1", {
+        method: "PATCH",
+        body: { first_name: "New", last_name: "Name" },
+      }),
       { params: PARAMS }
     );
     expect(res.status).toBe(404);
@@ -113,15 +141,19 @@ describe("PATCH /api/tenants/[id]", () => {
       // ownership check
       { data: { id: "t1" }, error: null },
       // update
-      { data: { id: "t1", name: "Updated" }, error: null },
+      { data: { id: "t1", first_name: "Updated", last_name: "Person" }, error: null },
     ]);
     const res = await PATCH(
-      buildRequest("/api/tenants/t1", { method: "PATCH", body: { name: "Updated" } }),
+      buildRequest("/api/tenants/t1", {
+        method: "PATCH",
+        body: { first_name: "Updated", last_name: "Person" },
+      }),
       { params: PARAMS }
     );
     expect(res.status).toBe(200);
     const json = await res.json();
-    expect(json.tenant.name).toBe("Updated");
+    expect(json.tenant.first_name).toBe("Updated");
+    expect(json.tenant.last_name).toBe("Person");
   });
 });
 

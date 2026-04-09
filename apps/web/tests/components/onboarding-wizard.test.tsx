@@ -54,7 +54,10 @@ describe("OnboardingWizard", () => {
     const nextBtns = screen.getAllByRole("button", { name: /Next/i });
     fireEvent.click(nextBtns[0]);
     expect(screen.getByLabelText("Property name")).toBeInTheDocument();
-    expect(screen.getByLabelText("Address")).toBeInTheDocument();
+    expect(screen.getByLabelText("Street address")).toBeInTheDocument();
+    expect(screen.getByLabelText("City")).toBeInTheDocument();
+    expect(screen.getByLabelText("State")).toBeInTheDocument();
+    expect(screen.getByLabelText("ZIP code")).toBeInTheDocument();
   });
 
   it("validates property name on step 2", () => {
@@ -90,10 +93,21 @@ describe("OnboardingWizard", () => {
     fireEvent.click(nextBtns[0]);
 
     // Fill required property fields
-    const nameInput = screen.getByLabelText("Property name");
-    const addressInput = screen.getByLabelText("Address");
-    fireEvent.change(nameInput, { target: { value: "Test Property" } });
-    fireEvent.change(addressInput, { target: { value: "123 Test St" } });
+    fireEvent.change(screen.getByLabelText("Property name"), {
+      target: { value: "Test Property" },
+    });
+    fireEvent.change(screen.getByLabelText("Street address"), {
+      target: { value: "123 Test St" },
+    });
+    fireEvent.change(screen.getByLabelText("City"), {
+      target: { value: "Austin" },
+    });
+    fireEvent.change(screen.getByLabelText("State"), {
+      target: { value: "TX" },
+    });
+    fireEvent.change(screen.getByLabelText("ZIP code"), {
+      target: { value: "78701" },
+    });
 
     // Step 2 -> 3
     const step2NextBtns = screen.getAllByRole("button", { name: /Next/i });

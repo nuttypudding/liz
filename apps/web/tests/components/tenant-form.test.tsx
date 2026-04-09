@@ -14,7 +14,8 @@ describe("TenantForm", () => {
   it("renders required fields", () => {
     render(<TenantForm onSave={onSave} onCancel={onCancel} />);
 
-    expect(screen.getByLabelText("Full Name")).toBeInTheDocument();
+    expect(screen.getByLabelText("First Name")).toBeInTheDocument();
+    expect(screen.getByLabelText("Last Name")).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
     expect(screen.getByLabelText("Phone")).toBeInTheDocument();
   });
@@ -23,7 +24,8 @@ describe("TenantForm", () => {
     render(
       <TenantForm
         initialData={{
-          name: "Jane Smith",
+          first_name: "Jane",
+          last_name: "Smith",
           email: "jane@example.com",
           phone: "5551234567",
         }}
@@ -32,7 +34,8 @@ describe("TenantForm", () => {
       />
     );
 
-    expect(screen.getByDisplayValue("Jane Smith")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Jane")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Smith")).toBeInTheDocument();
     expect(screen.getByDisplayValue("jane@example.com")).toBeInTheDocument();
   });
 
@@ -47,7 +50,8 @@ describe("TenantForm", () => {
     const { container } = render(
       <TenantForm
         initialData={{
-          name: "John Doe",
+          first_name: "John",
+          last_name: "Doe",
           email: "john@example.com",
         }}
         onSave={onSave}
@@ -60,7 +64,8 @@ describe("TenantForm", () => {
 
     expect(onSave).toHaveBeenCalledWith(
       expect.objectContaining({
-        name: "John Doe",
+        first_name: "John",
+        last_name: "Doe",
         email: "john@example.com",
       })
     );

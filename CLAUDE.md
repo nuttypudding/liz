@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current Phase
 
-MVP implementation. UI scaffolding complete. Backend wiring in progress.
+Phase 1 MVP complete. Deployed to Vercel production.
 
 ## Development Workflow
 
@@ -27,12 +27,12 @@ This project uses the BrightStep development process. See `PROCESS.md` in `brigh
 | `/ship <message>` | Active | Tests + doc sweep + commit (user-invoked only) |
 | `/review-changes` | Active | Security & architecture review (read-only) |
 | `/autorunner-status` | Active | Check autorunner progress |
-| `/run-dev` | Pending | Start local dev servers (needs tech stack) |
-| `/test-all` | Pending | Run all tests (needs tech stack) |
-| `/test-fix-dev` | Pending | Autonomous local QA (needs endpoints) |
-| `/test-fix-prod` | Pending | Autonomous production QA (needs prod URLs) |
-| `/deploy-prod` | Pending | Production deployment (needs infra) |
-| `/overnight-qa` | Pending | Comprehensive overnight QA (needs features) |
+| `/run-dev` | Active | Start local dev servers |
+| `/test-all` | Active | Run all tests (unit, component, E2E) |
+| `/test-fix-dev` | Pending | Autonomous local QA (needs test-fix loop) |
+| `/test-fix-prod` | Pending | Autonomous production QA (needs smoke test suite) |
+| `/deploy-prod` | Active | Production deployment to Vercel |
+| `/overnight-qa` | Pending | Comprehensive overnight QA (needs test matrix) |
 | `/notify` | Pending | Notifications (needs service credentials) |
 
 ### Rules (auto-loaded by file path)
@@ -134,6 +134,7 @@ liz/
 │   └── completed/             # Archived completed features
 ├── docs/
 │   ├── endpoints.md           # All URLs: local, QA, prod, API routes, app pages
+│   ├── testing-guides/        # Manual testing guides (10 guides, 220+ test cases)
 │   └── ui-process.md          # UI process documentation
 ├── scripts/
 │   └── autonextstep.py        # Automated task runner
@@ -165,7 +166,7 @@ Sample directories follow: `sample_XX_<category>_<short_description>`.
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 16 (App Router) |
 | Styling | Tailwind CSS |
 | Auth & Billing | Clerk (`@clerk/nextjs`) — auth, roles, subscriptions |
 | Database | Supabase (PostgreSQL + Storage + Realtime) |
@@ -197,13 +198,12 @@ All environment URLs, API routes, and app pages are documented in `docs/endpoint
 
 ## Pending Items
 
-These BrightStep process components are stubbed but need customization once code exists:
-
-**Skills (need endpoints/infra)**: `/run-dev`, `/test-all`, `/test-fix-dev`, `/test-fix-prod`, `/deploy-prod`, `/overnight-qa`, `/notify`
+**Skills (need implementation)**:
+- `/test-fix-dev` — Autonomous test-fix loop (endpoints and test infra exist, needs loop logic)
+- `/test-fix-prod` — Smoke test suite against production URLs
+- `/overnight-qa` — Full test matrix with data flow verification
+- `/notify` — Notification service credentials
 
 **Rules not yet created**:
 - `typescript-frontend.md` — Next.js App Router, strict TypeScript, Tailwind conventions
 - `supabase.md` — RLS policies, storage bucket conventions, auth patterns
-
-**Agents not yet created**:
-- UI design/build/refine agents — can be added once component library is chosen

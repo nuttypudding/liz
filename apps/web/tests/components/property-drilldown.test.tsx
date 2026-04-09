@@ -6,7 +6,10 @@ import type { Property } from "@/lib/types";
 const mockProperty: Property = {
   id: "prop-1",
   name: "Oak Street Apartments",
-  address: "123 Oak St, Austin TX 78701",
+  address_line1: "123 Oak St",
+  city: "Austin",
+  state: "TX",
+  postal_code: "78701",
   apt_or_unit_no: null,
   unit_count: 4,
   monthly_rent: 1600,
@@ -16,7 +19,8 @@ const mockProperty: Property = {
   tenants: [
     {
       id: "t-1",
-      name: "Jane Smith",
+      first_name: "Jane",
+      last_name: "Smith",
       email: "jane@example.com",
       phone: null,
       unit_number: "2B",

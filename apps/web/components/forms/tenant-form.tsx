@@ -23,7 +23,8 @@ import {
 import type { Tenant } from "@/lib/types";
 
 export interface TenantFormData {
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string;
   phone: string;
   move_in_date: string;
@@ -62,7 +63,8 @@ const RENT_DUE_DAYS = Array.from({ length: 28 }, (_, i) => {
 
 export function TenantForm({ initialData, onSave, onCancel }: TenantFormProps) {
   const [form, setForm] = useState<TenantFormData>({
-    name: initialData?.name ?? "",
+    first_name: initialData?.first_name ?? "",
+    last_name: initialData?.last_name ?? "",
     email: initialData?.email ?? "",
     phone: initialData?.phone ?? "",
     move_in_date: initialData?.move_in_date ?? "",
@@ -88,17 +90,30 @@ export function TenantForm({ initialData, onSave, onCancel }: TenantFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 px-4 py-2">
-      {/* Name — full width, required */}
-      <div className="space-y-1.5">
-        <Label htmlFor="tenant-name">Full Name</Label>
-        <Input
-          id="tenant-name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          placeholder="Jane Smith"
-          required
-          className="min-h-11"
-        />
+      {/* First + Last Name — 2 col, both required */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="tenant-first-name">First Name</Label>
+          <Input
+            id="tenant-first-name"
+            value={form.first_name}
+            onChange={(e) => setForm({ ...form, first_name: e.target.value })}
+            placeholder="Jane"
+            required
+            className="min-h-11"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="tenant-last-name">Last Name</Label>
+          <Input
+            id="tenant-last-name"
+            value={form.last_name}
+            onChange={(e) => setForm({ ...form, last_name: e.target.value })}
+            placeholder="Smith"
+            required
+            className="min-h-11"
+          />
+        </div>
       </div>
 
       {/* Email + Phone — 2 col */}

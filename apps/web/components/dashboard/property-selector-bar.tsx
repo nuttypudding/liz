@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { formatAddress } from "@/lib/format";
 import type { Property } from "@/lib/types";
 
 const ALL_VALUE = "__all__";
@@ -68,7 +69,7 @@ export function PropertySelectorBar({
                 icon={<Home className="size-5 lg:size-6" />}
                 label={property.name}
                 tooltipLabel={property.name}
-                tooltipDetail={property.address}
+                tooltipDetail={formatAddress(property)}
                 selected={selectedPropertyId === property.id}
                 onClick={() => onSelect(property.id)}
               />
@@ -93,19 +94,22 @@ export function PropertySelectorBar({
               <LayoutGrid className="size-4" />
               All Properties
             </SelectItem>
-            {properties.map((property) => (
-              <SelectItem key={property.id} value={property.id}>
-                <Home className="size-4" />
-                <span>
-                  {property.name}
-                  {property.address && (
-                    <span className="ml-1 text-muted-foreground">
-                      — {property.address}
-                    </span>
-                  )}
-                </span>
-              </SelectItem>
-            ))}
+            {properties.map((property) => {
+              const addr = formatAddress(property);
+              return (
+                <SelectItem key={property.id} value={property.id}>
+                  <Home className="size-4" />
+                  <span>
+                    {property.name}
+                    {addr && (
+                      <span className="ml-1 text-muted-foreground">
+                        — {addr}
+                      </span>
+                    )}
+                  </span>
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
       </div>

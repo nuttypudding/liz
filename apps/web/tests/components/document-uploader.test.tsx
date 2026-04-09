@@ -8,7 +8,8 @@ describe("DocumentUploader", () => {
     tenants: [
       {
         id: "t-1",
-        name: "Jane Smith",
+        first_name: "Jane",
+        last_name: "Smith",
         email: "jane@example.com",
         phone: null,
         unit_number: "2B",

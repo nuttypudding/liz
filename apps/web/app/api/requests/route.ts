@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from("maintenance_requests")
       .select(
-        `*, properties(id, name, address, landlord_id), tenants(id, name, email, phone, unit_number), vendors(id, name, phone, email, specialty), request_photos(id, storage_path, file_type)`
+        `*, properties(id, name, address_line1, city, state, postal_code, landlord_id), tenants(id, first_name, last_name, email, phone, unit_number), vendors(id, name, phone, email, specialty), request_photos(id, storage_path, file_type)`
       )
       .order("created_at", { ascending: false });
 

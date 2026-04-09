@@ -1,22 +1,28 @@
 ---
 name: run-dev
-description: "[PENDING] Start Next.js dev server for local development. Needs project initialization first."
+description: "Start Next.js dev server for local development."
 ---
 
 # /run-dev — Start Local Dev Server
 
-**STATUS: PENDING** — Activate once `npx create-next-app` has been run and `package.json` exists.
+## Working Directory
 
-## Planned Setup
+`apps/web/`
 
-- **Next.js**: `http://localhost:3000` — `npm run dev`
-- **Supabase**: Cloud-hosted (no local service needed for MVP)
+## Steps
 
-## Steps (once active)
+1. **Check dependencies** — If `apps/web/node_modules/` is missing, run `npm install` from `apps/web/`.
+2. **Check env** — Verify `apps/web/.env.local` exists. Warn if missing and list required keys from `.env.example`.
+3. **Optionally start Supabase local** — If the user wants local Supabase, run `supabase start` from `apps/web/supabase/`. Skip if they're using QA cloud.
+4. **Kill stale port** — Check if port 3000 is in use (`lsof -ti:3000`). If so, kill the process.
+5. **Start dev server** — Run `npm run dev` from `apps/web/`.
+6. **Poll until ready** — Curl `http://localhost:3000` until it responds (max 30s).
+7. **Report** — Print the local URL and Supabase Studio URL if running locally.
 
-1. Check for `node_modules/` — run `npm install` if missing
-2. Check for `.env.local` — warn if Supabase/Claude API keys not set
-3. Kill any stale process on port 3000
-4. Start Next.js: `npm run dev`
-5. Poll `http://localhost:3000` until ready
-6. Report status
+## Environment URLs
+
+| Service | URL |
+|---------|-----|
+| Next.js App | `http://localhost:3000` |
+| Supabase API (local) | `http://localhost:54321` |
+| Supabase Studio (local) | `http://localhost:54323` |

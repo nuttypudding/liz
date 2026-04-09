@@ -8,7 +8,10 @@ export const intakeSchema = z.object({
 
 export const propertySchema = z.object({
   name: z.string().min(1).max(200),
-  address: z.string().min(1).max(500),
+  address_line1: z.string().min(1).max(300),
+  city: z.string().min(1).max(100),
+  state: z.string().min(1).max(50),
+  postal_code: z.string().min(1).max(20),
   apt_or_unit_no: z.string().max(50).optional().or(z.literal("")),
   unit_count: z.number().int().min(1).max(999).default(1),
   monthly_rent: z.number().min(0).optional(),
@@ -16,7 +19,8 @@ export const propertySchema = z.object({
 });
 
 export const tenantSchema = z.object({
-  name: z.string().min(1).max(200),
+  first_name: z.string().min(1).max(100),
+  last_name: z.string().min(1).max(100),
   email: z.string().email().optional().or(z.literal("")),
   phone: z.string().max(20).optional().or(z.literal("")),
   unit_number: z.string().max(20).optional().or(z.literal("")),

@@ -5,8 +5,9 @@ import { Building2, CalendarDays, ChevronDown, FileText, Pencil, Phone, Mail, Pl
 import { toast } from "sonner";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
-import { PropertyForm } from "@/components/forms/property-form";
+import { PropertyForm, type PropertyFormData } from "@/components/forms/property-form";
 import { TenantForm, type TenantFormData } from "@/components/forms/tenant-form";
+import { fullName, formatAddress } from "@/lib/format";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -160,13 +161,7 @@ export default function PropertiesPage() {
     });
   }
 
-  async function handleSaveProperty(data: {
-    name: string;
-    address: string;
-    apt_or_unit_no: string;
-    unit_count: number;
-    monthly_rent: number;
-  }) {
+  async function handleSaveProperty(data: PropertyFormData) {
     if (sheetMode?.type === "add-property") {
       const res = await fetch("/api/properties", {
         method: "POST",
@@ -185,7 +180,7 @@ export default function PropertiesPage() {
               if (newProperty) {
                 setUtilitySheet({
                   propertyId: newProperty.id,
-                  address: newProperty.address ?? "",
+                  address: formatAddress(newProperty),
                   existingUtilities: [],
                 });
               }
@@ -198,8 +193,14 @@ export default function PropertiesPage() {
       }
     } else if (sheetMode?.type === "edit-property") {
       const propertyId = sheetMode.property.id;
-      const addressChanged =
-        data.address.trim() !== (sheetMode.property.address ?? "").trim();
+      const newAddress = formatAddress({
+        address_line1: data.address_line1,
+        city: data.city,
+        state: data.state,
+        postal_code: data.postal_code,
+      });
+      const oldAddress = formatAddress(sheetMode.property);
+      const addressChanged = newAddress !== oldAddress;
       const res = await fetch(`/api/properties/${propertyId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -208,8 +209,8 @@ export default function PropertiesPage() {
       if (res.ok) {
         await fetchProperties();
         setSheetMode(null);
-        if (addressChanged && data.address) {
-          setRedetectDialog({ propertyId, newAddress: data.address });
+        if (addressChanged && newAddress) {
+          setRedetectDialog({ propertyId, newAddress });
         } else {
           toast.success("Property updated");
         }
@@ -266,7 +267,8 @@ export default function PropertiesPage() {
 
   async function handleSaveTenant(data: TenantFormData) {
     const payload = {
-      name: data.name,
+      first_name: data.first_name,
+      last_name: data.last_name,
       email: data.email,
       phone: data.phone || null,
       move_in_date: data.move_in_date || null,
@@ -419,8 +421,9 @@ export default function PropertiesPage() {
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        {property.address}
-                        {property.apt_or_unit_no && ` — ${property.apt_or_unit_no}`}
+                        {formatAddress(property, {
+                          apt_or_unit_no: property.apt_or_unit_no,
+                        })}
                       </p>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
@@ -519,7 +522,7 @@ export default function PropertiesPage() {
                                 <div className="flex items-center gap-1.5">
                                   <User className="size-3.5 text-muted-foreground shrink-0" />
                                   <span className="text-sm font-medium">
-                                    {tenant.name}
+                                    {fullName(tenant)}
                                   </span>
                                   {tenant.unit_number && (
                                     <Badge variant="outline" className="text-xs">
@@ -596,7 +599,7 @@ export default function PropertiesPage() {
                                   <AlertDialogContent>
                                     <AlertDialogHeader>
                                       <AlertDialogTitle>
-                                        Remove {tenant.name}?
+                                        Remove {fullName(tenant)}?
                                       </AlertDialogTitle>
                                       <AlertDialogDescription>
                                         This will remove the tenant from the

@@ -38,7 +38,7 @@
 | Sign In | `/sign-in` |
 | Sign Up | `/sign-up` |
 | Clerk Dashboard | `https://dashboard.clerk.com` |
-| Webhook endpoint | `/api/webhooks/clerk` |
+| Webhook endpoint | `/api/webhook/clerk` |
 
 ## API Routes (Next.js)
 
@@ -76,21 +76,34 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | GET | `/api/dashboard/stats` | Get dashboard statistics (supports optional ?propertyId= filter) |
 | GET | `/api/dashboard/spend-chart` | Get spend chart data (supports optional ?propertyId= filter) |
 | GET | `/api/requests` | List maintenance requests (supports optional ?propertyId= filter) |
+| POST | `/api/classify` | AI classification of maintenance request |
 | POST | `/api/intake` | Submit maintenance intake |
-| POST | `/api/webhooks/clerk` | Clerk webhook for user sync |
+| GET | `/api/requests/[id]` | Get single maintenance request |
+| PATCH | `/api/requests/[id]` | Update a maintenance request |
+| POST | `/api/requests/[id]/dispatch` | Dispatch request to vendor |
+| POST | `/api/requests/[id]/resolve` | Resolve a maintenance request |
+| POST | `/api/requests/[id]/work-order` | Create work order for a request |
+| GET | `/api/tenant/me` | Get current tenant's profile |
+| POST | `/api/upload` | General file upload |
+| POST | `/api/webhook/clerk` | Clerk webhook for user sync |
 
 ## App Pages
 
 | Route | Purpose |
 |-------|---------|
+| `/` | Landing / home page |
 | `/sign-in` | Clerk sign-in |
 | `/sign-up` | Clerk sign-up |
 | `/onboarding` | 5-step onboarding wizard |
 | `/dashboard` | Main landlord dashboard |
-| `/dashboard/properties` | Properties list |
-| `/dashboard/tenants` | Tenants list |
-| `/dashboard/vendors` | Vendors list |
-| `/dashboard/settings` | Landlord settings / AI preferences |
+| `/properties` | Properties list |
+| `/requests` | Maintenance requests list (landlord) |
+| `/requests/[id]` | Request detail / triage (landlord) |
+| `/vendors` | Vendors list |
+| `/settings` | Landlord settings / AI preferences |
+| `/submit` | Tenant maintenance request submission |
+| `/my-requests` | Tenant's submitted requests |
+| `/my-requests/[id]` | Tenant request detail |
 
 ## Environment Files
 

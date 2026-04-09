@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { fullName } from "@/lib/format";
 import type { Tenant, DocumentType } from "@/lib/types";
 
 const MAX_FILES = 10;
@@ -250,7 +251,7 @@ export function DocumentUploader({
               <SelectContent>
                 {tenants.map((t) => (
                   <SelectItem key={t.id} value={t.id}>
-                    {t.name}
+                    {fullName(t)}
                     {t.unit_number ? ` - Unit ${t.unit_number}` : ""}
                   </SelectItem>
                 ))}

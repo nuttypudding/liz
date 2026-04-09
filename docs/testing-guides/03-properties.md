@@ -32,12 +32,15 @@
 ### TC-3.2.1: Open add property form
 - [ ] Click "Add Property" button
 - [ ] Sheet/sidebar slides in from the right
-- [ ] Form fields visible: Property Name, Address, Apt/Unit No, Unit Count, Monthly Rent
+- [ ] Form fields visible: Property Name, Street Address, Apt/Unit No, City, State, ZIP Code, Unit Count, Monthly Rent
 
 ### TC-3.2.2: Validation — empty required fields
 - [ ] Leave all fields empty, click "Save Property"
 - [ ] Validation error shown for Property Name (required)
-- [ ] Validation error shown for Address (required)
+- [ ] Validation error shown for Street Address (required)
+- [ ] Validation error shown for City (required)
+- [ ] Validation error shown for State (required)
+- [ ] Validation error shown for ZIP Code (required)
 - [ ] Form does not submit
 
 ### TC-3.2.3: Validation — invalid values
@@ -45,7 +48,7 @@
 - [ ] Enter Monthly Rent as negative — should show error (min 0)
 
 ### TC-3.2.4: Successful property creation
-- [ ] Fill in: Property Name = "Oak Manor", Address = "123 Oak St", Unit Count = 4, Monthly Rent = 1200
+- [ ] Fill in: Property Name = "Oak Manor", Street Address = "123 Oak St", City = "Austin", State = "TX", ZIP Code = "78701", Unit Count = 4, Monthly Rent = 1200
 - [ ] Click "Save Property"
 - [ ] Sheet closes
 - [ ] Toast notification: "Property created" (or similar success message)
@@ -70,7 +73,10 @@
 
 ### TC-3.3.2: Verify pre-filled data
 - [ ] Property Name matches existing value
-- [ ] Address matches existing value
+- [ ] Street Address matches existing value
+- [ ] City matches existing value
+- [ ] State matches existing value
+- [ ] ZIP Code matches existing value
 - [ ] Unit Count matches existing value
 - [ ] Monthly Rent matches existing value
 
@@ -82,7 +88,7 @@
 - [ ] Property card shows updated name
 
 ### TC-3.3.4: Edit with address change
-- [ ] Edit a property and change the address
+- [ ] Edit a property and change one or more address fields (street, city, state, or ZIP)
 - [ ] Save the property
 - [ ] Should prompt to re-detect utilities for new address
 - [ ] Re-detect dialog respects confirmed entries (preserves them)
@@ -120,15 +126,16 @@
 ### TC-3.5.2: Add tenant — open form
 - [ ] Click "Add Tenant" button within a property
 - [ ] Tenant form sheet opens
-- [ ] Fields visible: Name, Email, Phone, Unit Number, Move-in Date, Lease Type, Lease Start, Lease End, Rent Due Day
+- [ ] Fields visible: First Name, Last Name, Email, Phone, Unit Number, Move-in Date, Lease Type, Lease Start, Lease End, Rent Due Day
 
 ### TC-3.5.3: Add tenant — required field validation
-- [ ] Leave Name empty, click Save — should show error
+- [ ] Leave First Name empty, click Save — should show error
+- [ ] Leave Last Name empty, click Save — should show error
 - [ ] Leave Email empty, click Save — should show error
 - [ ] Enter invalid email format — should show error
 
 ### TC-3.5.4: Add tenant — successful creation
-- [ ] Fill in: Name = "Jane Doe", Email = "jane@test.com", Phone = "555-1234", Unit = "2A"
+- [ ] Fill in: First Name = "Jane", Last Name = "Doe", Email = "jane@test.com", Phone = "555-1234", Unit = "2A"
 - [ ] Set Lease Type = "Yearly", Start = today, End = 1 year from now
 - [ ] Click "Save Tenant"
 - [ ] Sheet closes, tenant appears under property
@@ -144,7 +151,7 @@
 ### TC-3.5.6: Edit tenant
 - [ ] Click "Edit" on an existing tenant card
 - [ ] Form opens pre-filled with tenant data
-- [ ] Change name and phone number
+- [ ] Change first name, last name, and phone number
 - [ ] Save — verify changes reflected on card
 
 ### TC-3.5.7: Delete tenant

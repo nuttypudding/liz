@@ -1,9 +1,7 @@
 {
-  "status": "running",
-  "current_task_id": "073",
-  "current_task_title": "Update docs/endpoints.md with all new API routes",
-  "current_task_file": "features/inprogress/P1-Tkt-001-mvp-ux-overhaul/backlog/073-Haiku-update-endpoints-docs.md",
-  "tasks_done": 40,
+  "status": "done",
+  "tasks_done": 41,
   "tasks_failed": 0,
-  "updated_at": "2026-04-08T16:13:23.192843"
+  "elapsed_min": 147.2,
+  "updated_at": "2026-04-08T16:16:27.461154"
 }

@@ -32,7 +32,7 @@ export async function GET(
     const { data, error } = await supabase
       .from("maintenance_requests")
       .select(
-        `*, properties(id, name, address, landlord_id), tenants(id, name, email, phone, unit_number, clerk_user_id), vendors(id, name, phone, email, specialty), request_photos(id, storage_path, file_type)`
+        `*, properties(id, name, address_line1, city, state, postal_code, landlord_id), tenants(id, first_name, last_name, email, phone, unit_number, clerk_user_id), vendors(id, name, phone, email, specialty), request_photos(id, storage_path, file_type)`
       )
       .eq("id", id)
       .single();

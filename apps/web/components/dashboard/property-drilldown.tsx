@@ -32,6 +32,7 @@ import { RequestCard } from "@/components/requests/request-card";
 import { UtilityInfoCard } from "@/components/properties/utility-info-card";
 import { DocumentUploader } from "@/components/documents/document-uploader";
 import { DocumentGallery } from "@/components/documents/document-gallery";
+import { formatAddress } from "@/lib/format";
 import type {
   Property,
   PropertyUtility,
@@ -326,8 +327,7 @@ function PropertyHeader({
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
         <span className="flex items-center gap-1">
           <MapPin className="size-3.5" />
-          {property.address}
-          {property.apt_or_unit_no && `, ${property.apt_or_unit_no}`}
+          {formatAddress(property, { apt_or_unit_no: property.apt_or_unit_no })}
         </span>
         <span className="hidden sm:inline text-border">|</span>
         <span>{unitLabel}</span>

@@ -49,6 +49,7 @@ import {
 } from "@/components/ui/collapsible";
 import { ComboNote } from "@/components/onboarding/combo-note";
 import { OptionCard } from "@/components/onboarding/option-card";
+import { fullName, formatAddress } from "@/lib/format";
 
 type RiskAppetite = "cost_first" | "balanced" | "speed_first";
 type DelegationMode = "manual" | "assist" | "auto";
@@ -63,14 +64,18 @@ type Specialty =
 
 interface PropertyDraft {
   name: string;
-  address: string;
+  address_line1: string;
+  city: string;
+  state: string;
+  postal_code: string;
   apt_or_unit_no: string;
   unit_count: string;
   monthly_rent: string;
 }
 
 interface TenantEntry {
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string;
   phone: string;
   move_in_date: string;
@@ -116,7 +121,8 @@ const SPECIALTY_LABELS: Record<Specialty, string> = {
 };
 
 const EMPTY_TENANT: TenantEntry = {
-  name: "",
+  first_name: "",
+  last_name: "",
   email: "",
   phone: "",
   move_in_date: "",
@@ -175,7 +181,10 @@ export function OnboardingWizard() {
   // Step 2: Property
   const [property, setProperty] = useState<PropertyDraft>({
     name: "",
-    address: "",
+    address_line1: "",
+    city: "",
+    state: "",
+    postal_code: "",
     apt_or_unit_no: "",
     unit_count: "1",
     monthly_rent: "",
@@ -221,7 +230,12 @@ export function OnboardingWizard() {
   function validateProperty(): boolean {
     const errors: Record<string, string> = {};
     if (!property.name.trim()) errors.name = "Property name is required";
-    if (!property.address.trim()) errors.address = "Address is required";
+    if (!property.address_line1.trim())
+      errors.address_line1 = "Street address is required";
+    if (!property.city.trim()) errors.city = "City is required";
+    if (!property.state.trim()) errors.state = "State is required";
+    if (!property.postal_code.trim())
+      errors.postal_code = "ZIP code is required";
     setPropertyErrors(errors);
     return Object.keys(errors).length === 0;
   }
@@ -231,8 +245,8 @@ export function OnboardingWizard() {
   }
 
   function addTenant() {
-    if (!tenantDraft.name.trim()) {
-      setTenantDraftError("Tenant name is required");
+    if (!tenantDraft.first_name.trim() || !tenantDraft.last_name.trim()) {
+      setTenantDraftError("First and last name are required");
       return;
     }
     // Clear lease_end_date if month-to-month
@@ -312,7 +326,10 @@ export function OnboardingWizard() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: property.name.trim(),
-            address: property.address.trim(),
+            address_line1: property.address_line1.trim(),
+            city: property.city.trim(),
+            state: property.state.trim(),
+            postal_code: property.postal_code.trim(),
             apt_or_unit_no: property.apt_or_unit_no.trim() || undefined,
             unit_count: parseInt(property.unit_count, 10) || 1,
             monthly_rent: property.monthly_rent
@@ -333,7 +350,8 @@ export function OnboardingWizard() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: t.name.trim(),
+            first_name: t.first_name.trim(),
+            last_name: t.last_name.trim(),
             email: t.email.trim() || undefined,
             phone: t.phone.trim() || undefined,
             move_in_date: t.move_in_date || undefined,
@@ -350,7 +368,7 @@ export function OnboardingWizard() {
           }),
         });
         if (!tRes.ok)
-          throw new Error(`Failed to add tenant "${t.name}"`);
+          throw new Error(`Failed to add tenant "${fullName(t)}"`);
         setSavedTenantCount(i + 1);
       }
 
@@ -574,24 +592,27 @@ export function OnboardingWizard() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="prop-address">Address</Label>
+              <Label htmlFor="prop-address-line1">Street address</Label>
               <Input
-                id="prop-address"
-                placeholder="123 Main St, City, State"
-                value={property.address}
+                id="prop-address-line1"
+                placeholder="123 Main St"
+                value={property.address_line1}
                 onChange={(e) => {
-                  setProperty((p) => ({ ...p, address: e.target.value }));
-                  if (propertyErrors.address)
+                  setProperty((p) => ({
+                    ...p,
+                    address_line1: e.target.value,
+                  }));
+                  if (propertyErrors.address_line1)
                     setPropertyErrors((prev) => {
                       const next = { ...prev };
-                      delete next.address;
+                      delete next.address_line1;
                       return next;
                     });
                 }}
               />
-              {propertyErrors.address && (
+              {propertyErrors.address_line1 && (
                 <p className="text-xs text-destructive">
-                  {propertyErrors.address}
+                  {propertyErrors.address_line1}
                 </p>
               )}
             </div>
@@ -608,6 +629,77 @@ export function OnboardingWizard() {
                   }))
                 }
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="prop-city">City</Label>
+              <Input
+                id="prop-city"
+                placeholder="Austin"
+                value={property.city}
+                onChange={(e) => {
+                  setProperty((p) => ({ ...p, city: e.target.value }));
+                  if (propertyErrors.city)
+                    setPropertyErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.city;
+                      return next;
+                    });
+                }}
+              />
+              {propertyErrors.city && (
+                <p className="text-xs text-destructive">
+                  {propertyErrors.city}
+                </p>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="prop-state">State</Label>
+                <Input
+                  id="prop-state"
+                  placeholder="TX"
+                  value={property.state}
+                  onChange={(e) => {
+                    setProperty((p) => ({ ...p, state: e.target.value }));
+                    if (propertyErrors.state)
+                      setPropertyErrors((prev) => {
+                        const next = { ...prev };
+                        delete next.state;
+                        return next;
+                      });
+                  }}
+                />
+                {propertyErrors.state && (
+                  <p className="text-xs text-destructive">
+                    {propertyErrors.state}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="prop-postal">ZIP code</Label>
+                <Input
+                  id="prop-postal"
+                  placeholder="78701"
+                  value={property.postal_code}
+                  onChange={(e) => {
+                    setProperty((p) => ({
+                      ...p,
+                      postal_code: e.target.value,
+                    }));
+                    if (propertyErrors.postal_code)
+                      setPropertyErrors((prev) => {
+                        const next = { ...prev };
+                        delete next.postal_code;
+                        return next;
+                      });
+                  }}
+                />
+                {propertyErrors.postal_code && (
+                  <p className="text-xs text-destructive">
+                    {propertyErrors.postal_code}
+                  </p>
+                )}
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -686,7 +778,7 @@ export function OnboardingWizard() {
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-medium truncate">
-                        {t.name}
+                        {fullName(t)}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">
                         {[
@@ -718,25 +810,41 @@ export function OnboardingWizard() {
 
             {showTenantForm ? (
               <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
-                <div className="space-y-2">
-                  <Label htmlFor="tenant-name">Name</Label>
-                  <Input
-                    id="tenant-name"
-                    placeholder="Tenant name"
-                    value={tenantDraft.name}
-                    onChange={(e) =>
-                      setTenantDraft((d) => ({
-                        ...d,
-                        name: e.target.value,
-                      }))
-                    }
-                  />
-                  {tenantDraftError && (
-                    <p className="text-xs text-destructive">
-                      {tenantDraftError}
-                    </p>
-                  )}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="tenant-first-name">First name</Label>
+                    <Input
+                      id="tenant-first-name"
+                      placeholder="Jane"
+                      value={tenantDraft.first_name}
+                      onChange={(e) =>
+                        setTenantDraft((d) => ({
+                          ...d,
+                          first_name: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tenant-last-name">Last name</Label>
+                    <Input
+                      id="tenant-last-name"
+                      placeholder="Smith"
+                      value={tenantDraft.last_name}
+                      onChange={(e) =>
+                        setTenantDraft((d) => ({
+                          ...d,
+                          last_name: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
                 </div>
+                {tenantDraftError && (
+                  <p className="text-xs text-destructive">
+                    {tenantDraftError}
+                  </p>
+                )}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label htmlFor="tenant-email">Email</Label>
@@ -1226,17 +1334,11 @@ export function OnboardingWizard() {
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Address</span>
                 <span className="font-medium text-right max-w-[60%] truncate">
-                  {property.address}
+                  {formatAddress(property, {
+                    apt_or_unit_no: property.apt_or_unit_no,
+                  })}
                 </span>
               </div>
-              {property.apt_or_unit_no && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Apt/Unit</span>
-                  <span className="font-medium">
-                    {property.apt_or_unit_no}
-                  </span>
-                </div>
-              )}
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Units</span>
                 <span className="font-medium">{property.unit_count}</span>
@@ -1298,7 +1400,7 @@ export function OnboardingWizard() {
                     const cfCount = Object.keys(t.custom_fields).length;
                     return (
                       <li key={i} className="text-sm">
-                        {t.name}
+                        {fullName(t)}
                         {details.length > 0 && (
                           <span className="text-muted-foreground">
                             {" — "}

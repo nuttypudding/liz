@@ -1,26 +1,32 @@
 ---
 name: test-all
-description: "[PENDING] Run all tests — unit, integration, and E2E. Needs project initialization first."
+description: "Run all tests — unit, component, and E2E."
 ---
 
 # /test-all — Run All Tests
 
-**STATUS: PENDING** — Activate once test framework is set up.
+## Working Directory
 
-## Planned Tiers
+`apps/web/`
 
-| Tier | Framework | Command |
-|------|-----------|---------|
-| Unit | Vitest or Jest | `npm run test` |
-| E2E | Playwright | `npx playwright test` |
+## Test Tiers
+
+| Tier | Framework | Command | Count |
+|------|-----------|---------|-------|
+| Unit + Component | Vitest | `npm test` | ~168 tests |
+| E2E | Playwright | `npm run test:e2e` | ~12 specs |
 
 ## Arguments
 
 `unit|e2e|all` (default: `all`)
 
-## Steps (once active)
+- `unit` — Run Vitest unit and component tests only
+- `e2e` — Run Playwright E2E tests only
+- `all` — Run both tiers sequentially
 
-1. Check prerequisites (node_modules, env vars)
-2. Run unit tests
-3. Run E2E tests (requires dev server running)
-4. Report results (pass/fail counts per tier)
+## Steps
+
+1. **Check prerequisites** — Verify `node_modules/` exists, run `npm install` if missing.
+2. **Run unit/component tests** (if tier includes unit) — `cd apps/web && npm test`. Report pass/fail counts.
+3. **Run E2E tests** (if tier includes e2e) — `cd apps/web && npm run test:e2e`. Playwright will start its own server.
+4. **Report results** — Summarize pass/fail counts per tier. Exit with non-zero if any failures.

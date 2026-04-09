@@ -24,6 +24,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
+import { fullName } from "@/lib/format";
 import type { Tenant } from "@/lib/types";
 
 type SheetMode =
@@ -46,7 +47,8 @@ export function DrilldownTenantList({
 
   async function handleSave(data: TenantFormData) {
     const payload = {
-      name: data.name,
+      first_name: data.first_name,
+      last_name: data.last_name,
       email: data.email,
       phone: data.phone || null,
       move_in_date: data.move_in_date || null,
@@ -177,7 +179,7 @@ function TenantCard({
         <div className="space-y-1 min-w-0">
           <div className="flex items-center gap-1.5">
             <User className="size-3.5 text-muted-foreground shrink-0" />
-            <span className="text-sm font-medium">{tenant.name}</span>
+            <span className="text-sm font-medium">{fullName(tenant)}</span>
           </div>
           {tenant.email && (
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -220,7 +222,7 @@ function TenantCard({
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Remove {tenant.name}?</AlertDialogTitle>
+                <AlertDialogTitle>Remove {fullName(tenant)}?</AlertDialogTitle>
                 <AlertDialogDescription>
                   This will remove the tenant from the property.
                 </AlertDialogDescription>
