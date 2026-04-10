@@ -35,6 +35,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { RuleTestPanel } from "@/components/rules/RuleTestPanel";
 import {
   RuleConditionType,
   ConditionOperator,
@@ -474,6 +475,16 @@ export function RuleBuilder({
           </p>
         )}
       </div>
+
+      <Separator />
+
+      {/* Test Panel */}
+      <RuleTestPanel
+        ruleId={rule?.id}
+        conditions={form.conditions}
+        actions={form.actions}
+        isFormValid={isValid}
+      />
     </div>
   );
 
