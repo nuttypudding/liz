@@ -105,6 +105,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | GET | `/api/rules/[id]` | Get single automation rule |
 | PUT | `/api/rules/[id]` | Update an automation rule |
 | DELETE | `/api/rules/[id]` | Delete an automation rule (204 No Content) |
+| PATCH | `/api/rules/[id]/reorder` | Reorder rule by priority (shifts other rules) |
 
 ## App Pages
 
