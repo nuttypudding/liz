@@ -1,7 +1,9 @@
 {
-  "status": "done",
-  "tasks_done": 41,
+  "status": "running",
+  "current_task_id": "102",
+  "current_task_title": "Database migration \u2014 vendor_availability_rules, scheduling_tasks, notification_log tables",
+  "current_task_file": "features/inprogress/P2-002-auto-scheduling-vendors/backlog/102-Haiku-database-migration-scheduling.md",
+  "tasks_done": 19,
   "tasks_failed": 0,
-  "elapsed_min": 147.2,
-  "updated_at": "2026-04-08T16:16:27.461154"
+  "updated_at": "2026-04-10T02:06:05.111808"
 }
