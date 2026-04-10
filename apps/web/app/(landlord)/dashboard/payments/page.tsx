@@ -25,6 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { StripeConnectBanner } from "@/components/payments/stripe-connect-banner";
 import { LogVendorPaymentDialog } from "@/components/payments/log-vendor-payment-dialog";
+import { VendorPaymentTable } from "@/components/payments/vendor-payment-table";
 import { FinancialSummarySection } from "@/components/payments/financial-summary-section";
 
 interface PaymentRecord {
@@ -38,16 +39,6 @@ interface PaymentRecord {
     month: number;
     year: number;
   };
-}
-
-interface VendorPayment {
-  id: string;
-  vendor_name: string;
-  amount: number;
-  payment_date: string;
-  description: string | null;
-  property_id: string;
-  properties?: { name: string };
 }
 
 interface RentCollectionSummary {
@@ -92,7 +83,7 @@ function PaymentsDashboardContent() {
   const [stripeConnected, setStripeConnected] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
-  const [vendorPayments, setVendorPayments] = useState<VendorPayment[]>([]);
+  const [vendorRefreshKey, setVendorRefreshKey] = useState(0);
   const [rentSummary, setRentSummary] = useState<RentCollectionSummary | null>(
     null
   );
@@ -163,26 +154,9 @@ function PaymentsDashboardContent() {
     }
   }, [filterStatus, currentMonth]);
 
-  // Fetch vendor payments
-  const fetchVendorPayments = useCallback(async () => {
-    try {
-      const res = await fetch("/api/payments/vendor?limit=100");
-      if (res.ok) {
-        const { payments: list } = await res.json();
-        setVendorPayments(list);
-      }
-    } catch {
-      console.error("Failed to fetch vendor payments");
-    }
-  }, []);
-
   useEffect(() => {
     fetchPayments();
   }, [fetchPayments]);
-
-  useEffect(() => {
-    fetchVendorPayments();
-  }, [fetchVendorPayments]);
 
   // Filter payments to the selected month for the table
   const filteredPayments = payments.filter(
@@ -378,59 +352,14 @@ function PaymentsDashboardContent() {
         <TabsContent value="vendors" className="space-y-6">
           <div className="flex justify-end">
             <LogVendorPaymentDialog
-              onSuccess={() => {
-                toast.success("Vendor payment logged.");
-                fetchVendorPayments();
-              }}
+              onSuccess={() => setVendorRefreshKey((k) => k + 1)}
             />
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Vendor Payments</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Vendor</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Description</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {vendorPayments.length > 0 ? (
-                    vendorPayments.map((vp) => (
-                      <TableRow key={vp.id}>
-                        <TableCell className="font-medium">
-                          {vp.vendor_name}
-                        </TableCell>
-                        <TableCell>
-                          ${Number(vp.amount).toFixed(2)}
-                        </TableCell>
-                        <TableCell>
-                          {new Date(vp.payment_date).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {vp.description || "—"}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={4}
-                        className="text-center text-muted-foreground py-8"
-                      >
-                        No vendor payments recorded yet.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+          <VendorPaymentTable
+            month={currentMonth}
+            refreshKey={vendorRefreshKey}
+          />
         </TabsContent>
 
         {/* ── Financial Summary Tab ── */}
