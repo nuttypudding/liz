@@ -125,7 +125,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/requests` | Maintenance requests list (landlord) |
 | `/requests/[id]` | Request detail / triage (landlord) |
 | `/vendors` | Vendors list |
-| `/settings` | Landlord settings / AI preferences |
+| `/settings` | Landlord settings / AI preferences (supports `?tab=preferences\|notifications\|rules`) |
 | `/billing` | Landlord billing — current plan, usage, available plans |
 | `/submit` | Tenant maintenance request submission |
 | `/my-requests` | Tenant's submitted requests |
