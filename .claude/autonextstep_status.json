@@ -1,10 +1,10 @@
 {
   "status": "running",
-  "current_task_id": "136",
-  "current_task_title": "Unit tests for rule evaluation engine",
-  "current_task_file": "features/inprogress/P2-003-rule-based-automation/backlog/136-Haiku-unit-tests-rule-engine.md",
+  "current_task_id": "137",
+  "current_task_title": "Unit tests for rules API routes",
+  "current_task_file": "features/inprogress/P2-003-rule-based-automation/backlog/137-Haiku-unit-tests-rules-api.md",
   "current_feature": "P2-003-rule-based-automation",
-  "tasks_done": 29,
+  "tasks_done": 30,
   "tasks_failed": 0,
-  "updated_at": "2026-04-10T15:47:38.675243"
+  "updated_at": "2026-04-10T15:49:43.870001"
 }
