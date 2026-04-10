@@ -25,6 +25,7 @@ This project uses the BrightStep development process. See `PROCESS.md` in `brigh
 | `/log-bug <description>` | Active | Log a new bug ticket |
 | `/update-docs` | Active | Scan git diff, update affected documentation |
 | `/ship <message>` | Active | Tests + doc sweep + commit (user-invoked only) |
+| `/merge-to-main` | Active | Push branch + create PR + merge to main |
 | `/review-changes` | Active | Security & architecture review (read-only) |
 | `/autorunner-status` | Active | Check autorunner progress |
 | `/run-dev` | Active | Start local dev servers |
@@ -82,13 +83,27 @@ python scripts/autonextstep.py --max 5      # Run at most 5 tasks
 ## Git Branch Strategy
 
 ```
-main       ──────●──────●──────●───────>  (production)
-                  \           /
-feature/*   ────●──●──●──●──>             (feature work)
-fix/*       ────●──●──>                   (bug fixes)
+main ──●──────────────────────────●──────────────────────●───>
+        \                        /\                      /
+         feature/P2-002 ──●──●──●  feature/P2-003 ──●──●
+              (push, PR, merge)       (push, PR, merge)
 ```
 
-Branch naming: `feature/T-NNN-name` or `fix/T-NNN-name`.
+Branch naming: `feature/<feature-name>` (e.g., `feature/P2-002-auto-scheduling-vendors`) or `fix/T-NNN-name`.
+
+### Feature-Branch Lifecycle
+
+Each feature runs on a dedicated branch. When all tasks complete:
+1. `/nextstep` pushes the branch and creates a PR via `gh pr create`
+2. `autonextstep.py` merges the PR, checks out main, and starts the next feature
+
+State is tracked in `.claude/feature-lifecycle.json`:
+- `in_progress` — feature tasks are running on the feature branch
+- `pr_created` — all tasks done, PR awaits merge
+- `merged` — PR merged, ready for next feature
+- `error` — merge failed, needs manual intervention
+
+Use `--no-auto-merge` with `autonextstep.py` to pause after PR creation for manual review.
 
 ## Feature Naming Conventions
 

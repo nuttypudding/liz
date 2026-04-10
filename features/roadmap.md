@@ -9,7 +9,7 @@ Ticket-driven work within an existing phase uses `P{phase}-Tkt-{seq}-{name}/` na
 | ID | Feature | Status | Ticket | Notes |
 |----|---------|--------|--------|-------|
 | P1-001 | AI Maintenance Intake MVP | COMPLETE | T-001 | "The Core Four" — Gatekeeper, Estimator, Matchmaker, Ledger. 15 tasks complete. Merged PR #1. |
-| P1-002 | Clerk Auth | IN PROGRESS | T-003 | Foundation done (13 items). Remaining: role selection, billing, error pages, withAuth. Tasks 075–085 (4H/4S/3O). |
+| P1-002 | Clerk Auth | COMPLETE | T-003 | All 11 tasks complete. Merged to main. |
 | P1-003 | Landlord Onboarding & Decision Profile | COMPLETE | T-002 | Tasks 016–024 (3 Haiku, 4 Sonnet, 2 Opus). Risk appetite, delegation mode, auto-approve thresholds, vendor preferences. 5-step onboarding wizard with property/tenant/vendor collection. |
 | P1-Tkt-001 | MVP UX Overhaul | COMPLETE | T-016 | Consolidated from Liz's feedback. 4 work streams: onboarding refinements, property-centric dashboard, lease & document mgmt, utility integration. Tasks 025–074 (50 tasks: 7H/14S/29O). |
 
@@ -18,7 +18,7 @@ Ticket-driven work within an existing phase uses `P{phase}-Tkt-{seq}-{name}/` na
 | ID | Feature | Status | Ticket | Notes |
 |----|---------|--------|--------|-------|
 | P2-001 | Rent Reminder | PLANNED | T-004 | Rent tracking, due dates, overdue alerts, Vercel Cron, notification bell. 16 tasks (3H/9S/4O). |
-| P2-002 | Auto-scheduling Vendors | PLANNED | T-005 | Vendor/tenant availability, AI schedule matching, Resend + Twilio. 17 tasks (4H/7S/4O). |
+| P2-002 | Auto-scheduling Vendors | IN PROGRESS | T-005 | Vendor/tenant availability, AI schedule matching, Resend + Twilio. 4 done, 13 remaining. Tasks 102–118. |
 | P2-003 | Rule-based Automation | PLANNED | T-006 | IF/THEN rules engine, visual rule builder, test panel, audit trail. 19 tasks (4H/8S/5O). |
 | P2-004 | Payment Integration | PLANNED | T-007 | Stripe Connect, tenant rent payment, vendor payment tracking, financial P&L. 20 tasks (4H/10S/4O). |
 
