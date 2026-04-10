@@ -23,6 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { OptionCard } from "@/components/onboarding/option-card";
+import { RulesManager } from "@/components/settings/RulesManager";
 import type { LandlordProfile } from "@/lib/types";
 
 type RiskAppetite = "cost_first" | "balanced" | "speed_first";
@@ -134,6 +135,7 @@ export default function SettingsPage() {
         <TabsList>
           <TabsTrigger value="preferences">AI Preferences</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          <TabsTrigger value="rules">Automation Rules</TabsTrigger>
         </TabsList>
 
         {/* AI Preferences Tab */}
@@ -293,6 +295,13 @@ export default function SettingsPage() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </TabsContent>
+
+        {/* Automation Rules Tab */}
+        <TabsContent value="rules">
+          <div className="space-y-6 pt-4">
+            <RulesManager />
           </div>
         </TabsContent>
       </Tabs>
