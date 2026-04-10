@@ -99,6 +99,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/sign-in` | Clerk sign-in |
 | `/sign-up` | Clerk sign-up |
 | `/role-select` | Post-signup role selection (landlord or tenant) |
+| `/unauthorized` | Access denied page (role mismatch) |
 | `/onboarding` | 5-step onboarding wizard |
 | `/dashboard` | Main landlord dashboard |
 | `/properties` | Properties list |
