@@ -108,6 +108,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | PATCH | `/api/rules/[id]/reorder` | Reorder rule by priority (shifts other rules) |
 | POST | `/api/rules/[id]/test` | Test rule against sample data (returns condition breakdown + actions preview) |
 | GET | `/api/rules/logs` | Query rule execution logs (filters: request_id, rule_id, from_date, to_date, matched_only; paginates by limit/offset) |
+| GET | `/api/rules/summary` | Fetch rules summary (active_rules, auto_approved_this_month, total_processed_this_month) |
 
 ## App Pages
 
