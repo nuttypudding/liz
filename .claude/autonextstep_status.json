@@ -1,10 +1,10 @@
 {
   "status": "running",
-  "current_task_id": "137",
-  "current_task_title": "Unit tests for rules API routes",
-  "current_task_file": "features/inprogress/P2-003-rule-based-automation/backlog/137-Haiku-unit-tests-rules-api.md",
-  "current_feature": "P2-003-rule-based-automation",
-  "tasks_done": 30,
+  "current_task_id": "138",
+  "current_task_title": "Database migration \u2014 payment_periods, payments, vendor_payments, stripe_accounts tables",
+  "current_task_file": "features/inprogress/P2-004-payment-integration/backlog/138-Haiku-database-migration-payments.md",
+  "current_feature": "P2-004-payment-integration",
+  "tasks_done": 31,
   "tasks_failed": 0,
-  "updated_at": "2026-04-10T15:49:43.870001"
+  "updated_at": "2026-04-10T15:53:09.255741"
 }
