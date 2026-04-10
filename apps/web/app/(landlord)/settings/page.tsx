@@ -12,6 +12,7 @@ import {
   Save,
   RotateCcw,
 } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -314,6 +315,19 @@ export default function SettingsPage() {
             <RotateCcw className="size-4 mr-1" />
             {resetting ? "Resetting..." : "Re-run"}
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* Plan & Billing */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Plan & Billing</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">Current plan: Free (Beta)</p>
+          <Link href="/billing" className="text-sm text-primary hover:underline">
+            Manage billing →
+          </Link>
         </CardContent>
       </Card>
 
