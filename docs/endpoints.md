@@ -94,6 +94,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | GET | `/api/scheduling/tasks` | Fetch scheduling task by `?requestId=<uuid>` (landlord) |
 | POST | `/api/scheduling/tasks` | Create a new scheduling task (landlord; called from dispatch) |
 | GET | `/api/scheduling/tasks/[taskId]` | Fetch a single scheduling task by ID (landlord) |
+| GET | `/api/reschedule/verify-token/[token]` | Validate reschedule token and fetch task details (public, token-based) |
 | GET | `/api/tenant/me` | Get current tenant's profile |
 | POST | `/api/upload` | General file upload |
 | POST | `/api/auth/set-role` | Set user role (landlord/tenant) after signup |
@@ -120,6 +121,8 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/submit` | Tenant maintenance request submission |
 | `/my-requests` | Tenant's submitted requests |
 | `/my-requests/[id]` | Tenant request detail |
+| `/scheduling/availability-prompt/[taskId]` | Tenant availability submission for scheduling (public, token-based) |
+| `/reschedule/[token]` | Vendor reschedule request page (public, token-based) |
 
 ## Environment Files
 

@@ -1,10 +1,10 @@
 {
   "status": "running",
-  "current_task_id": "117",
-  "current_task_title": "Unit tests \u2014 scheduling API routes, notification service, AI matcher",
-  "current_task_file": "features/inprogress/P2-002-auto-scheduling-vendors/backlog/117-Haiku-unit-tests-scheduling.md",
+  "current_task_id": "118",
+  "current_task_title": "Update endpoints.md with all new routes and pages",
+  "current_task_file": "features/inprogress/P2-002-auto-scheduling-vendors/backlog/118-Haiku-update-docs-endpoints-scheduling.md",
   "current_feature": "P2-002-auto-scheduling-vendors",
-  "tasks_done": 11,
+  "tasks_done": 12,
   "tasks_failed": 0,
-  "updated_at": "2026-04-10T14:21:34.742905"
+  "updated_at": "2026-04-10T14:29:20.408559"
 }
