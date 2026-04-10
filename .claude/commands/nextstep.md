@@ -57,7 +57,22 @@ Read the task filename prefix:
 
 Report the expected tier. If running via autorunner, the correct model is already set.
 
-### 6. Move Feature Plan to In-Progress (if needed)
+### 6. Ensure Correct Feature Branch
+
+Check the current git branch. The task must run on a feature branch for its feature.
+
+**If already on the correct feature branch** (e.g., `feature/P2-002-auto-scheduling-vendors`), continue.
+
+**If on a different feature branch or main**, create/switch to the feature branch:
+```bash
+# CRITICAL: Always branch from current HEAD, never from main.
+# This preserves all committed task files and code from prior features.
+git checkout -b feature/<feature-name>-<first-task-id>
+```
+
+**Why from HEAD, not main?** Task files for future features are committed on the current branch. Branching from `main` would lose them — this was the cause of the overnight task loss on 2026-04-10.
+
+### 7. Move Feature Plan to In-Progress (if needed)
 
 If the task's `feature` field matches a plan in `features/planned/`, move it to `features/inprogress/` and create the `backlog/`, `doing/`, `done/` subdirectories:
 ```bash
@@ -65,21 +80,21 @@ mv features/planned/P*-<feature>/ features/inprogress/
 mkdir -p features/inprogress/P*-<feature>/{backlog,doing,done}
 ```
 
-### 7. Move Task to Doing
+### 8. Move Task to Doing
 
 ```bash
 mv features/inprogress/<feature>/backlog/<task-file> features/inprogress/<feature>/doing/
 ```
 
-### 8. Execute Task
+### 9. Execute Task
 
 Read the task file thoroughly. Follow all acceptance criteria. Implement the task.
 
-### 9. Test
+### 10. Test
 
 Run the project test suite. All tests must pass before marking complete.
 
-### 10. Complete Task
+### 11. Complete Task
 
 Move the task file to `done/`:
 ```bash
@@ -91,14 +106,14 @@ If no more tasks remain in `backlog/` for this feature, move the entire feature 
 mv features/inprogress/<feature>/ features/completed/
 ```
 
-### 11. Commit
+### 12. Commit
 
 ```bash
 git add <changed files>
 git commit -m "T-NNN: <task title>"
 ```
 
-### 12. Report
+### 13. Report
 
 - Task completed: ID + title
 - Files changed

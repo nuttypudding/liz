@@ -301,6 +301,23 @@ def pick_next_task(
     return None, f"No ready tasks{filter_msg} — backlog empty or all blocked"
 
 
+def verify_task_exists(task_path: Path) -> bool:
+    """Verify a task file still exists on disk before running it.
+
+    The task file may have been lost during a branch switch (e.g., branching
+    from main instead of HEAD). This check prevents the runner from invoking
+    /nextstep when the task it expects is missing.
+    """
+    if not task_path.exists():
+        print(f"  ERROR: Task file missing: {task_path.relative_to(REPO_ROOT)}")
+        print("  This usually means the current branch was created from main")
+        print("  instead of from the branch that has the task files.")
+        print("  Fix: checkout the task files from the branch that has them,")
+        print("  or rebase onto the branch with committed task files.")
+        return False
+    return True
+
+
 def run_task(
     task_path: Path,
     source: str,
@@ -548,6 +565,20 @@ def main():
             print("  Run: claude auth login")
             print("  Then restart: python scripts/autonextstep.py")
             write_status({"status": "auth_error", "tasks_done": tasks_run, "tasks_failed": tasks_failed})
+            break
+
+        # Pre-flight: verify the task file exists on the current branch.
+        # Task files can go missing if a branch was created from main instead
+        # of from HEAD (which carries forward committed task files).
+        if not args.dry_run and not verify_task_exists(task_path):
+            tasks_failed += 1
+            write_status({
+                "status": "missing_task",
+                "missing_file": str(task_path.relative_to(REPO_ROOT)),
+                "tasks_done": tasks_run,
+                "tasks_failed": tasks_failed,
+            })
+            print("Stopping: task file missing — likely a branch issue.")
             break
 
         fm = parse_frontmatter(task_path)
