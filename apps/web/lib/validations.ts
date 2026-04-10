@@ -91,6 +91,34 @@ export const rentPaymentSchema = z.object({
   notes: z.string().max(500).optional().or(z.literal("")),
 });
 
+export const tenantAvailabilitySubmitSchema = z.object({
+  taskId: z.string().uuid(),
+  availableSlots: z.array(
+    z.object({
+      date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "date must be YYYY-MM-DD"),
+      dayPart: z.enum(["morning", "afternoon", "evening"]),
+    })
+  ).min(1),
+});
+
+export const confirmScheduleSchema = z.object({
+  taskId: z.string().uuid(),
+  selectedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "selectedDate must be YYYY-MM-DD"),
+  selectedTimeStart: z.string().regex(/^\d{2}:\d{2}$/, "selectedTimeStart must be HH:MM"),
+  selectedTimeEnd: z.string().regex(/^\d{2}:\d{2}$/, "selectedTimeEnd must be HH:MM"),
+});
+
+export const rescheduleSchema = z.object({
+  reason: z.string().max(1000).optional(),
+  requestedBy: z.enum(["vendor", "tenant", "landlord"]),
+});
+
+export const createSchedulingTaskSchema = z.object({
+  request_id: z.string().uuid(),
+  vendor_id: z.string().uuid(),
+  tenant_id: z.string().uuid(),
+});
+
 export const utilityUpsertSchema = z.object({
   utilities: z.array(z.object({
     utility_type: z.enum([
