@@ -4,9 +4,9 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
+import { CalendarClock, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UrgencyBadge } from "@/components/requests/urgency-badge";
@@ -16,6 +16,7 @@ import { CostEstimateCard } from "@/components/requests/cost-estimate-card";
 import { VendorSelector } from "@/components/requests/vendor-selector";
 import { ApproveButton } from "@/components/requests/approve-button";
 import { WorkOrderDraft } from "@/components/requests/work-order-draft";
+import { SchedulingModal } from "@/components/scheduling/SchedulingModal";
 import { fullName } from "@/lib/format";
 import type { MaintenanceRequest, Vendor } from "@/lib/types";
 
@@ -31,6 +32,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
   const [selectedVendorId, setSelectedVendorId] = useState("");
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [schedulingOpen, setSchedulingOpen] = useState(false);
   const workOrderRef = useRef<string>("");
 
   const fetchData = useCallback(async () => {
@@ -166,6 +168,21 @@ Please contact the tenant to schedule access. Estimated cost: $${request.ai_cost
     />
   );
 
+  const showScheduleButton =
+    request.status === "dispatched" && !!request.vendor_id;
+
+  const scheduleButton = (
+    <Button
+      onClick={() => setSchedulingOpen(true)}
+      className="w-full min-h-11"
+    >
+      <CalendarClock className="size-4 mr-2" />
+      Schedule Now
+    </Button>
+  );
+
+  const actionButton = showScheduleButton ? scheduleButton : approveButton;
+
   return (
     <div className="space-y-4">
       {/* Back link */}
@@ -252,9 +269,9 @@ Please contact the tenant to schedule access. Estimated cost: $${request.ai_cost
             }}
           />
 
-          {/* Mobile approve button area (visible on mobile only) */}
+          {/* Mobile action button area (visible on mobile only) */}
           <div className="lg:hidden">
-            {approveButton}
+            {actionButton}
           </div>
         </div>
 
@@ -277,17 +294,30 @@ Please contact the tenant to schedule access. Estimated cost: $${request.ai_cost
             onVendorChange={setSelectedVendorId}
           />
 
-          {/* Desktop approve button */}
+          {/* Desktop action button */}
           <div className="hidden lg:block">
-            {approveButton}
+            {actionButton}
           </div>
         </div>
       </div>
 
       {/* Mobile sticky bottom bar */}
       <div className="lg:hidden fixed bottom-0 inset-x-0 border-t bg-background p-3 z-20">
-        {approveButton}
+        {actionButton}
       </div>
+
+      {/* Scheduling Modal */}
+      {showScheduleButton && (
+        <SchedulingModal
+          requestId={request.id}
+          vendorId={request.vendor_id!}
+          tenantId={request.tenant_id}
+          vendorName={request.vendors?.name}
+          open={schedulingOpen}
+          onOpenChange={setSchedulingOpen}
+          onConfirmed={fetchData}
+        />
+      )}
     </div>
   );
 }
