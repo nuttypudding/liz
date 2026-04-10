@@ -9,6 +9,15 @@ Each `claude -p` invocation is a SEPARATE session — no conversation history
 or context carries over between tasks. Memory is fully released when each
 claude process exits.
 
+FEATURE-BRANCH LIFECYCLE:
+  Each feature runs on a dedicated branch. When a feature completes,
+  /nextstep pushes the branch and creates a PR. The autorunner then
+  merges the PR, checks out main, and starts the next feature.
+
+  State is tracked in .claude/feature-lifecycle.json:
+    state: in_progress → pr_created → merged
+  Use --no-auto-merge to stop after PR creation for manual review.
+
 TASK DIRECTORY STRUCTURE:
   Tasks live inside their feature directory:
     features/inprogress/<feature>/backlog/   ← pending tasks
@@ -38,6 +47,7 @@ Usage (from repo root):
     python scripts/autonextstep.py --haiku-only  # Skip Opus tasks (save tokens)
     python scripts/autonextstep.py --final-test  # Run /test-fix-dev after backlog is empty
     python scripts/autonextstep.py --unpause     # Resume after a pivot
+    python scripts/autonextstep.py --no-auto-merge  # Stop after PR creation (manual review)
 """
 
 from __future__ import annotations
@@ -59,6 +69,7 @@ FEATURES_DIR = REPO_ROOT / "features"
 INPROGRESS_DIR = FEATURES_DIR / "inprogress"
 COMPLETED_DIR = FEATURES_DIR / "completed"
 STATUS_FILE = REPO_ROOT / ".claude" / "autonextstep_status.json"
+LIFECYCLE_FILE = REPO_ROOT / ".claude" / "feature-lifecycle.json"
 
 DEFAULT_TASK_TIMEOUT_MINS = 90  # kill the claude process after this many minutes
 
@@ -95,6 +106,255 @@ def send_pushover(title: str, message: str, priority: int = 0) -> bool:
         print(f"  Pushover notification failed: {e}")
         return False
 
+
+# ---------------------------------------------------------------------------
+# Feature lifecycle helpers
+# ---------------------------------------------------------------------------
+
+def read_lifecycle() -> dict | None:
+    """Read .claude/feature-lifecycle.json. Returns dict or None if missing."""
+    if not LIFECYCLE_FILE.exists():
+        return None
+    try:
+        return json.loads(LIFECYCLE_FILE.read_text())
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
+def write_lifecycle(data: dict) -> None:
+    """Write .claude/feature-lifecycle.json with updated timestamp."""
+    data["updated_at"] = datetime.now().isoformat()
+    LIFECYCLE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    LIFECYCLE_FILE.write_text(json.dumps(data, indent=2) + "\n")
+
+
+def get_current_branch() -> str:
+    """Return the current git branch name."""
+    result = subprocess.run(
+        ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+        capture_output=True, text=True, cwd=REPO_ROOT,
+    )
+    return result.stdout.strip()
+
+
+def determine_current_feature() -> str | None:
+    """Return the first in-progress feature (alphabetically) that has backlog tasks."""
+    for feature_dir in _iter_feature_dirs(INPROGRESS_DIR):
+        backlog_dir = feature_dir / "backlog"
+        if not backlog_dir.exists():
+            continue
+        tasks = [
+            f for f in backlog_dir.iterdir()
+            if f.suffix == ".md" and f.name != "README.md"
+            and not f.name.startswith("pause_")
+            and re.match(r"^\d+", f.name)
+        ]
+        if tasks:
+            return feature_dir.name
+    return None
+
+
+def get_ready_tasks_for_feature(
+    feature_name: str,
+    completed_ids: set[str],
+) -> list[Path]:
+    """Find all ready backlog tasks for a specific feature, sorted by ID."""
+    feature_dir = INPROGRESS_DIR / feature_name
+    backlog_dir = feature_dir / "backlog"
+    if not backlog_dir.exists():
+        return []
+
+    tasks = sorted(
+        f for f in backlog_dir.iterdir()
+        if f.suffix == ".md" and f.name != "README.md"
+        and not f.name.startswith("pause_")
+        and re.match(r"^\d+", f.name)
+    )
+    tasks.sort(key=lambda p: int(re.match(r"^(\d+)", p.name).group(1)))
+
+    ready = []
+    for task_path in tasks:
+        fm = parse_frontmatter(task_path)
+        deps = fm.get("depends_on", [])
+        all_satisfied = all((dep.lstrip("0") or "0") in completed_ids for dep in deps)
+        if all_satisfied:
+            ready.append(task_path)
+    return ready
+
+
+def find_next_backlog_task_for_feature(
+    feature_name: str,
+    completed_ids: set[str],
+    skip: set[str] | None = None,
+    tier_filter: str | None = None,
+) -> Path | None:
+    """Find the lowest-numbered ready backlog task for a specific feature."""
+    skip = skip or set()
+    for task_path in get_ready_tasks_for_feature(feature_name, completed_ids):
+        match = re.match(r"^(\d+)", task_path.name)
+        if not match or match.group(1) in skip:
+            continue
+        if tier_filter:
+            tier = detect_tier(task_path.name)
+            if tier != tier_filter:
+                continue
+        return task_path
+    return None
+
+
+def merge_feature_pr(lifecycle: dict, *, notify: bool = False) -> bool:
+    """Merge a feature PR, checkout main, and pull. Returns True on success."""
+    pr_number = lifecycle.get("pr_number")
+    feature = lifecycle.get("feature", "unknown")
+
+    if not pr_number:
+        print(f"  ERROR: No PR number in lifecycle for {feature}")
+        write_lifecycle({**lifecycle, "state": "error"})
+        return False
+
+    # Check PR state first
+    try:
+        result = subprocess.run(
+            ["gh", "pr", "view", str(pr_number), "--json", "state"],
+            capture_output=True, text=True, cwd=REPO_ROOT, timeout=30,
+        )
+        if result.returncode == 0:
+            pr_data = json.loads(result.stdout)
+            pr_state = pr_data.get("state", "").upper()
+            if pr_state == "MERGED":
+                print(f"  PR #{pr_number} already merged. Continuing gracefully.")
+                write_lifecycle({**lifecycle, "state": "merged"})
+                # Checkout main and pull
+                subprocess.run(["git", "checkout", "main"], cwd=REPO_ROOT, timeout=30)
+                subprocess.run(["git", "pull", "origin", "main"], cwd=REPO_ROOT, timeout=60)
+                return True
+            elif pr_state == "CLOSED":
+                print(f"  PR #{pr_number} is closed (not merged). Setting lifecycle to error.")
+                write_lifecycle({**lifecycle, "state": "error"})
+                return False
+    except (subprocess.TimeoutExpired, json.JSONDecodeError, OSError) as e:
+        print(f"  WARNING: Could not check PR state: {e}")
+        # Continue to attempt merge anyway
+
+    # Attempt merge
+    print(f"  Merging PR #{pr_number} for feature {feature}...")
+    try:
+        result = subprocess.run(
+            ["gh", "pr", "merge", str(pr_number), "--merge", "--delete-branch"],
+            capture_output=True, text=True, cwd=REPO_ROOT, timeout=120,
+        )
+        if result.returncode != 0:
+            stderr = result.stderr.strip()
+            print(f"  ERROR: PR merge failed: {stderr}")
+            write_lifecycle({**lifecycle, "state": "error"})
+            if notify:
+                send_pushover(
+                    "BrightStep: Merge Failed",
+                    f"PR #{pr_number} for {feature} failed to merge: {stderr[:200]}",
+                    priority=1,
+                )
+            return False
+    except subprocess.TimeoutExpired:
+        print("  ERROR: PR merge timed out.")
+        write_lifecycle({**lifecycle, "state": "error"})
+        if notify:
+            send_pushover(
+                "BrightStep: Merge Timeout",
+                f"PR #{pr_number} for {feature} timed out during merge.",
+                priority=1,
+            )
+        return False
+
+    print(f"  PR #{pr_number} merged successfully.")
+    write_lifecycle({**lifecycle, "state": "merged"})
+
+    # Checkout main and pull
+    subprocess.run(["git", "checkout", "main"], cwd=REPO_ROOT, timeout=30)
+    subprocess.run(["git", "pull", "origin", "main"], cwd=REPO_ROOT, timeout=60)
+    print("  Checked out main and pulled latest.")
+
+    return True
+
+
+def handle_feature_transition(*, no_auto_merge: bool = False, notify: bool = False) -> str | None:
+    """Handle state transitions between features before picking next task.
+
+    Returns None on success, or an error message if the runner should stop.
+    """
+    lifecycle = read_lifecycle()
+
+    if lifecycle is None:
+        # No lifecycle file — first run or fresh repo. Continue normally.
+        return None
+
+    state = lifecycle.get("state", "")
+
+    if state == "in_progress":
+        # Normal state — continue running tasks
+        return None
+
+    if state == "merged":
+        # Previous feature already merged. Check if we need a new feature.
+        next_feature = determine_current_feature()
+        if next_feature is None:
+            return "No more features with backlog tasks."
+        # Clear lifecycle for the next feature — /nextstep will create branch & write new lifecycle
+        write_lifecycle({
+            "feature": next_feature,
+            "branch": f"feature/{next_feature}",
+            "state": "in_progress",
+            "pr_number": None,
+            "pr_url": None,
+        })
+        # Ensure we're on main before /nextstep creates the new branch
+        current_branch = get_current_branch()
+        if current_branch != "main":
+            print(f"  Switching to main (was on {current_branch}) for new feature {next_feature}.")
+            subprocess.run(["git", "checkout", "main"], cwd=REPO_ROOT, timeout=30)
+        return None
+
+    if state == "pr_created":
+        if no_auto_merge:
+            return (
+                f"PR #{lifecycle.get('pr_number')} created for {lifecycle.get('feature')}. "
+                f"--no-auto-merge is set — waiting for manual merge. "
+                f"URL: {lifecycle.get('pr_url', 'unknown')}"
+            )
+        # Auto-merge the PR
+        print(f"  Feature {lifecycle.get('feature')} has a pending PR. Attempting merge...")
+        ok = merge_feature_pr(lifecycle, notify=notify)
+        if not ok:
+            return f"Failed to merge PR #{lifecycle.get('pr_number')} for {lifecycle.get('feature')}. Check lifecycle file."
+
+        # After merge, prepare for next feature
+        next_feature = determine_current_feature()
+        if next_feature is None:
+            return "No more features with backlog tasks after merge."
+        write_lifecycle({
+            "feature": next_feature,
+            "branch": f"feature/{next_feature}",
+            "state": "in_progress",
+            "pr_number": None,
+            "pr_url": None,
+        })
+        current_branch = get_current_branch()
+        if current_branch != "main":
+            subprocess.run(["git", "checkout", "main"], cwd=REPO_ROOT, timeout=30)
+        return None
+
+    if state == "error":
+        return (
+            f"Feature lifecycle is in error state for {lifecycle.get('feature')}. "
+            f"Fix manually and update .claude/feature-lifecycle.json."
+        )
+
+    # Unknown state
+    return f"Unknown lifecycle state: {state}"
+
+
+# ---------------------------------------------------------------------------
+# Task discovery helpers
+# ---------------------------------------------------------------------------
 
 def _iter_feature_dirs(base: Path):
     """Yield feature directories under a base path (inprogress or completed)."""
@@ -276,7 +536,10 @@ def pick_next_task(
     skip: set[str] | None = None,
     tier_filter: str | None = None,
 ) -> tuple[Path | None, str]:
-    """Find the next task to run. Returns (path, source_label) or (None, reason)."""
+    """Find the next task to run. Feature-scoped: only picks from current feature.
+
+    Returns (path, source_label) or (None, reason).
+    """
     # Priority 1: Interrupted work in any doing/ directory
     doing_task = find_doing_task()
     if doing_task:
@@ -290,15 +553,38 @@ def pick_next_task(
         feature_name = doing_task.parent.parent.name
         return doing_task, f"{feature_name}/doing (resuming interrupted work)"
 
-    # Priority 2: Next ready backlog task
+    # Priority 2: Feature-scoped backlog task
+    current_feature = determine_current_feature()
+    if current_feature is None:
+        filter_msg = f" (filtered to {tier_filter} only)" if tier_filter else ""
+        return None, f"No ready tasks{filter_msg} — backlog empty or all blocked"
+
     completed_ids = get_completed_ids()
-    backlog_task = find_next_backlog_task(completed_ids, skip=skip, tier_filter=tier_filter)
+    backlog_task = find_next_backlog_task_for_feature(
+        current_feature, completed_ids, skip=skip, tier_filter=tier_filter,
+    )
     if backlog_task:
-        feature_name = backlog_task.parent.parent.name
-        return backlog_task, f"{feature_name}/backlog"
+        return backlog_task, f"{current_feature}/backlog"
 
     filter_msg = f" (filtered to {tier_filter} only)" if tier_filter else ""
-    return None, f"No ready tasks{filter_msg} — backlog empty or all blocked"
+    return None, f"No ready tasks in {current_feature}{filter_msg} — all blocked or filtered"
+
+
+def verify_task_exists(task_path: Path) -> bool:
+    """Verify a task file still exists on disk before running it.
+
+    The task file may have been lost during a branch switch (e.g., branching
+    from main instead of HEAD). This check prevents the runner from invoking
+    /nextstep when the task it expects is missing.
+    """
+    if not task_path.exists():
+        print(f"  ERROR: Task file missing: {task_path.relative_to(REPO_ROOT)}")
+        print("  This usually means the current branch was created from main")
+        print("  instead of from the branch that has the task files.")
+        print("  Fix: checkout the task files from the branch that has them,")
+        print("  or rebase onto the branch with committed task files.")
+        return False
+    return True
 
 
 def run_task(
@@ -453,6 +739,12 @@ def main():
         action="store_true",
         help="Send a Pushover notification when the run finishes (success or failure).",
     )
+    parser.add_argument(
+        "--no-auto-merge",
+        action="store_true",
+        help="Stop after PR creation instead of auto-merging. "
+        "Use for manual code review before merging feature branches.",
+    )
     args = parser.parse_args()
 
     # Handle --unpause immediately and exit
@@ -498,6 +790,8 @@ def main():
         mode_parts.append(f"{tier_filter} only")
     if args.force_model:
         mode_parts.append(f"force model: {args.force_model}")
+    if args.no_auto_merge:
+        mode_parts.append("no auto-merge")
     if args.final_test:
         mode_parts.append(f"final /test-fix-dev ({args.final_test_model})")
     if args.notify:
@@ -528,6 +822,22 @@ def main():
         sys.exit(2)
 
     while tasks_run < max_tasks:
+        # Handle feature transitions (merge completed PRs, prepare next feature)
+        if not args.dry_run:
+            transition_err = handle_feature_transition(
+                no_auto_merge=args.no_auto_merge,
+                notify=args.notify,
+            )
+            if transition_err:
+                print(f"Stopping: {transition_err}")
+                write_status({
+                    "status": "feature_transition",
+                    "message": transition_err,
+                    "tasks_done": tasks_run,
+                    "tasks_failed": tasks_failed,
+                })
+                break
+
         skip = processed_ids if args.dry_run else None
         task_path, source = pick_next_task(skip=skip, tier_filter=tier_filter)
 
@@ -550,12 +860,26 @@ def main():
             write_status({"status": "auth_error", "tasks_done": tasks_run, "tasks_failed": tasks_failed})
             break
 
+        # Pre-flight: verify the task file exists on the current branch.
+        if not args.dry_run and not verify_task_exists(task_path):
+            tasks_failed += 1
+            write_status({
+                "status": "missing_task",
+                "missing_file": str(task_path.relative_to(REPO_ROOT)),
+                "tasks_done": tasks_run,
+                "tasks_failed": tasks_failed,
+            })
+            print("Stopping: task file missing — likely a branch issue.")
+            break
+
         fm = parse_frontmatter(task_path)
+        feature_name = task_path.parent.parent.name
         write_status({
             "status": "running",
             "current_task_id": fm.get("id", "?"),
             "current_task_title": fm.get("title", task_path.stem),
             "current_task_file": str(task_path.relative_to(REPO_ROOT)),
+            "current_feature": feature_name,
             "tasks_done": tasks_run,
             "tasks_failed": tasks_failed,
         })

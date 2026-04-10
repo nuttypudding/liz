@@ -1,6 +1,6 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
-import { WebhookEvent } from "@clerk/nextjs/server";
+import { WebhookEvent, clerkClient } from "@clerk/nextjs/server";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -56,6 +56,13 @@ export async function POST(request: Request) {
           .eq("id", existing.id);
       }
       // If no match, tenant will be linked when landlord adds them
+    } else if (!role) {
+      // Self-signup via /sign-up UI — default role to landlord.
+      // MVP assumption: tenants never self-signup; they are created by landlords.
+      const client = await clerkClient();
+      await client.users.updateUserMetadata(id, {
+        publicMetadata: { role: "landlord" },
+      });
     }
   }
 

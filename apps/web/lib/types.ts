@@ -203,3 +203,19 @@ export interface UtilityUpsertPayload {
     notes: string | null;
   }>;
 }
+
+export interface BillingPlan {
+  id: string;
+  name: string;
+  price_monthly: number;
+  limits: { properties: number; requests_per_month: number };
+  status: "active" | "coming_soon";
+}
+
+export interface BillingUsage {
+  properties_count: number;
+  properties_limit: number;
+  requests_this_month: number;
+  requests_limit: number;
+  plan: BillingPlan;
+}

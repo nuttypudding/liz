@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  setRoleSchema,
   intakeSchema,
   propertySchema,
   tenantSchema,
@@ -8,6 +9,39 @@ import {
 } from "@/lib/validations";
 
 const VALID_UUID = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
+
+describe("setRoleSchema", () => {
+  it("validates { role: 'landlord' }", () => {
+    const result = setRoleSchema.safeParse({ role: "landlord" });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.role).toBe("landlord");
+    }
+  });
+
+  it("validates { role: 'tenant' }", () => {
+    const result = setRoleSchema.safeParse({ role: "tenant" });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.role).toBe("tenant");
+    }
+  });
+
+  it("rejects invalid role values", () => {
+    const result = setRoleSchema.safeParse({ role: "admin" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects missing role field", () => {
+    const result = setRoleSchema.safeParse({});
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects null role", () => {
+    const result = setRoleSchema.safeParse({ role: null });
+    expect(result.success).toBe(false);
+  });
+});
 
 describe("intakeSchema", () => {
   it("accepts valid input", () => {

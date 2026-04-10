@@ -59,6 +59,7 @@ function createChain(): Record<string, unknown> {
     "insert",
     "update",
     "delete",
+    "upsert",
     "eq",
     "in",
     "not",

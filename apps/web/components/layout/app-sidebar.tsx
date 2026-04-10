@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
-import { Building2, LayoutDashboard, Settings, Users, Wrench } from "lucide-react";
+import { Building2, CreditCard, LayoutDashboard, Settings, Users, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -23,6 +23,7 @@ const navItems = [
   { href: "/properties", label: "Properties", icon: Building2 },
   { href: "/vendors", label: "Vendors", icon: Users },
   { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/billing", label: "Billing", icon: CreditCard },
 ];
 
 export function AppSidebar() {
