@@ -100,6 +100,15 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | POST | `/api/auth/set-role` | Set user role (landlord/tenant) after signup |
 | GET | `/api/billing` | Billing plan info and usage counts (landlord) |
 | POST | `/api/webhook/clerk` | Clerk webhook for user sync |
+| GET | `/api/rules` | List landlord's automation rules (sorted by priority) |
+| POST | `/api/rules` | Create a new automation rule (max 25 per landlord) |
+| GET | `/api/rules/[id]` | Get single automation rule |
+| PUT | `/api/rules/[id]` | Update an automation rule |
+| DELETE | `/api/rules/[id]` | Delete an automation rule (204 No Content) |
+| PATCH | `/api/rules/[id]/reorder` | Reorder rule by priority (shifts other rules) |
+| POST | `/api/rules/[id]/test` | Test rule against sample data (returns condition breakdown + actions preview) |
+| GET | `/api/rules/logs` | Query rule execution logs (filters: request_id, rule_id, from_date, to_date, matched_only; paginates by limit/offset) |
+| GET | `/api/rules/summary` | Fetch rules summary (active_rules, auto_approved_this_month, total_processed_this_month) |
 
 ## App Pages
 
@@ -116,7 +125,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/requests` | Maintenance requests list (landlord) |
 | `/requests/[id]` | Request detail / triage (landlord) |
 | `/vendors` | Vendors list |
-| `/settings` | Landlord settings / AI preferences |
+| `/settings` | Landlord settings / AI preferences (supports `?tab=preferences\|notifications\|rules`) |
 | `/billing` | Landlord billing — current plan, usage, available plans |
 | `/submit` | Tenant maintenance request submission |
 | `/my-requests` | Tenant's submitted requests |

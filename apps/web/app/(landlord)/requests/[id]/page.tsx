@@ -15,6 +15,7 @@ import { AiClassificationCard } from "@/components/requests/ai-classification-ca
 import { CostEstimateCard } from "@/components/requests/cost-estimate-card";
 import { VendorSelector } from "@/components/requests/vendor-selector";
 import { ApproveButton } from "@/components/requests/approve-button";
+import { RuleAuditCard } from "@/components/requests/rule-audit-card";
 import { WorkOrderDraft } from "@/components/requests/work-order-draft";
 import { SchedulingModal } from "@/components/scheduling/SchedulingModal";
 import { ScheduleConfirmationCard } from "@/components/scheduling/ScheduleConfirmationCard";
@@ -366,6 +367,7 @@ Please contact the tenant to schedule access. Estimated cost: $${request.ai_cost
             selectedVendorId={selectedVendorId}
             onVendorChange={setSelectedVendorId}
           />
+          <RuleAuditCard requestId={id} />
 
           {/* Desktop action button */}
           <div className="hidden lg:block">

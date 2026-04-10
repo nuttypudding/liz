@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   PiggyBank,
   Scale,
@@ -23,13 +23,16 @@ import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { OptionCard } from "@/components/onboarding/option-card";
+import { RulesManager } from "@/components/settings/RulesManager";
 import type { LandlordProfile } from "@/lib/types";
 
 type RiskAppetite = "cost_first" | "balanced" | "speed_first";
 type DelegationMode = "manual" | "assist" | "auto";
 
-export default function SettingsPage() {
+function SettingsContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const defaultTab = searchParams.get("tab") ?? "preferences";
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
@@ -130,10 +133,11 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <PageHeader title="Settings" />
 
-      <Tabs defaultValue="preferences">
+      <Tabs defaultValue={defaultTab}>
         <TabsList>
           <TabsTrigger value="preferences">AI Preferences</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          <TabsTrigger value="rules">Automation Rules</TabsTrigger>
         </TabsList>
 
         {/* AI Preferences Tab */}
@@ -295,6 +299,13 @@ export default function SettingsPage() {
             </Card>
           </div>
         </TabsContent>
+
+        {/* Automation Rules Tab */}
+        <TabsContent value="rules">
+          <div className="space-y-6 pt-4">
+            <RulesManager />
+          </div>
+        </TabsContent>
       </Tabs>
 
       {/* Re-run onboarding */}
@@ -343,5 +354,20 @@ export default function SettingsPage() {
         </Button>
       </div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="space-y-6">
+          <PageHeader title="Settings" />
+          <Skeleton className="h-64 w-full rounded-xl" />
+        </div>
+      }
+    >
+      <SettingsContent />
+    </Suspense>
   );
 }

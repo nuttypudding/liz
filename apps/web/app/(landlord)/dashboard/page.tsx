@@ -12,6 +12,7 @@ import { PropertyDrillDown, PropertyDrillDownSkeleton } from "@/components/dashb
 import { RequestCard } from "@/components/requests/request-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LatePaymentBanner } from "@/components/dashboard/late-payment-banner";
+import { RulesSummaryCard } from "@/components/dashboard/rules-summary-card";
 import type { Property, DashboardStats, SpendChartItem, MaintenanceRequest, RentStatus } from "@/lib/types";
 
 function DashboardContent() {
@@ -124,6 +125,7 @@ function DashboardContent() {
             <Skeleton key={i} className="h-24" />
           ))}
         </div>
+        <Skeleton className="h-40 w-full" />
         <Skeleton className="h-64 w-full" />
         <div className="space-y-2">
           {[0, 1, 2].map((i) => (
@@ -159,6 +161,7 @@ function DashboardContent() {
             avgResolutionDays={stats?.avg_resolution_days ?? 0}
             monthlySpend={stats?.monthly_spend ?? 0}
           />
+          <RulesSummaryCard />
           <SpendChart data={chartData} />
           <div className="space-y-3">
             <h2 className="text-base font-semibold">Recent Requests</h2>

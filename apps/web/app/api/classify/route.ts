@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { ContentBlockParam } from "@anthropic-ai/sdk/resources";
 
 import { anthropic } from "@/lib/anthropic";
+import { processRulesForRequest } from "@/lib/rules/engine";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 const classifyRequestSchema = z.object({
@@ -223,10 +224,19 @@ Respond with valid JSON only (no markdown):
       );
     }
 
+    // --- Step 4: Evaluate automation rules --- //
+    let rulesResult = null;
+    try {
+      rulesResult = await processRulesForRequest(request_id, supabase);
+    } catch (err) {
+      console.error("Rule evaluation failed (non-critical):", err);
+    }
+
     return NextResponse.json({
       request_id,
       gatekeeper,
       classification: estimator,
+      rules: rulesResult,
     });
   } catch (err) {
     console.error("Unexpected error in POST /api/classify:", err);
