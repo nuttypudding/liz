@@ -7,6 +7,8 @@ import { createSchedulingTaskSchema } from "@/lib/validations";
 
 // GET /api/scheduling/tasks?requestId=<uuid>
 // Fetch the scheduling task for a given maintenance request.
+// Landlords: verified via property ownership.
+// Tenants: verified via tenant record linked to clerk_user_id.
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth();
@@ -15,8 +17,8 @@ export async function GET(request: NextRequest) {
     }
 
     const role = await getRole();
-    if (role !== "landlord") {
-      return NextResponse.json({ error: "Forbidden: landlord role required" }, { status: 403 });
+    if (role !== "landlord" && role !== "tenant") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const requestId = request.nextUrl.searchParams.get("requestId");
@@ -26,10 +28,9 @@ export async function GET(request: NextRequest) {
 
     const supabase = createServerSupabaseClient();
 
-    // Verify landlord owns the property for this request
     const { data: req } = await supabase
       .from("maintenance_requests")
-      .select("property_id")
+      .select("property_id, tenant_id")
       .eq("id", requestId)
       .single();
 
@@ -37,15 +38,30 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Maintenance request not found" }, { status: 404 });
     }
 
-    const { data: property } = await supabase
-      .from("properties")
-      .select("id")
-      .eq("id", req.property_id)
-      .eq("landlord_id", userId)
-      .single();
+    if (role === "landlord") {
+      // Verify landlord owns the property
+      const { data: property } = await supabase
+        .from("properties")
+        .select("id")
+        .eq("id", req.property_id)
+        .eq("landlord_id", userId)
+        .single();
 
-    if (!property) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      if (!property) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+    } else {
+      // Tenant: verify clerk_user_id matches the request's tenant
+      const { data: tenant } = await supabase
+        .from("tenants")
+        .select("id")
+        .eq("id", req.tenant_id)
+        .eq("clerk_user_id", userId)
+        .single();
+
+      if (!tenant) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
     }
 
     const { data: task, error } = await supabase

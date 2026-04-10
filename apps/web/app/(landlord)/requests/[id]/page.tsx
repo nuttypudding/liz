@@ -17,6 +17,7 @@ import { VendorSelector } from "@/components/requests/vendor-selector";
 import { ApproveButton } from "@/components/requests/approve-button";
 import { WorkOrderDraft } from "@/components/requests/work-order-draft";
 import { SchedulingModal } from "@/components/scheduling/SchedulingModal";
+import { ScheduleConfirmationCard } from "@/components/scheduling/ScheduleConfirmationCard";
 import { fullName } from "@/lib/format";
 import type { MaintenanceRequest, Vendor } from "@/lib/types";
 
@@ -267,6 +268,22 @@ Please contact the tenant to schedule access. Estimated cost: $${request.ai_cost
             onTextChange={(text) => {
               workOrderRef.current = text;
             }}
+          />
+
+          {/* Schedule confirmation card */}
+          <ScheduleConfirmationCard
+            requestId={request.id}
+            role="landlord"
+            vendorName={request.vendors?.name}
+            vendorPhone={request.vendors?.phone ?? undefined}
+            propertyAddress={
+              request.properties
+                ? `${request.properties.address_line1}, ${request.properties.city}, ${request.properties.state}`
+                : undefined
+            }
+            category={request.ai_category ?? undefined}
+            description={request.tenant_message}
+            onStatusChange={fetchData}
           />
 
           {/* Mobile action button area (visible on mobile only) */}

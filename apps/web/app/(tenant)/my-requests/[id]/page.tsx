@@ -17,6 +17,7 @@ import { UrgencyBadge } from "@/components/requests/urgency-badge";
 import { StatusBadge } from "@/components/requests/status-badge";
 import { PageHeader } from "@/components/shared/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ScheduleConfirmationCard } from "@/components/scheduling/ScheduleConfirmationCard";
 
 const categoryIcons: Record<string, React.ElementType> = {
   plumbing: Droplets,
@@ -48,7 +49,16 @@ interface RequestDetail {
   ai_recommended_action?: string | null;
   ai_cost_estimate_low?: number | null;
   ai_cost_estimate_high?: number | null;
-  properties?: { name: string } | null;
+  properties?: {
+    name: string;
+    address_line1?: string;
+    city?: string;
+    state?: string;
+  } | null;
+  vendors?: {
+    name: string;
+    phone?: string | null;
+  } | null;
 }
 
 function LoadingSkeleton() {
@@ -159,6 +169,21 @@ export default function RequestDetailPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Schedule confirmation card */}
+      <ScheduleConfirmationCard
+        requestId={request.id}
+        role="tenant"
+        vendorName={request.vendors?.name}
+        vendorPhone={request.vendors?.phone ?? undefined}
+        propertyAddress={
+          request.properties?.address_line1
+            ? `${request.properties.address_line1}, ${request.properties.city ?? ""}, ${request.properties.state ?? ""}`
+            : undefined
+        }
+        category={request.ai_category ?? undefined}
+        description={request.tenant_message}
+      />
 
       {/* Metadata */}
       <Card>
