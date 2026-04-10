@@ -90,7 +90,7 @@ export async function POST(req: Request) {
         },
       ],
       mode: "payment",
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/pay/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/pay?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pay?canceled=true`,
       customer_email: tenant?.email ?? undefined,
       client_reference_id: paymentPeriod.tenant_id as string,
@@ -116,7 +116,7 @@ export async function POST(req: Request) {
       metadata: { checkout_session_id: session.id },
     });
 
-    return NextResponse.json({ sessionId: session.id });
+    return NextResponse.json({ sessionId: session.id, url: session.url });
   } catch (error) {
     console.error("Stripe checkout error:", error);
     return NextResponse.json(
