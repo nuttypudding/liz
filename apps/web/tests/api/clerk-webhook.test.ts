@@ -8,6 +8,7 @@ import {
 // Mock state
 let mockHeaderGet: (key: string) => string | null;
 let mockVerifyResult: (() => unknown) | null;
+const mockUpdateUserMetadata = vi.fn();
 
 vi.mock("next/headers", () => ({
   headers: () =>
@@ -29,6 +30,14 @@ vi.mock("@/lib/supabase/server", () => ({
   createServerSupabaseClient: () => mockCreateServerSupabaseClient(),
 }));
 
+vi.mock("@clerk/nextjs/server", () => ({
+  clerkClient: async () => ({
+    users: {
+      updateUserMetadata: mockUpdateUserMetadata,
+    },
+  }),
+}));
+
 vi.stubEnv("CLERK_WEBHOOK_SECRET", "test-webhook-secret");
 
 const { POST } = await import("@/app/api/webhook/clerk/route");
@@ -46,6 +55,8 @@ describe("POST /api/webhook/clerk", () => {
     resetAllMocks();
     mockHeaderGet = () => null;
     mockVerifyResult = null;
+    mockUpdateUserMetadata.mockReset();
+    mockUpdateUserMetadata.mockResolvedValue(undefined);
   });
 
   function setSvixHeaders() {
@@ -127,6 +138,26 @@ describe("POST /api/webhook/clerk", () => {
 
     const res = await POST(buildWebhookRequest({}));
     expect(res.status).toBe(200);
+    // Existing role — should not overwrite
+    expect(mockUpdateUserMetadata).not.toHaveBeenCalled();
+  });
+
+  it("user.created with no role defaults to landlord (self-signup bootstrap)", async () => {
+    setSvixHeaders();
+    mockVerifyResult = () => ({
+      type: "user.created",
+      data: {
+        id: "user_selfsignup",
+        email_addresses: [{ email_address: "new@example.com" }],
+        public_metadata: {},
+      },
+    });
+
+    const res = await POST(buildWebhookRequest({}));
+    expect(res.status).toBe(200);
+    expect(mockUpdateUserMetadata).toHaveBeenCalledWith("user_selfsignup", {
+      publicMetadata: { role: "landlord" },
+    });
   });
 
   it("returns 200 for non-user.created events", async () => {

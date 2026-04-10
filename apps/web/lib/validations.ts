@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+export const setRoleSchema = z.object({
+  role: z.enum(["landlord", "tenant"]),
+});
+
 export const intakeSchema = z.object({
   tenant_message: z.string().min(1).max(5000),
   photo_paths: z.array(z.string()).max(5).optional(),

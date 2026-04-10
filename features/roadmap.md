@@ -9,9 +9,9 @@ Ticket-driven work within an existing phase uses `P{phase}-Tkt-{seq}-{name}/` na
 | ID | Feature | Status | Ticket | Notes |
 |----|---------|--------|--------|-------|
 | P1-001 | AI Maintenance Intake MVP | COMPLETE | T-001 | "The Core Four" — Gatekeeper, Estimator, Matchmaker, Ledger. 15 tasks complete. Merged PR #1. |
-| P1-002 | Clerk Auth | PLANNED | T-003 | Authentication, roles, role selection, billing page, withAuth helper. 10 tasks (3H/4S/3O). |
+| P1-002 | Clerk Auth | IN PROGRESS | T-003 | Foundation done (13 items). Remaining: role selection, billing, error pages, withAuth. Tasks 075–085 (4H/4S/3O). |
 | P1-003 | Landlord Onboarding & Decision Profile | COMPLETE | T-002 | Tasks 016–024 (3 Haiku, 4 Sonnet, 2 Opus). Risk appetite, delegation mode, auto-approve thresholds, vendor preferences. 5-step onboarding wizard with property/tenant/vendor collection. |
-| P1-Tkt-001 | MVP UX Overhaul | IN PROGRESS | T-016 | Consolidated from Liz's feedback. 4 work streams: onboarding refinements, property-centric dashboard, lease & document mgmt, utility integration. Tasks 025–074 (50 tasks: 7H/14S/29O). |
+| P1-Tkt-001 | MVP UX Overhaul | COMPLETE | T-016 | Consolidated from Liz's feedback. 4 work streams: onboarding refinements, property-centric dashboard, lease & document mgmt, utility integration. Tasks 025–074 (50 tasks: 7H/14S/29O). |
 
 ## Phase 2
 

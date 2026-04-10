@@ -30,7 +30,7 @@ This project uses the BrightStep development process. See `PROCESS.md` in `brigh
 | `/run-dev` | Active | Start local dev servers |
 | `/test-all` | Active | Run all tests (unit, component, E2E) |
 | `/test-fix-dev` | Pending | Autonomous local QA (needs test-fix loop) |
-| `/test-fix-prod` | Pending | Autonomous production QA (needs smoke test suite) |
+| `/test-fix-prod` | Active | Autonomous production smoke test + fix loop (`apps/web/e2e-prod/*.mjs`) |
 | `/deploy-prod` | Active | Production deployment to Vercel |
 | `/overnight-qa` | Pending | Comprehensive overnight QA (needs test matrix) |
 | `/notify` | Pending | Notifications (needs service credentials) |
@@ -200,7 +200,6 @@ All environment URLs, API routes, and app pages are documented in `docs/endpoint
 
 **Skills (need implementation)**:
 - `/test-fix-dev` — Autonomous test-fix loop (endpoints and test infra exist, needs loop logic)
-- `/test-fix-prod` — Smoke test suite against production URLs
 - `/overnight-qa` — Full test matrix with data flow verification
 - `/notify` — Notification service credentials
 
