@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import {
   Droplets,
   Zap,
@@ -12,11 +13,13 @@ import {
   Wrench,
 } from "lucide-react";
 import { toast } from "sonner";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UrgencyBadge } from "@/components/requests/urgency-badge";
 import { StatusBadge } from "@/components/requests/status-badge";
 import { PageHeader } from "@/components/shared/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ScheduleConfirmationCard } from "@/components/scheduling/ScheduleConfirmationCard";
 
 const categoryIcons: Record<string, React.ElementType> = {
   plumbing: Droplets,
@@ -48,7 +51,16 @@ interface RequestDetail {
   ai_recommended_action?: string | null;
   ai_cost_estimate_low?: number | null;
   ai_cost_estimate_high?: number | null;
-  properties?: { name: string } | null;
+  properties?: {
+    name: string;
+    address_line1?: string;
+    city?: string;
+    state?: string;
+  } | null;
+  vendors?: {
+    name: string;
+    phone?: string | null;
+  } | null;
 }
 
 function LoadingSkeleton() {
@@ -65,28 +77,42 @@ function LoadingSkeleton() {
 export default function RequestDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [request, setRequest] = useState<RequestDetail | null>(null);
+  const [schedulingTask, setSchedulingTask] = useState<{ id: string; status: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/requests/${id}`)
-      .then((res) => {
+    let cancelled = false;
+
+    async function fetchData() {
+      try {
+        const res = await fetch(`/api/requests/${id}`);
         if (res.status === 404) {
-          setNotFound(true);
-          return null;
+          if (!cancelled) setNotFound(true);
+          return;
         }
         if (!res.ok) throw new Error("Failed to fetch request");
-        return res.json();
-      })
-      .then((data) => {
-        if (data) setRequest(data.request);
-      })
-      .catch(() => {
-        toast.error("Failed to load request details.");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+        const data = await res.json();
+        if (!cancelled) setRequest(data.request);
+
+        try {
+          const schedRes = await fetch(`/api/scheduling/tasks?requestId=${data.request.id}`);
+          if (schedRes.ok && !cancelled) {
+            const schedData = await schedRes.json();
+            setSchedulingTask(schedData.task ?? null);
+          }
+        } catch {
+          // Non-fatal — scheduling section simply won't render
+        }
+      } catch {
+        if (!cancelled) toast.error("Failed to load request details.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    fetchData();
+    return () => { cancelled = true; };
   }, [id]);
 
   if (loading) return <LoadingSkeleton />;
@@ -159,6 +185,53 @@ export default function RequestDetailPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Scheduling status (awaiting states) */}
+      {schedulingTask &&
+        (schedulingTask.status === "awaiting_tenant" ||
+          schedulingTask.status === "awaiting_vendor") && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Scheduling Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {schedulingTask.status === "awaiting_tenant" ? (
+                <>
+                  <p className="text-sm">
+                    Please confirm your availability for this repair.
+                  </p>
+                  <Link
+                    href={`/scheduling/availability-prompt/${schedulingTask.id}`}
+                    className={buttonVariants({ className: "w-full" })}
+                  >
+                    Submit Availability
+                  </Link>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Waiting for vendor to confirm their availability.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+      {/* Schedule confirmation card */}
+      <ScheduleConfirmationCard
+        requestId={request.id}
+        role="tenant"
+        vendorName={request.vendors?.name}
+        vendorPhone={request.vendors?.phone ?? undefined}
+        propertyAddress={
+          request.properties?.address_line1
+            ? `${request.properties.address_line1}, ${request.properties.city ?? ""}, ${request.properties.state ?? ""}`
+            : undefined
+        }
+        category={request.ai_category ?? undefined}
+        description={request.tenant_message}
+      />
 
       {/* Metadata */}
       <Card>

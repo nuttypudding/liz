@@ -4,9 +4,9 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
+import { CalendarClock, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UrgencyBadge } from "@/components/requests/urgency-badge";
@@ -16,8 +16,20 @@ import { CostEstimateCard } from "@/components/requests/cost-estimate-card";
 import { VendorSelector } from "@/components/requests/vendor-selector";
 import { ApproveButton } from "@/components/requests/approve-button";
 import { WorkOrderDraft } from "@/components/requests/work-order-draft";
+import { SchedulingModal } from "@/components/scheduling/SchedulingModal";
+import { ScheduleConfirmationCard } from "@/components/scheduling/ScheduleConfirmationCard";
+import { Badge } from "@/components/ui/badge";
 import { fullName } from "@/lib/format";
 import type { MaintenanceRequest, Vendor } from "@/lib/types";
+
+const SCHEDULING_STATUS_CONFIG: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+  pending: { label: "Pending", variant: "outline" },
+  awaiting_tenant: { label: "Awaiting Tenant Response", variant: "secondary" },
+  awaiting_vendor: { label: "Awaiting Vendor Response", variant: "secondary" },
+  confirmed: { label: "Confirmed", variant: "default" },
+  rescheduling: { label: "Rescheduling Requested", variant: "destructive" },
+  completed: { label: "Completed", variant: "outline" },
+};
 
 interface RequestDetailPageProps {
   params: Promise<{ id: string }>;
@@ -31,14 +43,17 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
   const [selectedVendorId, setSelectedVendorId] = useState("");
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [schedulingOpen, setSchedulingOpen] = useState(false);
+  const [schedulingTask, setSchedulingTask] = useState<{ id: string; status: string } | null>(null);
   const workOrderRef = useRef<string>("");
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [reqRes, vendorRes] = await Promise.all([
+      const [reqRes, vendorRes, schedRes] = await Promise.all([
         fetch(`/api/requests/${id}`),
         fetch("/api/vendors"),
+        fetch(`/api/scheduling/tasks?requestId=${id}`),
       ]);
 
       if (reqRes.status === 404) {
@@ -65,6 +80,12 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
             if (match) setSelectedVendorId(match.id);
           }
         }
+      }
+      if (schedRes.ok) {
+        const { task: schedData } = await schedRes.json();
+        setSchedulingTask(schedData ?? null);
+      } else {
+        setSchedulingTask(null);
       }
     } catch {
       toast.error("Failed to load request");
@@ -166,6 +187,24 @@ Please contact the tenant to schedule access. Estimated cost: $${request.ai_cost
     />
   );
 
+  const showScheduleButton =
+    request.status === "dispatched" &&
+    !!request.vendor_id &&
+    (!schedulingTask ||
+      ["pending", "awaiting_tenant", "awaiting_vendor"].includes(schedulingTask.status));
+
+  const scheduleButton = (
+    <Button
+      onClick={() => setSchedulingOpen(true)}
+      className="w-full min-h-11"
+    >
+      <CalendarClock className="size-4 mr-2" />
+      Schedule Now
+    </Button>
+  );
+
+  const actionButton = showScheduleButton ? scheduleButton : approveButton;
+
   return (
     <div className="space-y-4">
       {/* Back link */}
@@ -252,9 +291,60 @@ Please contact the tenant to schedule access. Estimated cost: $${request.ai_cost
             }}
           />
 
-          {/* Mobile approve button area (visible on mobile only) */}
+          {/* Scheduling Information */}
+          {request.status === "dispatched" && request.vendor_id && (
+            <Card>
+              <CardHeader className="px-4 pt-4 pb-2">
+                <p className="text-sm font-semibold">Scheduling Information</p>
+              </CardHeader>
+              <CardContent className="px-4 pb-4 space-y-2">
+                {schedulingTask ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">Status</span>
+                      <Badge variant={SCHEDULING_STATUS_CONFIG[schedulingTask.status]?.variant ?? "secondary"}>
+                        {SCHEDULING_STATUS_CONFIG[schedulingTask.status]?.label ?? schedulingTask.status}
+                      </Badge>
+                    </div>
+                    {schedulingTask.status === "awaiting_tenant" && (
+                      <p className="text-sm text-muted-foreground">
+                        Tenant has been notified. Waiting for them to submit availability.
+                      </p>
+                    )}
+                    {schedulingTask.status === "awaiting_vendor" && (
+                      <p className="text-sm text-muted-foreground">
+                        Tenant availability received. Click &quot;Schedule Now&quot; to confirm a time slot.
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Click &quot;Schedule Now&quot; to schedule a vendor appointment and notify the tenant.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Schedule confirmation card */}
+          <ScheduleConfirmationCard
+            requestId={request.id}
+            role="landlord"
+            vendorName={request.vendors?.name}
+            vendorPhone={request.vendors?.phone ?? undefined}
+            propertyAddress={
+              request.properties
+                ? `${request.properties.address_line1}, ${request.properties.city}, ${request.properties.state}`
+                : undefined
+            }
+            category={request.ai_category ?? undefined}
+            description={request.tenant_message}
+            onStatusChange={fetchData}
+          />
+
+          {/* Mobile action button area (visible on mobile only) */}
           <div className="lg:hidden">
-            {approveButton}
+            {actionButton}
           </div>
         </div>
 
@@ -277,17 +367,30 @@ Please contact the tenant to schedule access. Estimated cost: $${request.ai_cost
             onVendorChange={setSelectedVendorId}
           />
 
-          {/* Desktop approve button */}
+          {/* Desktop action button */}
           <div className="hidden lg:block">
-            {approveButton}
+            {actionButton}
           </div>
         </div>
       </div>
 
       {/* Mobile sticky bottom bar */}
       <div className="lg:hidden fixed bottom-0 inset-x-0 border-t bg-background p-3 z-20">
-        {approveButton}
+        {actionButton}
       </div>
+
+      {/* Scheduling Modal */}
+      {showScheduleButton && (
+        <SchedulingModal
+          requestId={request.id}
+          vendorId={request.vendor_id!}
+          tenantId={request.tenant_id}
+          vendorName={request.vendors?.name}
+          open={schedulingOpen}
+          onOpenChange={setSchedulingOpen}
+          onConfirmed={fetchData}
+        />
+      )}
     </div>
   );
 }

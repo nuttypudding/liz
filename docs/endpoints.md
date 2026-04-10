@@ -85,6 +85,16 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | POST | `/api/requests/[id]/dispatch` | Dispatch request to vendor |
 | POST | `/api/requests/[id]/resolve` | Resolve a maintenance request |
 | POST | `/api/requests/[id]/work-order` | Create work order for a request |
+| GET | `/api/vendors/[id]/availability` | Get vendor availability rules (landlord) |
+| PUT | `/api/vendors/[id]/availability` | Set vendor availability rules (landlord) |
+| POST | `/api/scheduling/tenant-availability` | Submit tenant available slots (any auth; task must be `awaiting_tenant`) |
+| GET | `/api/scheduling/suggest/[taskId]` | Get AI-ranked slot suggestions for a scheduling task (landlord) |
+| POST | `/api/scheduling/confirm` | Confirm a time slot; 409 on double-booking (landlord) |
+| POST | `/api/scheduling/reschedule/[taskId]` | Request reschedule — moves task to `rescheduling`, notifies landlord (any auth) |
+| GET | `/api/scheduling/tasks` | Fetch scheduling task by `?requestId=<uuid>` (landlord) |
+| POST | `/api/scheduling/tasks` | Create a new scheduling task (landlord; called from dispatch) |
+| GET | `/api/scheduling/tasks/[taskId]` | Fetch a single scheduling task by ID (landlord) |
+| GET | `/api/reschedule/verify-token/[token]` | Validate reschedule token and fetch task details (public, token-based) |
 | GET | `/api/tenant/me` | Get current tenant's profile |
 | POST | `/api/upload` | General file upload |
 | POST | `/api/auth/set-role` | Set user role (landlord/tenant) after signup |
@@ -111,6 +121,8 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/submit` | Tenant maintenance request submission |
 | `/my-requests` | Tenant's submitted requests |
 | `/my-requests/[id]` | Tenant request detail |
+| `/scheduling/availability-prompt/[taskId]` | Tenant availability submission for scheduling (public, token-based) |
+| `/reschedule/[token]` | Vendor reschedule request page (public, token-based) |
 
 ## Environment Files
 

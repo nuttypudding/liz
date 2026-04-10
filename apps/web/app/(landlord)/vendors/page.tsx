@@ -7,6 +7,8 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { VendorForm } from "@/components/forms/vendor-form";
 import type { VendorFormData } from "@/components/forms/vendor-form";
+import { AvailabilityTab } from "@/components/vendors/AvailabilityTab";
+import { AvailabilityBadge } from "@/components/vendors/AvailabilityBadge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -17,6 +19,12 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -172,7 +180,10 @@ export default function VendorsPage() {
               : 0;
 
             return (
-              <Card key={vendor.id} className="flex flex-col">
+              <Card key={vendor.id} className="flex flex-col relative">
+                <div className="absolute top-3 right-3">
+                  <AvailabilityBadge vendorId={vendor.id} />
+                </div>
                 <CardHeader className="px-4 pt-4 pb-2">
                   <div className="flex items-start justify-between gap-2">
                     <div className="space-y-1 min-w-0">
@@ -283,14 +294,29 @@ export default function VendorsPage() {
               {sheetMode?.type === "add" ? "Add Vendor" : "Edit Vendor"}
             </SheetTitle>
           </SheetHeader>
-          {sheetMode !== null && (
+          {sheetMode !== null && sheetMode.type === "add" && (
             <VendorForm
-              initialData={
-                sheetMode.type === "edit" ? sheetMode.vendor : undefined
-              }
               onSave={handleSave}
               onCancel={() => setSheetMode(null)}
             />
+          )}
+          {sheetMode !== null && sheetMode.type === "edit" && (
+            <Tabs defaultValue="info">
+              <TabsList className="mx-4 mt-2">
+                <TabsTrigger value="info">Basic Info</TabsTrigger>
+                <TabsTrigger value="availability">Availability</TabsTrigger>
+              </TabsList>
+              <TabsContent value="info">
+                <VendorForm
+                  initialData={sheetMode.vendor}
+                  onSave={handleSave}
+                  onCancel={() => setSheetMode(null)}
+                />
+              </TabsContent>
+              <TabsContent value="availability">
+                <AvailabilityTab vendorId={sheetMode.vendor.id} />
+              </TabsContent>
+            </Tabs>
           )}
         </SheetContent>
       </Sheet>
