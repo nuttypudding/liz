@@ -100,6 +100,11 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | POST | `/api/auth/set-role` | Set user role (landlord/tenant) after signup |
 | GET | `/api/billing` | Billing plan info and usage counts (landlord) |
 | POST | `/api/webhook/clerk` | Clerk webhook for user sync |
+| GET | `/api/rules` | List landlord's automation rules (sorted by priority) |
+| POST | `/api/rules` | Create a new automation rule (max 25 per landlord) |
+| GET | `/api/rules/[id]` | Get single automation rule |
+| PUT | `/api/rules/[id]` | Update an automation rule |
+| DELETE | `/api/rules/[id]` | Delete an automation rule (204 No Content) |
 
 ## App Pages
 
