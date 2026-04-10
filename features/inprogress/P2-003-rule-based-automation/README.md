@@ -80,6 +80,18 @@ When multiple rules match:
 - **Notifications**: All notification actions from all matching rules fire (additive).
 - **No matching rules**: Fall back to the P1-003 decision profile behavior (delegation_mode + max_auto_approve).
 
+### Action Priority Order
+
+When a classified maintenance request is processed, actions are applied in this order:
+
+1. **Rule engine** — Evaluate all enabled rules in priority order. If any rules match, apply their actions (conflict resolution as above). Decision profile is ignored entirely.
+2. **Decision profile fallback** — If no rules match, load the landlord's `landlord_profiles` row:
+   - `delegation_mode = 'auto'`: auto-approve the request if `ai_cost_estimate_high <= max_auto_approve` (or `max_auto_approve = 0`, meaning no threshold). A `decision_profile` execution log entry is written.
+   - `delegation_mode = 'manual'` or `'assist'`: no automatic action. Request stays in review.
+3. **Default** — If no rules and no profile exist, request stays in review with no auto action.
+
+Execution logs distinguish the source: `source_type = 'rule'` for rule-based actions, `source_type = 'decision_profile'` for profile-based actions.
+
 ### New Route Group
 
 ```

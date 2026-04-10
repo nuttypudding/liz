@@ -290,13 +290,20 @@ export function evaluateRules(
 /**
  * Run the full rules processing pipeline for a classified maintenance request.
  *
+ * Priority order:
+ * 1. Rule engine — if rules match, apply rule actions (decision profile ignored)
+ * 2. Decision profile — if no rules match, apply delegation_mode as fallback
+ * 3. Default — if neither rules nor profile, request stays in review
+ *
+ * Steps:
  * 1. Loads the request (with landlord_id via property join)
  * 2. Loads all enabled rules for the landlord (priority order)
  * 3. Evaluates rules via evaluateRules()
- * 4. Resolves action conflicts (escalate > auto_approve; highest-priority vendor wins)
- * 5. Updates the maintenance request
- * 6. Writes rule_execution_logs for each matched rule
- * 7. Increments times_matched on matched rules
+ * 4. If rules matched: resolves action conflicts (escalate > auto_approve; highest-priority vendor wins)
+ * 5. If no rules matched: loads decision profile and applies delegation_mode fallback
+ * 6. Updates the maintenance request
+ * 7. Writes rule_execution_logs (source_type: 'rule' or 'decision_profile')
+ * 8. Increments times_matched on matched rules
  */
 export async function processRulesForRequest(
   request_id: string,
@@ -356,144 +363,209 @@ export async function processRulesForRequest(
   // --- Evaluate rules ---
   const matched_rules = evaluateRules(requestForEval, rules);
 
-  // --- Collect and resolve actions ---
-  let shouldEscalate = false;
-  let shouldAutoApprove = false;
-  let autoApproveRuleId: string | null = null;
-  let vendorIdToAssign: string | null = null;
+  const now = new Date().toISOString();
 
-  for (const { rule } of matched_rules) {
-    for (const action of rule.actions) {
-      switch (action.type) {
-        case RuleActionType.ESCALATE:
-          shouldEscalate = true;
-          break;
+  // ---------------------------------------------------------------------------
+  // Path A: Rules matched — apply rule actions (decision profile is ignored)
+  // ---------------------------------------------------------------------------
+  if (matched_rules.length > 0) {
+    let shouldEscalate = false;
+    let shouldAutoApprove = false;
+    let autoApproveRuleId: string | null = null;
+    let vendorIdToAssign: string | null = null;
 
-        case RuleActionType.AUTO_APPROVE:
-          // First matched rule (highest priority) wins
-          if (!shouldAutoApprove) {
-            shouldAutoApprove = true;
-            autoApproveRuleId = rule.id;
+    for (const { rule } of matched_rules) {
+      for (const action of rule.actions) {
+        switch (action.type) {
+          case RuleActionType.ESCALATE:
+            shouldEscalate = true;
+            break;
+
+          case RuleActionType.AUTO_APPROVE:
+            // First matched rule (highest priority) wins
+            if (!shouldAutoApprove) {
+              shouldAutoApprove = true;
+              autoApproveRuleId = rule.id;
+            }
+            break;
+
+          case RuleActionType.ASSIGN_VENDOR: {
+            // Highest-priority rule's vendor wins
+            const vendorId = action.params.assign_vendor?.vendor_id;
+            if (vendorId && !vendorIdToAssign) {
+              vendorIdToAssign = vendorId;
+            }
+            break;
           }
-          break;
 
-        case RuleActionType.ASSIGN_VENDOR: {
-          // Highest-priority rule's vendor wins
-          const vendorId = action.params.assign_vendor?.vendor_id;
-          if (vendorId && !vendorIdToAssign) {
-            vendorIdToAssign = vendorId;
-          }
-          break;
+          case RuleActionType.NOTIFY_LANDLORD:
+            // Logged below per-rule; actual delivery is future work
+            break;
         }
-
-        case RuleActionType.NOTIFY_LANDLORD:
-          // Logged below per-rule; actual delivery is future work
-          break;
       }
     }
+
+    // Build update payload — escalate overrides auto_approve (safety first)
+    const updatePayload: Record<string, unknown> = {
+      rules_evaluated_at: now,
+    };
+
+    if (shouldEscalate) {
+      updatePayload.status = "escalated";
+      updatePayload.ai_urgency = "emergency";
+      actions_applied.push("escalated");
+    } else if (shouldAutoApprove) {
+      updatePayload.status = "approved";
+      updatePayload.auto_approved = true;
+      updatePayload.auto_approved_by_rule_id = autoApproveRuleId;
+      actions_applied.push("auto_approved");
+    }
+
+    if (vendorIdToAssign) {
+      updatePayload.vendor_id = vendorIdToAssign;
+      actions_applied.push(`vendor_assigned:${vendorIdToAssign}`);
+    }
+
+    const { error: updateError } = await supabase
+      .from("maintenance_requests")
+      .update(updatePayload)
+      .eq("id", request_id);
+
+    if (updateError) {
+      errors.push(`Failed to update request: ${updateError.message}`);
+    }
+
+    // Write execution logs and update stats for each matched rule
+    for (const { rule, conditions_result } of matched_rules) {
+      const executedActions: ExecutedAction[] = rule.actions.map((action, i) => {
+        let detail = "";
+        switch (action.type) {
+          case RuleActionType.AUTO_APPROVE:
+            detail = shouldEscalate
+              ? "skipped — escalate takes priority"
+              : "request marked as auto-approved";
+            break;
+          case RuleActionType.ASSIGN_VENDOR:
+            detail =
+              vendorIdToAssign === action.params.assign_vendor?.vendor_id
+                ? `vendor ${vendorIdToAssign} assigned`
+                : "skipped — higher-priority rule already assigned a vendor";
+            break;
+          case RuleActionType.NOTIFY_LANDLORD:
+            detail = `notification intent logged (method: ${action.params.notify_landlord?.method ?? "in_app"})`;
+            break;
+          case RuleActionType.ESCALATE:
+            detail = "request escalated to emergency";
+            break;
+          default:
+            detail = "executed";
+        }
+        return { action_index: i, executed: true, result: { detail } };
+      });
+
+      const { error: logError } = await supabase
+        .from("rule_execution_logs")
+        .insert({
+          request_id,
+          rule_id: rule.id,
+          landlord_id,
+          source_type: "rule",
+          matched: true,
+          conditions_result,
+          actions_executed: executedActions,
+          evaluated_at: now,
+        });
+
+      if (logError) {
+        errors.push(`Failed to write execution log for rule ${rule.id}: ${logError.message}`);
+      }
+
+      const { error: statsError } = await supabase
+        .from("automation_rules")
+        .update({
+          times_matched: rule.times_matched + 1,
+          last_matched_at: now,
+        })
+        .eq("id", rule.id);
+
+      if (statsError) {
+        errors.push(`Failed to update rule stats for ${rule.id}: ${statsError.message}`);
+      }
+
+      for (const action of rule.actions) {
+        if (action.type === RuleActionType.NOTIFY_LANDLORD) {
+          actions_applied.push(
+            `notify_landlord:${action.params.notify_landlord?.method ?? "in_app"}`
+          );
+        }
+      }
+    }
+
+    return { matched_rules, actions_applied, errors };
   }
 
-  // --- Build update payload ---
-  // Conflict resolution: escalate overrides auto_approve (safety first)
-  const updatePayload: Record<string, unknown> = {
-    rules_evaluated_at: new Date().toISOString(),
+  // ---------------------------------------------------------------------------
+  // Path B: No rules matched — apply decision profile as fallback
+  // ---------------------------------------------------------------------------
+  const { data: profile } = await supabase
+    .from("landlord_profiles")
+    .select("delegation_mode, max_auto_approve")
+    .eq("landlord_id", landlord_id)
+    .single();
+
+  const profileUpdatePayload: Record<string, unknown> = {
+    rules_evaluated_at: now,
   };
+  let profileAction: string | null = null;
 
-  if (shouldEscalate) {
-    updatePayload.status = "escalated";
-    updatePayload.ai_urgency = "emergency";
-    actions_applied.push("escalated");
-  } else if (shouldAutoApprove) {
-    updatePayload.status = "approved";
-    updatePayload.auto_approved = true;
-    updatePayload.auto_approved_by_rule_id = autoApproveRuleId;
-    actions_applied.push("auto_approved");
+  if (profile && profile.delegation_mode === "auto") {
+    const costHigh = requestForEval.ai_cost_estimate_high;
+    const withinThreshold =
+      costHigh !== null &&
+      (profile.max_auto_approve === 0 || costHigh <= profile.max_auto_approve);
+
+    if (withinThreshold) {
+      profileUpdatePayload.status = "approved";
+      profileUpdatePayload.auto_approved = true;
+      profileAction = "auto_approved_by_profile";
+      actions_applied.push("auto_approved_by_profile");
+    }
+    // If cost exceeds threshold, no auto action — request stays in review
   }
+  // delegation_mode 'manual' or 'assist': no auto action — request stays in review
 
-  if (vendorIdToAssign) {
-    updatePayload.vendor_id = vendorIdToAssign;
-    actions_applied.push(`vendor_assigned:${vendorIdToAssign}`);
-  }
-
-  // --- Persist request changes ---
   const { error: updateError } = await supabase
     .from("maintenance_requests")
-    .update(updatePayload)
+    .update(profileUpdatePayload)
     .eq("id", request_id);
 
   if (updateError) {
     errors.push(`Failed to update request: ${updateError.message}`);
   }
 
-  // --- Write execution logs and update stats for each matched rule ---
-  const now = new Date().toISOString();
-
-  for (const { rule, conditions_result } of matched_rules) {
-    const executedActions: ExecutedAction[] = rule.actions.map((action, i) => {
-      let detail = "";
-      switch (action.type) {
-        case RuleActionType.AUTO_APPROVE:
-          detail = shouldEscalate
-            ? "skipped — escalate takes priority"
-            : "request marked as auto-approved";
-          break;
-        case RuleActionType.ASSIGN_VENDOR:
-          detail =
-            vendorIdToAssign === action.params.assign_vendor?.vendor_id
-              ? `vendor ${vendorIdToAssign} assigned`
-              : "skipped — higher-priority rule already assigned a vendor";
-          break;
-        case RuleActionType.NOTIFY_LANDLORD:
-          detail = `notification intent logged (method: ${action.params.notify_landlord?.method ?? "in_app"})`;
-          break;
-        case RuleActionType.ESCALATE:
-          detail = "request escalated to emergency";
-          break;
-        default:
-          detail = "executed";
-      }
-
-      return { action_index: i, executed: true, result: { detail } };
-    });
+  // Write a decision_profile execution log entry (no rule_id)
+  if (profile) {
+    const profileActionsExecuted = profileAction
+      ? [{ action_index: 0, executed: true, result: { detail: profileAction } }]
+      : [{ action_index: 0, executed: false, result: { detail: "no action — delegation_mode is not auto or cost exceeds threshold" } }];
 
     const { error: logError } = await supabase
       .from("rule_execution_logs")
       .insert({
         request_id,
-        rule_id: rule.id,
+        rule_id: null,
         landlord_id,
-        matched: true,
-        conditions_result,
-        actions_executed: executedActions,
+        source_type: "decision_profile",
+        matched: profileAction !== null,
+        conditions_result: [],
+        actions_executed: profileActionsExecuted,
         evaluated_at: now,
       });
 
     if (logError) {
-      errors.push(`Failed to write execution log for rule ${rule.id}: ${logError.message}`);
-    }
-
-    // Increment times_matched
-    const { error: statsError } = await supabase
-      .from("automation_rules")
-      .update({
-        times_matched: rule.times_matched + 1,
-        last_matched_at: now,
-      })
-      .eq("id", rule.id);
-
-    if (statsError) {
-      errors.push(`Failed to update rule stats for ${rule.id}: ${statsError.message}`);
-    }
-
-    // Track notify actions in applied list
-    for (const action of rule.actions) {
-      if (action.type === RuleActionType.NOTIFY_LANDLORD) {
-        actions_applied.push(
-          `notify_landlord:${action.params.notify_landlord?.method ?? "in_app"}`
-        );
-      }
+      errors.push(`Failed to write decision_profile execution log: ${logError.message}`);
     }
   }
 
-  return { matched_rules, actions_applied, errors };
+  return { matched_rules: [], actions_applied, errors };
 }
