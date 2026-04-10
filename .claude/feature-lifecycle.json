@@ -1,8 +1,8 @@
 {
   "feature": "P2-002-auto-scheduling-vendors",
   "branch": "feature/P2-002-auto-scheduling-vendors",
-  "state": "in_progress",
-  "pr_number": null,
-  "pr_url": null,
-  "updated_at": "2026-04-10T22:15:00Z"
+  "state": "merged",
+  "pr_number": 4,
+  "pr_url": "https://github.com/nuttypudding/liz/pull/4",
+  "updated_at": "2026-04-10T12:55:00Z"
 }
