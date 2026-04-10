@@ -107,6 +107,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | DELETE | `/api/rules/[id]` | Delete an automation rule (204 No Content) |
 | PATCH | `/api/rules/[id]/reorder` | Reorder rule by priority (shifts other rules) |
 | POST | `/api/rules/[id]/test` | Test rule against sample data (returns condition breakdown + actions preview) |
+| GET | `/api/rules/logs` | Query rule execution logs (filters: request_id, rule_id, from_date, to_date, matched_only; paginates by limit/offset) |
 
 ## App Pages
 
