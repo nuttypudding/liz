@@ -88,6 +88,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | GET | `/api/tenant/me` | Get current tenant's profile |
 | POST | `/api/upload` | General file upload |
 | POST | `/api/auth/set-role` | Set user role (landlord/tenant) after signup |
+| GET | `/api/billing` | Billing plan info and usage counts (landlord) |
 | POST | `/api/webhook/clerk` | Clerk webhook for user sync |
 
 ## App Pages
@@ -105,6 +106,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/requests/[id]` | Request detail / triage (landlord) |
 | `/vendors` | Vendors list |
 | `/settings` | Landlord settings / AI preferences |
+| `/billing` | Landlord billing — current plan, usage, available plans |
 | `/submit` | Tenant maintenance request submission |
 | `/my-requests` | Tenant's submitted requests |
 | `/my-requests/[id]` | Tenant request detail |
