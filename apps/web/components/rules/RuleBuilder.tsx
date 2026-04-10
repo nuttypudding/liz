@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Plus, Trash2, Loader2 } from "lucide-react";
+import { Plus, Trash2, Loader2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -345,8 +345,25 @@ export function RuleBuilder({
 
   // --- Render form content ---
 
+  const staleRefs = rule?.stale_references ?? [];
+
   const formContent = (
     <div className="flex flex-col gap-6">
+      {/* Stale reference warning */}
+      {staleRefs.length > 0 && (
+        <div className="flex gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300">
+          <AlertTriangle className="size-4 shrink-0 mt-0.5" />
+          <div className="text-xs space-y-1">
+            <p className="font-medium">This rule references deleted vendors/properties. Edit the affected fields below and save to resolve.</p>
+            <ul className="space-y-0.5 list-disc list-inside">
+              {staleRefs.map((ref, i) => (
+                <li key={i}>{ref.message} — <code className="font-mono">{ref.location}</code></li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
       {/* Rule Name */}
       <div className="space-y-1.5">
         <Label htmlFor="rule-name">

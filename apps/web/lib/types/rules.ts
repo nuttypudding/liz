@@ -99,6 +99,7 @@ export interface AutomationRule {
   last_matched_at?: string; // ISO 8601 timestamp
   created_at: string; // ISO 8601 timestamp
   updated_at: string; // ISO 8601 timestamp
+  stale_references?: StaleReference[]; // Populated by GET /api/rules (not stored in DB)
 }
 
 /** Result of evaluating a single condition */
@@ -142,6 +143,14 @@ export interface RuleTestResponse {
   matched: boolean;
   conditions_breakdown: ConditionResult[];
   actions_preview: RuleAction[];
+}
+
+/** A stale reference found in a rule (vendor or property no longer exists) */
+export interface StaleReference {
+  type: "vendor" | "property";
+  id: string;
+  location: string; // e.g. "action[0].params.vendor_id"
+  message: string;
 }
 
 /** Dashboard summary of rule activity */

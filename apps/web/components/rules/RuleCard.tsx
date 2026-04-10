@@ -8,6 +8,7 @@ import {
   Pencil,
   FlaskConical,
   Trash2,
+  AlertTriangle,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { AutomationRule } from "@/lib/types/rules";
 
 function ordinal(n: number): string {
@@ -95,6 +102,23 @@ export function RuleCard({
           <Badge variant="outline" className="text-[10px] shrink-0">
             {ordinal(rule.priority + 1)}
           </Badge>
+          {rule.stale_references && rule.stale_references.length > 0 && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger className="shrink-0 text-amber-500" aria-label="Stale references detected">
+                  <AlertTriangle className="size-3.5" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="font-medium mb-1">This rule references deleted vendors/properties. Edit to update.</p>
+                  <ul className="text-xs space-y-0.5">
+                    {rule.stale_references.map((ref, i) => (
+                      <li key={i}>{ref.message} ({ref.location})</li>
+                    ))}
+                  </ul>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
         {rule.description && (
           <p className="text-xs text-muted-foreground truncate mt-0.5">

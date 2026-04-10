@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { ZodAutomationRuleCreate } from "@/lib/schemas/rules";
+import { detectStaleReferences } from "@/lib/rules/stale-references";
+import type { AutomationRule } from "@/lib/types/rules";
 
 const RULE_LIMIT = 25;
 
@@ -24,7 +26,14 @@ export async function GET() {
       return NextResponse.json({ error: "Failed to fetch rules" }, { status: 500 });
     }
 
-    return NextResponse.json({ rules: data ?? [] });
+    const rules = (data ?? []) as AutomationRule[];
+    const staleMap = await detectStaleReferences(rules, userId, supabase);
+    const rulesWithStale = rules.map((rule) => ({
+      ...rule,
+      stale_references: staleMap.get(rule.id) ?? [],
+    }));
+
+    return NextResponse.json({ rules: rulesWithStale });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
