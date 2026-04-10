@@ -37,6 +37,8 @@
 |----------|-------------|
 | Sign In | `/sign-in` |
 | Sign Up | `/sign-up` |
+| Role Select | `/role-select` |
+| Set Role API | `POST /api/auth/set-role` |
 | Clerk Dashboard | `https://dashboard.clerk.com` |
 | Webhook endpoint | `/api/webhook/clerk` |
 
@@ -85,6 +87,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | POST | `/api/requests/[id]/work-order` | Create work order for a request |
 | GET | `/api/tenant/me` | Get current tenant's profile |
 | POST | `/api/upload` | General file upload |
+| POST | `/api/auth/set-role` | Set user role (landlord/tenant) after signup |
 | POST | `/api/webhook/clerk` | Clerk webhook for user sync |
 
 ## App Pages
@@ -94,6 +97,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/` | Landing / home page |
 | `/sign-in` | Clerk sign-in |
 | `/sign-up` | Clerk sign-up |
+| `/role-select` | Post-signup role selection (landlord or tenant) |
 | `/onboarding` | 5-step onboarding wizard |
 | `/dashboard` | Main landlord dashboard |
 | `/properties` | Properties list |
