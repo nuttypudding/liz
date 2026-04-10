@@ -1,8 +1,8 @@
 {
   "feature": "P2-003-rule-based-automation",
   "branch": "feature/P2-003-rule-based-automation",
-  "state": "in_progress",
-  "pr_number": null,
-  "pr_url": null,
-  "updated_at": "2026-04-10T14:31:33.886726"
+  "state": "pr_created",
+  "pr_number": 6,
+  "pr_url": "https://github.com/nuttypudding/liz/pull/6",
+  "updated_at": "2026-04-10T22:53:00Z"
 }
