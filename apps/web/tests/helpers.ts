@@ -61,6 +61,7 @@ function createChain(): Record<string, unknown> {
     "delete",
     "upsert",
     "eq",
+    "neq",
     "in",
     "not",
     "order",
@@ -69,6 +70,7 @@ function createChain(): Record<string, unknown> {
     "lte",
     "gt",
     "lt",
+    "limit",
   ];
 
   for (const method of chainMethods) {
