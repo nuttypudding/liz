@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RuleList } from "@/components/rules/RuleList";
 import { DeleteRuleDialog } from "@/components/rules/DeleteRuleDialog";
+import { RuleBuilder } from "@/components/rules/RuleBuilder";
 import type { AutomationRule } from "@/lib/types/rules";
 
 const RULE_LIMIT = 25;
@@ -19,6 +20,8 @@ export function RulesManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<AutomationRule | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [builderOpen, setBuilderOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<AutomationRule | null>(null);
 
   const fetchRules = useCallback(async () => {
     try {
@@ -117,9 +120,9 @@ export function RulesManager() {
     }
   }, [deleteTarget, rules]);
 
-  const handleEdit = useCallback((_rule: AutomationRule) => {
-    // Rule Builder sheet (task 130) — placeholder
-    toast.info("Rule Builder coming soon");
+  const handleEdit = useCallback((rule: AutomationRule) => {
+    setEditTarget(rule);
+    setBuilderOpen(true);
   }, []);
 
   const handleTest = useCallback((_rule: AutomationRule) => {
@@ -128,9 +131,13 @@ export function RulesManager() {
   }, []);
 
   const handleCreate = useCallback(() => {
-    // Rule Builder sheet in create mode (task 130) — placeholder
-    toast.info("Rule Builder coming soon");
+    setEditTarget(null);
+    setBuilderOpen(true);
   }, []);
+
+  const handleBuilderSaved = useCallback(() => {
+    fetchRules();
+  }, [fetchRules]);
 
   const activeCount = rules.filter((r) => r.enabled).length;
 
@@ -199,6 +206,17 @@ export function RulesManager() {
           onDelete={setDeleteTarget}
         />
       )}
+
+      {/* Rule Builder sheet/dialog */}
+      <RuleBuilder
+        open={builderOpen}
+        onOpenChange={(open) => {
+          setBuilderOpen(open);
+          if (!open) setEditTarget(null);
+        }}
+        rule={editTarget}
+        onSaved={handleBuilderSaved}
+      />
 
       {/* Delete confirmation dialog */}
       <DeleteRuleDialog
