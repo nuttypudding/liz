@@ -118,6 +118,12 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | POST | `/api/payments/vendor` | Create vendor payment record |
 | GET | `/api/payments/vendor` | List vendor payments |
 | GET | `/api/payments/summary` | Financial summary (monthly P&L aggregation) |
+| GET | `/api/autonomy/settings` | Fetch autonomy settings (creates defaults if none) |
+| PUT | `/api/autonomy/settings` | Update autonomy settings (partial update) |
+| GET | `/api/autonomy/decisions` | List autonomous decisions (filters: ?status, ?sort, ?limit, ?offset) |
+| POST | `/api/autonomy/decisions` | Create autonomous decision record |
+| PATCH | `/api/autonomy/decisions/[id]` | Review decision (confirm or override with notes) |
+| GET | `/api/autonomy/stats` | Monthly autonomy stats (optional ?month=YYYY-MM) |
 
 ## App Pages
 
@@ -135,6 +141,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/requests/[id]` | Request detail / triage (landlord) |
 | `/vendors` | Vendors list |
 | `/settings` | Landlord settings / AI preferences (supports `?tab=preferences\|notifications\|rules`) |
+| `/autopilot` | Autonomy dashboard — status banner, summary metrics, decision feed |
 | `/billing` | Landlord billing — current plan, usage, available plans |
 | `/dashboard/payments` | Landlord payment dashboard — rent collection, vendor payments, financial summary |
 | `/submit` | Tenant maintenance request submission |
