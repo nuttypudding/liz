@@ -1,10 +1,10 @@
 {
   "status": "running",
-  "current_task_id": "161",
-  "current_task_title": "TypeScript types \u2014 AutonomySettings, AutonomousDecision, MonthlyReportData, etc.",
-  "current_task_file": "features/inprogress/P3-001-autonomous-decision-making/doing/161-Haiku-typescript-types-autonomy.md",
+  "current_task_id": "167",
+  "current_task_title": "Install missing shadcn components \u2014 toggle-group, chart (if not installed)",
+  "current_task_file": "features/inprogress/P3-001-autonomous-decision-making/backlog/167-Haiku-install-shadcn-autonomy.md",
   "current_feature": "P3-001-autonomous-decision-making",
-  "tasks_done": 51,
+  "tasks_done": 54,
   "tasks_failed": 0,
-  "updated_at": "2026-04-10T17:06:44.907334"
+  "updated_at": "2026-04-10T17:19:43.656191"
 }
