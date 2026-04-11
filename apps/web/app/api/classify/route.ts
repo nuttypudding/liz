@@ -5,6 +5,7 @@ import type { ContentBlockParam } from "@anthropic-ai/sdk/resources";
 
 import { anthropic } from "@/lib/anthropic";
 import { evaluateAutonomousDecision } from "@/lib/autonomy/engine";
+import { sendLandlordAutoDispatchNotification } from "@/lib/autonomy/notifications";
 import { processRulesForRequest } from "@/lib/rules/engine";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -73,10 +74,12 @@ export async function POST(request: NextRequest) {
     // --- Fetch landlord profile for personalization --- //
     let profileContext = "";
     let delegationMode: string | null = null;
+    let notifyEmergencies = true;
+    let notifyAllRequests = false;
     try {
       const { data: profile } = await supabase
         .from("landlord_profiles")
-        .select("risk_appetite, delegation_mode")
+        .select("risk_appetite, delegation_mode, notify_emergencies, notify_all_requests")
         .eq("landlord_id", userId)
         .single();
 
@@ -91,6 +94,8 @@ export async function POST(request: NextRequest) {
         };
         profileContext = `\n\nLandlord preferences: ${riskDescriptions[profile.risk_appetite] ?? riskDescriptions.balanced}`;
         delegationMode = profile.delegation_mode ?? null;
+        notifyEmergencies = profile.notify_emergencies ?? true;
+        notifyAllRequests = profile.notify_all_requests ?? false;
       }
     } catch {
       // Profile not found — use generic behavior
@@ -332,6 +337,25 @@ Respond with valid JSON only (no markdown):
                   if (!dispatchError) {
                     console.log(`[autonomy] Auto-dispatched request ${request_id} to vendor ${vendorId}`);
                     autonomyResult = { decision_type: "dispatch", decision_id: decisionId, auto_dispatched: true, vendor_id: vendorId };
+
+                    // Send landlord notification (non-blocking) — respects notify_emergencies and notify_all_requests preferences
+                    const isEmergency = requestForEngine.ai_urgency === "emergency";
+                    const shouldNotify = isEmergency
+                      ? notifyEmergencies || notifyAllRequests
+                      : notifyAllRequests;
+
+                    if (shouldNotify) {
+                      sendLandlordAutoDispatchNotification({
+                        supabase,
+                        landlordId: userId,
+                        requestId: request_id,
+                        category: requestForEngine.ai_category,
+                        urgency: requestForEngine.ai_urgency,
+                        vendorId,
+                      }).catch((err) =>
+                        console.error("[autonomy] Landlord notification failed (dispatch succeeded):", err)
+                      );
+                    }
                   } else {
                     console.error("[autonomy] Failed to auto-dispatch:", dispatchError);
                   }
