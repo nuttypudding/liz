@@ -54,6 +54,8 @@ export interface LandlordProfile {
   max_auto_approve: number;
   notify_emergencies: boolean;
   notify_all_requests: boolean;
+  notify_rent_reminders: boolean;
+  notify_rent_overdue_summary: boolean;
   onboarding_completed: boolean;
   onboarding_completed_at: string | null;
   created_at: string;
@@ -218,4 +220,47 @@ export interface BillingUsage {
   requests_this_month: number;
   requests_limit: number;
   plan: BillingPlan;
+}
+
+// Rent reminder feature types
+export type RentPeriodStatus = 'upcoming' | 'due' | 'overdue' | 'partial' | 'paid';
+
+export interface RentPeriod {
+  id: string;
+  property_id: string;
+  tenant_id: string;
+  lease_start: string;
+  lease_end: string | null;
+  monthly_rent: number;
+  rent_due_day: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RentSummary {
+  property_id: string;
+  property_name: string;
+  upcoming_count: number;
+  due_count: number;
+  overdue_count: number;
+  partial_count: number;
+  paid_count: number;
+  total_due_amount: number;
+  total_overdue_amount: number;
+  last_payment_date: string | null;
+}
+
+export type NotificationType = 'rent_due_reminder' | 'rent_overdue' | 'rent_paid';
+
+export interface Notification {
+  id: string;
+  landlord_id: string;
+  property_id: string;
+  tenant_id: string | null;
+  notification_type: NotificationType;
+  subject: string;
+  body: string;
+  sent_at: string;
+  read_at: string | null;
+  created_at: string;
 }
