@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
-import { CreditCard, List, SquarePen } from "lucide-react";
+import { CreditCard, DollarSign, List, SquarePen } from "lucide-react";
 import { NotificationBell } from "@/components/layout/notification-bell";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/submit", label: "Submit", icon: SquarePen },
+  { href: "/my-rent", label: "Rent", icon: DollarSign },
   { href: "/my-requests", label: "Requests", icon: List },
   { href: "/pay", label: "Pay Rent", icon: CreditCard },
 ];

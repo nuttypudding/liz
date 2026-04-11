@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Brain, Building2, ClipboardList, CreditCard, LayoutDashboard, Settings, Users, Wrench } from "lucide-react";
+import { Brain, Building2, ClipboardList, CreditCard, DollarSign, LayoutDashboard, Settings, Users, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -12,6 +12,7 @@ const navItems = [
   { href: "/autopilot", label: "Autopilot", icon: Brain },
   { href: "/applications", label: "Applications", icon: ClipboardList },
   { href: "/properties", label: "Properties", icon: Building2 },
+  { href: "/rent", label: "Rent", icon: DollarSign },
   { href: "/vendors", label: "Vendors", icon: Users },
   { href: "/settings", label: "Settings", icon: Settings },
   { href: "/billing", label: "Billing", icon: CreditCard },
