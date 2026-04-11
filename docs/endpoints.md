@@ -171,6 +171,8 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/pay` | Tenant payment portal — balance card, pay rent, payment history |
 | `/apply/[propertyId]` | Public rental application form (no auth) |
 | `/apply/status/[trackingId]` | Public application status page — timeline, status message, FAQ (no auth) |
+| `/compliance` | Compliance dashboard — all-properties view with scores, alerts, jurisdiction badges |
+| `/compliance/[propertyId]` | Property compliance detail — score breakdown, checklist, alerts, audit log |
 
 ## Environment Files
 
