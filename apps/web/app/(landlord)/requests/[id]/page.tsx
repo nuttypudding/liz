@@ -21,7 +21,9 @@ import { SchedulingModal } from "@/components/scheduling/SchedulingModal";
 import { ScheduleConfirmationCard } from "@/components/scheduling/ScheduleConfirmationCard";
 import { Badge } from "@/components/ui/badge";
 import { AIReasoningCard } from "@/components/autonomy/AIReasoningCard";
+import { ComplianceAlertsBanner } from "@/components/compliance/ComplianceAlertsBanner";
 import { fullName } from "@/lib/format";
+import type { ComplianceAlert } from "@/lib/compliance/types";
 import type { MaintenanceRequest, Vendor } from "@/lib/types";
 import type { AutonomousDecision } from "@/lib/types/autonomy";
 
@@ -50,6 +52,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
   const [schedulingTask, setSchedulingTask] = useState<{ id: string; status: string } | null>(null);
   const [autonomousDecision, setAutonomousDecision] = useState<AutonomousDecision | null>(null);
   const [decisionLoading, setDecisionLoading] = useState(false);
+  const [complianceAlerts, setComplianceAlerts] = useState<ComplianceAlert[]>([]);
   const workOrderRef = useRef<string>("");
 
   const fetchData = useCallback(async () => {
@@ -85,6 +88,25 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
             );
             if (match) setSelectedVendorId(match.id);
           }
+        }
+
+        // Fetch compliance alerts for this property
+        if (data.property_id) {
+          fetch(`/api/compliance/alerts/${data.property_id}?severity=error,warning`)
+            .then((r) => (r.ok ? r.json() : null))
+            .then((alertData) => {
+              if (alertData?.alerts) {
+                // Filter to habitability-related alerts
+                const relevant = (alertData.alerts as ComplianceAlert[]).filter(
+                  (a) =>
+                    a.type === "habitability_defect_not_addressed" ||
+                    a.type === "incomplete_checklist" ||
+                    a.severity === "error"
+                );
+                setComplianceAlerts(relevant);
+              }
+            })
+            .catch(() => {});
         }
       }
       if (schedRes.ok) {
@@ -256,6 +278,15 @@ Please contact the tenant to schedule access. Estimated cost: $${request.ai_cost
               })}
             </p>
           </div>
+
+          {/* Compliance alerts */}
+          {complianceAlerts.length > 0 && (
+            <ComplianceAlertsBanner
+              alerts={complianceAlerts}
+              propertyId={request.property_id}
+              maxVisible={3}
+            />
+          )}
 
           {/* Tenant message */}
           <Card>
@@ -450,6 +481,7 @@ Please contact the tenant to schedule access. Estimated cost: $${request.ai_cost
           vendorId={request.vendor_id!}
           tenantId={request.tenant_id}
           vendorName={request.vendors?.name}
+          propertyId={request.property_id ?? undefined}
           open={schedulingOpen}
           onOpenChange={setSchedulingOpen}
           onConfirmed={fetchData}

@@ -1,10 +1,10 @@
 {
   "status": "running",
-  "current_task_id": "206",
-  "current_task_title": "Compliance test suite \u2014 verify no protected-class data in AI prompts",
-  "current_task_file": "features/inprogress/P3-002-ai-tenant-screening/backlog/206-Haiku-compliance-test-suite.md",
-  "current_feature": "P3-002-ai-tenant-screening",
-  "tasks_done": 88,
+  "current_task_id": "228",
+  "current_task_title": "Unit tests \u2014 jurisdiction rules lookup, compliance score calculation",
+  "current_task_file": "features/inprogress/P3-003-legal-compliance-engine/backlog/228-Haiku-unit-tests-jurisdiction-compliance.md",
+  "current_feature": "P3-003-legal-compliance-engine",
+  "tasks_done": 107,
   "tasks_failed": 0,
-  "updated_at": "2026-04-10T19:52:28.363453"
+  "updated_at": "2026-04-10T21:36:49.603366"
 }

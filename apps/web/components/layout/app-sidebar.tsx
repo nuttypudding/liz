@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { UserButton } from "@clerk/nextjs";
-import { Brain, Building2, ClipboardList, CreditCard, DollarSign, LayoutDashboard, Settings, Users, Wrench } from "lucide-react";
+import { Brain, Building2, ClipboardList, CreditCard, DollarSign, LayoutDashboard, Settings, Shield, Users, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -25,6 +25,7 @@ const navItems = [
   { href: "/applications", label: "Applications", icon: ClipboardList },
   { href: "/properties", label: "Properties", icon: Building2 },
   { href: "/vendors", label: "Vendors", icon: Users },
+  { href: "/compliance", label: "Compliance", icon: Shield },
   { href: "/dashboard/payments", label: "Payments", icon: DollarSign },
   { href: "/settings", label: "Settings", icon: Settings },
   { href: "/billing", label: "Billing", icon: CreditCard },

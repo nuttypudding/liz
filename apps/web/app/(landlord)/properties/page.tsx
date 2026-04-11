@@ -38,6 +38,7 @@ import { DocumentUploader } from "@/components/documents/document-uploader";
 import { DocumentGallery } from "@/components/documents/document-gallery";
 import { DocumentPreviewDialog } from "@/components/documents/document-preview-dialog";
 import { UtilitySetupSheet } from "@/components/properties/utility-setup-sheet";
+import { ComplianceScoreBadge } from "@/components/compliance/ComplianceScoreBadge";
 import { cn } from "@/lib/utils";
 import type { Property, PropertyUtility, Tenant, Document as LizDocument } from "@/lib/types";
 
@@ -94,6 +95,7 @@ export default function PropertiesPage() {
   } | null>(null);
   const [redetectDialog, setRedetectDialog] = useState<{ propertyId: string; newAddress: string } | null>(null);
   const [documentCounts, setDocumentCounts] = useState<Record<string, number>>({});
+  const [complianceScores, setComplianceScores] = useState<Record<string, number>>({});
   const [galleryKey, setGalleryKey] = useState(0);
   const [previewDocument, setPreviewDocument] = useState<LizDocument | null>(null);
 
@@ -142,6 +144,37 @@ export default function PropertiesPage() {
       const counts: Record<string, number> = {};
       for (const [id, count] of results) counts[id] = count;
       setDocumentCounts(counts);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [propertyIds]);
+
+  // Fetch compliance scores for all properties (only those with jurisdictions configured)
+  useEffect(() => {
+    if (!propertyIds) return;
+    let cancelled = false;
+    const ids = propertyIds.split(",");
+
+    Promise.all(
+      ids.map(async (id) => {
+        try {
+          const r = await fetch(`/api/compliance/${id}/score`);
+          if (r.ok) {
+            const d = await r.json();
+            return [id, d.score as number] as const;
+          }
+        } catch {}
+        return [id, null] as const;
+      })
+    ).then((results) => {
+      if (cancelled) return;
+      const scores: Record<string, number> = {};
+      for (const [id, score] of results) {
+        if (score !== null) scores[id] = score;
+      }
+      setComplianceScores(scores);
     });
 
     return () => {
@@ -419,6 +452,18 @@ export default function PropertiesPage() {
                         <Badge variant="secondary">
                           {property.unit_count ?? 0} units
                         </Badge>
+                        {complianceScores[property.id] !== undefined && (
+                          <a
+                            href="/compliance"
+                            onClick={(e) => e.stopPropagation()}
+                            title="View compliance dashboard"
+                          >
+                            <ComplianceScoreBadge
+                              score={complianceScores[property.id]}
+                              compact
+                            />
+                          </a>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {formatAddress(property, {

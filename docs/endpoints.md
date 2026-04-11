@@ -129,6 +129,19 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | GET | `/api/applications/[id]` | Get full application detail with screening report and computed metrics (landlord) |
 | POST | `/api/applications/[id]/decide` | Make approval/denial decision on an application (landlord; requires denial_reason + compliance_confirmed for deny) |
 | GET | `/api/applications/status/[trackingId]` | Public status check by tracking ID — returns status timeline and generic message (no auth, no AI details) |
+| GET | `/api/properties/[id]/jurisdiction` | Get jurisdiction for a property (state_code, city); returns null fields if not set, plus auto-detect suggestion from property address |
+| POST | `/api/properties/[id]/jurisdiction` | Set/update jurisdiction for a property (`{ state_code, city? }`); validates state code and city against jurisdiction_rules; logs audit event |
+| GET | `/api/compliance/[propertyId]/score` | Compliance score for a property — returns 0–100 score, completed_count, total_required_count, and missing_items list; requires jurisdiction to be set (400 if not configured) |
+| GET | `/api/compliance/[propertyId]/checklist` | Fetch all compliance checklist items for a property with completion status; optional `?completed=true\|false` filter |
+| PATCH | `/api/compliance/[propertyId]/checklist/[itemId]` | Mark a checklist item complete or incomplete (`{ completed: boolean }`); sets/clears completed_at, logs to compliance_audit_log |
+| POST | `/api/compliance/review` | AI review of landlord message for fair housing, notice language, and disclosure issues; returns findings with severity, type, flagged_text, reason, suggestion, escalation_required, escalation_reason, prompt_version (v1.0); logs to compliance_audit_log (`{ message_text, property_id, recipient_type? }`) |
+| POST | `/api/compliance/notices/generate` | AI-generated jurisdiction-specific legal notice; supports notice_type: entry, lease_violation, rent_increase, eviction; returns notice content, statutory_citations, notice_period_days, prompt_version (v1.0); stores in compliance_notices; logs to compliance_audit_log (`{ property_id, notice_type, context: { tenant_name, issue_description, proposed_date?, rent_increase_amount?, effective_date?, additional_details? } }`) |
+| POST | `/api/compliance/notices/[id]/send` | Send a generated notice — updates status to "sent", records sent_at and delivery_method, logs notice_sent to compliance_audit_log; prevents resending already-sent notices (400); body: `{ delivery_method?: "email\|print\|other", notes?: string }` |
+| GET | `/api/compliance/[propertyId]/audit-log` | Paginated compliance audit trail for a property — returns entries with action_type, details, timestamp, actor_id; query params: `?action_type=`, `?limit=` (max 100), `?offset=`, `?start_date=`, `?end_date=` |
+| GET | `/api/compliance/knowledge` | Queryable jurisdiction rules knowledge base — returns rules grouped by jurisdiction; query params: `?state_code=CA`, `?city=San Francisco` (requires state_code), `?topic=security_deposit_limit`, `?search=deposit` (searches rule_text + statute_citation), `?limit=50` (max 100), `?offset=0`; returns `{ jurisdictions, total_count, limit, offset }` |
+| GET | `/api/compliance/alerts/[propertyId]` | Proactive compliance alerts for a property — checks property state against jurisdiction rules and returns actionable warnings/errors; alert types: `jurisdiction_not_configured`, `incomplete_checklist`, `missing_security_deposit_disclosure`, `missing_lease_terms`, `habitability_defect_not_addressed`; query params: `?severity=warning\|error\|all` (default "all"), `?since=ISO date` (filter event-based alerts by date); returns `{ property_id, jurisdiction, alert_count, alerts }` |
+| GET | `/api/compliance/jurisdictions` | Available jurisdictions from jurisdiction_rules — returns `{ states: string[], cities: Record<string, string[]> }` for populating state/city dropdowns |
+| GET | `/api/compliance/stats` | Aggregated compliance stats across all landlord properties — returns `{ average_score, properties_needing_attention, critical_alerts_count, total_properties, score_distribution }` where score_distribution has keys: excellent, good, fair, poor, critical; used by ComplianceSummaryCard dashboard widget |
 
 ## App Pages
 
@@ -140,10 +153,10 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/role-select` | Post-signup role selection (landlord or tenant) |
 | `/unauthorized` | Access denied page (role mismatch) |
 | `/onboarding` | 5-step onboarding wizard |
-| `/dashboard` | Main landlord dashboard |
+| `/dashboard` | Main landlord dashboard (includes compliance alert banners — top 3 most severe across all properties) |
 | `/properties` | Properties list |
-| `/requests` | Maintenance requests list (landlord) |
-| `/requests/[id]` | Request detail / triage (landlord) |
+| `/requests` | Maintenance requests list (landlord; habitability badge shown on cards for plumbing/electrical/hvac/structural categories) |
+| `/requests/[id]` | Request detail / triage (landlord; shows compliance alert banners for habitability/critical issues; entry notice suggestion appears in scheduling modal when a time slot is selected) |
 | `/vendors` | Vendors list |
 | `/settings` | Landlord settings / AI preferences (supports `?tab=preferences\|notifications\|rules\|autopilot`) |
 | `/autopilot` | Autonomy dashboard — status banner, summary metrics, decision feed |
@@ -160,6 +173,13 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/pay` | Tenant payment portal — balance card, pay rent, payment history |
 | `/apply/[propertyId]` | Public rental application form (no auth) |
 | `/apply/status/[trackingId]` | Public application status page — timeline, status message, FAQ (no auth) |
+| `/compliance` | Compliance dashboard — all-properties view with scores, alerts, jurisdiction badges |
+| `/compliance/[propertyId]` | Property compliance detail — score breakdown, checklist, alerts (using ComplianceAlertsBanner), audit log |
+| `/compliance/notices` | Notice generator — redirects to `/compliance/notices/create` |
+| `/compliance/notices/create` | Multi-step wizard for creating, previewing, and sending jurisdiction-specific legal notices (5 steps: property, type, details, preview, send) |
+| `/compliance/messages/review` | Communication reviewer — compose a message, select a property, and run AI compliance review before sending |
+| `/compliance/knowledge-base` | Legal knowledge base — browse and search jurisdiction rules by topic, with category-organized grid and detail modal |
+| `/compliance/settings` | Compliance settings — configure jurisdiction (state/city) and lease terms per property, with checklist preview |
 
 ## Environment Files
 

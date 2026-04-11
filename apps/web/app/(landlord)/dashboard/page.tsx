@@ -14,6 +14,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LatePaymentBanner } from "@/components/dashboard/late-payment-banner";
 import { RulesSummaryCard } from "@/components/dashboard/rules-summary-card";
 import { ScreeningStatsCards } from "@/components/screening/ScreeningStatsCards";
+import { ComplianceAlertsBanner } from "@/components/compliance/ComplianceAlertsBanner";
+import { ComplianceSummaryCard } from "@/components/compliance/ComplianceSummaryCard";
+import type { ComplianceAlert } from "@/lib/compliance/types";
 import type { Property, DashboardStats, SpendChartItem, MaintenanceRequest, RentStatus } from "@/lib/types";
 
 function DashboardContent() {
@@ -26,6 +29,7 @@ function DashboardContent() {
   const [chartData, setChartData] = useState<SpendChartItem[]>([]);
   const [recentRequests, setRecentRequests] = useState<MaintenanceRequest[]>([]);
   const [rentStatuses, setRentStatuses] = useState<RentStatus[]>([]);
+  const [complianceAlerts, setComplianceAlerts] = useState<ComplianceAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [showOnboardingBanner, setShowOnboardingBanner] = useState(false);
 
@@ -69,6 +73,19 @@ function DashboardContent() {
           )
         );
         setRentStatuses(statusResults.filter(Boolean) as RentStatus[]);
+
+        // Fetch compliance alerts across all properties
+        const alertResults = await Promise.all(
+          props.map((p) =>
+            fetch(`/api/compliance/alerts/${p.id}`)
+              .then((r) => (r.ok ? r.json() : null))
+              .catch(() => null)
+          )
+        );
+        const allAlerts: ComplianceAlert[] = alertResults
+          .filter(Boolean)
+          .flatMap((r) => r.alerts ?? []);
+        setComplianceAlerts(allAlerts);
       }
 
       if (statsRes.ok) {
@@ -156,13 +173,24 @@ function DashboardContent() {
             }}
           />
           <EmergencyAlertBanner count={stats?.emergency_count ?? 0} />
+          {complianceAlerts.length > 0 && (
+            <ComplianceAlertsBanner
+              alerts={complianceAlerts}
+              maxVisible={3}
+              compact
+              complianceDashboardHref="/compliance"
+            />
+          )}
           <SectionCards
             emergencyCount={stats?.emergency_count ?? 0}
             openCount={stats?.open_count ?? 0}
             avgResolutionDays={stats?.avg_resolution_days ?? 0}
             monthlySpend={stats?.monthly_spend ?? 0}
           />
-          <RulesSummaryCard />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <RulesSummaryCard />
+            <ComplianceSummaryCard />
+          </div>
           <section>
             <h2 className="text-base font-semibold mb-3">Application Metrics</h2>
             <ScreeningStatsCards />
