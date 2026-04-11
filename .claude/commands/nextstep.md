@@ -103,11 +103,13 @@ Write/update `.claude/feature-lifecycle.json` with `state: "in_progress"`, commi
 
 ### 8. Move Feature Plan to In-Progress (if needed)
 
-If the task's `feature` field matches a plan in `features/planned/`, move it to `features/inprogress/` and create the `backlog/`, `doing/`, `done/` subdirectories:
+If the task's `feature` field matches a plan in `features/planned/`, MOVE it to `features/inprogress/` and create the `backlog/`, `doing/`, `done/` subdirectories:
 ```bash
-mv features/planned/P*-<feature>/ features/inprogress/
-mkdir -p features/inprogress/P*-<feature>/{backlog,doing,done}
+mv features/planned/<feature>/ features/inprogress/
+mkdir -p features/inprogress/<feature>/{backlog,doing,done}
 ```
+
+[CRITICAL: You MUST delete the source folder from `features/planned/` after moving. The feature must exist in only ONE of `planned/`, `inprogress/`, or `completed/` at any time. After the move, verify that `features/planned/<feature>/` no longer exists. If `mv` did not remove it, run `rm -rf features/planned/<feature>/`.]
 
 ### 9. Move Task to Doing
 

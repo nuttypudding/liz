@@ -56,6 +56,7 @@ import argparse
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -66,6 +67,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 FEATURES_DIR = REPO_ROOT / "features"
+PLANNED_DIR = FEATURES_DIR / "planned"
 INPROGRESS_DIR = FEATURES_DIR / "inprogress"
 COMPLETED_DIR = FEATURES_DIR / "completed"
 STATUS_FILE = REPO_ROOT / ".claude" / "autonextstep_status.json"
@@ -412,6 +414,18 @@ def detect_tier(filename: str) -> str | None:
         if tier in ("haiku", "sonnet", "opus"):
             return tier
     return None
+
+
+def cleanup_planned_dir() -> None:
+    """Remove feature dirs from planned/ if they already exist in inprogress/ or completed/."""
+    if not PLANNED_DIR.exists():
+        return
+    for d in sorted(PLANNED_DIR.iterdir()):
+        if not d.is_dir() or d.name.startswith("."):
+            continue
+        if (INPROGRESS_DIR / d.name).exists() or (COMPLETED_DIR / d.name).exists():
+            shutil.rmtree(d)
+            print(f"  Cleaned up planned/{d.name} (already in inprogress/ or completed/)")
 
 
 def check_pivot() -> str | None:
@@ -776,6 +790,9 @@ def main():
     processed_ids: set[str] = set()
 
     write_status({"status": "starting", "tasks_done": 0, "tasks_failed": 0})
+
+    # Clean up stale planned/ directories before starting
+    cleanup_planned_dir()
 
     mode_parts = []
     if args.dry_run:
