@@ -7,6 +7,7 @@ import {
   reviewDecisionSchema,
 } from "@/lib/validations";
 import { DecisionStatus } from "@/lib/types/autonomy";
+import { updateMonthlyStats, monthFromIso } from "@/lib/autonomy/updateMonthlyStats";
 
 export async function GET(request: NextRequest) {
   try {
@@ -128,6 +129,15 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    // Increment monthly stats (non-blocking — failure does not fail the request)
+    const month = monthFromIso(data.created_at);
+    const estimatedCost = (parsed.data.actions_taken as Record<string, unknown>)?.estimated_cost;
+    updateMonthlyStats(supabase, userId, month, {
+      total_decisions: 1,
+      escalated: parsed.data.decision_type === "escalate" ? 1 : 0,
+      total_spend: typeof estimatedCost === "number" ? estimatedCost : 0,
+    }).catch((err) => console.error("updateMonthlyStats failed:", err));
 
     return NextResponse.json({ decision: data }, { status: 201 });
   } catch (err) {

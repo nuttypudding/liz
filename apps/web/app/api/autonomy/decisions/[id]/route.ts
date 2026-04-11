@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { reviewDecisionSchema } from "@/lib/validations";
+import { updateMonthlyStats, monthFromIso } from "@/lib/autonomy/updateMonthlyStats";
 
 export async function PATCH(
   request: NextRequest,
@@ -37,7 +38,7 @@ export async function PATCH(
     // First, verify the decision exists and belongs to the landlord
     const { data: existingDecision, error: fetchError } = await supabase
       .from("autonomous_decisions")
-      .select("id")
+      .select("id, decision_type, created_at")
       .eq("id", id)
       .eq("landlord_id", userId)
       .single();
@@ -80,6 +81,16 @@ export async function PATCH(
         { status: 500 }
       );
     }
+
+    // Increment monthly stats (non-blocking — failure does not fail the request)
+    const month = monthFromIso(existingDecision.created_at);
+    const isConfirmedDispatch =
+      parsed.data.review_action === "confirmed" &&
+      existingDecision.decision_type === "dispatch";
+    updateMonthlyStats(supabase, userId, month, {
+      auto_dispatched: isConfirmedDispatch ? 1 : 0,
+      overridden: parsed.data.review_action === "overridden" ? 1 : 0,
+    }).catch((err) => console.error("updateMonthlyStats failed:", err));
 
     return NextResponse.json({ decision: data });
   } catch (err) {
