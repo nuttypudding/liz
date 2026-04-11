@@ -137,3 +137,75 @@ export const utilityUpsertSchema = z.object({
     notes: z.string().max(500).nullable(),
   })),
 });
+
+export const autonomySettingsUpdateSchema = z.object({
+  confidence_threshold: z.number().min(0).max(1).optional(),
+  per_decision_cap: z.number().positive().optional(),
+  monthly_cap: z.number().positive().optional(),
+  excluded_categories: z
+    .array(
+      z.enum([
+        "plumbing",
+        "electrical",
+        "hvac",
+        "structural",
+        "pest",
+        "appliance",
+        "general",
+      ])
+    )
+    .optional(),
+  preferred_vendors_only: z.boolean().optional(),
+  require_cost_estimate: z.boolean().optional(),
+  emergency_auto_dispatch: z.boolean().optional(),
+  rollback_window_hours: z.number().int().min(0).optional(),
+  paused: z.boolean().optional(),
+});
+
+export const confidenceFactorsSchema = z.object({
+  historical_weight: z.number().min(0).max(1),
+  rules_weight: z.number().min(0).max(1),
+  cost_weight: z.number().min(0).max(1),
+  vendor_weight: z.number().min(0).max(1),
+  category_weight: z.number().min(0).max(1),
+});
+
+export const safetyChecksSchema = z.object({
+  spending_cap_ok: z.boolean(),
+  category_excluded: z.boolean(),
+  vendor_available: z.boolean(),
+  emergency_eligible: z.boolean(),
+});
+
+export const actionsTakenSchema = z.object({
+  vendor_dispatched: z
+    .object({
+      vendor_id: z.string().uuid(),
+      vendor_name: z.string(),
+    })
+    .optional(),
+  notifications_sent: z
+    .array(
+      z.object({
+        recipient: z.enum(["landlord", "tenant", "vendor"]),
+        method: z.enum(["email", "sms", "in_app"]),
+      })
+    )
+    .optional(),
+  maintenance_request_status_changed: z.string().optional(),
+});
+
+export const createAutonomousDecisionSchema = z.object({
+  request_id: z.string().uuid(),
+  decision_type: z.enum(["dispatch", "escalate", "hold"]),
+  confidence_score: z.number().min(0).max(1),
+  reasoning: z.string().min(1).max(5000),
+  factors: confidenceFactorsSchema,
+  safety_checks: safetyChecksSchema,
+  actions_taken: actionsTakenSchema,
+});
+
+export const reviewDecisionSchema = z.object({
+  review_action: z.enum(["confirmed", "overridden"]),
+  review_notes: z.string().max(5000).optional(),
+});

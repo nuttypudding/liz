@@ -20,8 +20,10 @@ import { WorkOrderDraft } from "@/components/requests/work-order-draft";
 import { SchedulingModal } from "@/components/scheduling/SchedulingModal";
 import { ScheduleConfirmationCard } from "@/components/scheduling/ScheduleConfirmationCard";
 import { Badge } from "@/components/ui/badge";
+import { AIReasoningCard } from "@/components/autonomy/AIReasoningCard";
 import { fullName } from "@/lib/format";
 import type { MaintenanceRequest, Vendor } from "@/lib/types";
+import type { AutonomousDecision } from "@/lib/types/autonomy";
 
 const SCHEDULING_STATUS_CONFIG: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   pending: { label: "Pending", variant: "outline" },
@@ -46,15 +48,18 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
   const [notFound, setNotFound] = useState(false);
   const [schedulingOpen, setSchedulingOpen] = useState(false);
   const [schedulingTask, setSchedulingTask] = useState<{ id: string; status: string } | null>(null);
+  const [autonomousDecision, setAutonomousDecision] = useState<AutonomousDecision | null>(null);
+  const [decisionLoading, setDecisionLoading] = useState(false);
   const workOrderRef = useRef<string>("");
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [reqRes, vendorRes, schedRes] = await Promise.all([
+      const [reqRes, vendorRes, schedRes, decisionRes] = await Promise.all([
         fetch(`/api/requests/${id}`),
         fetch("/api/vendors"),
         fetch(`/api/scheduling/tasks?requestId=${id}`),
+        fetch(`/api/autonomy/decisions?request_id=${id}&limit=1`),
       ]);
 
       if (reqRes.status === 404) {
@@ -87,6 +92,13 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
         setSchedulingTask(schedData ?? null);
       } else {
         setSchedulingTask(null);
+      }
+      if (decisionRes.ok) {
+        const decisionData = await decisionRes.json();
+        const decisions = decisionData.decisions ?? [];
+        setAutonomousDecision(decisions.length > 0 ? decisions[0] : null);
+      } else {
+        setAutonomousDecision(null);
       }
     } catch {
       toast.error("Failed to load request");
@@ -368,6 +380,56 @@ Please contact the tenant to schedule access. Estimated cost: $${request.ai_cost
             onVendorChange={setSelectedVendorId}
           />
           <RuleAuditCard requestId={id} />
+          {autonomousDecision && (
+            <AIReasoningCard
+              decision={autonomousDecision}
+              loading={decisionLoading}
+              onConfirm={async () => {
+                setDecisionLoading(true);
+                try {
+                  const res = await fetch(
+                    `/api/autonomy/decisions/${autonomousDecision.id}`,
+                    {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ review_action: "confirmed" }),
+                    }
+                  );
+                  if (!res.ok) throw new Error("Failed to confirm");
+                  toast.success("Decision confirmed.");
+                  await fetchData();
+                } finally {
+                  setDecisionLoading(false);
+                }
+              }}
+              onOverride={async (reason) => {
+                setDecisionLoading(true);
+                try {
+                  const res = await fetch(
+                    `/api/autonomy/decisions/${autonomousDecision.id}`,
+                    {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        review_action: "overridden",
+                        review_notes: reason,
+                      }),
+                    }
+                  );
+                  if (!res.ok) throw new Error("Failed to override");
+                  const { within_rollback_window } = await res.json();
+                  if (within_rollback_window) {
+                    toast.success("Decision overridden. Vendor dispatch cancelled.");
+                  } else {
+                    toast.success("Decision overridden.");
+                  }
+                  await fetchData();
+                } finally {
+                  setDecisionLoading(false);
+                }
+              }}
+            />
+          )}
 
           {/* Desktop action button */}
           <div className="hidden lg:block">

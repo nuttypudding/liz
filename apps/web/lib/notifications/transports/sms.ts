@@ -38,6 +38,10 @@ function renderSmsBody(template: string, data: Record<string, unknown>): string 
       return `Please confirm your availability for the repair request. -Liz`;
     case "reschedule-request":
       return `A reschedule has been requested. Please confirm: [link] -Liz`;
+    case "emergency-auto-dispatch":
+      return `[Liz] EMERGENCY auto-dispatched: ${data.category} at ${data.propertyName}. Tenant: ${data.tenantName}. Vendor: ${data.vendorName}. Details: ${data.requestLink}`;
+    case "auto-dispatch-confirmation":
+      return `[Liz] Auto-dispatched: ${data.category} request from ${data.tenantName} at ${data.propertyName}. Vendor: ${data.vendorName}. Details: ${data.requestLink}`;
     default:
       return "You have a notification from Liz.";
   }

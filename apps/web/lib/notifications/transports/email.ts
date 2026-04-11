@@ -37,11 +37,36 @@ function getEmailSubject(template: string): string {
     "schedule-confirmed": "Your appointment is scheduled",
     "availability-prompt": "Please confirm your availability",
     "reschedule-request": "A reschedule has been requested",
+    "emergency-auto-dispatch": "Emergency request auto-dispatched",
+    "auto-dispatch-confirmation": "Maintenance request auto-dispatched",
   };
   return subjects[template] ?? "Notification from Liz";
 }
 
-function renderEmailHtml(template: string, _data: Record<string, unknown>): string {
+function renderEmailHtml(template: string, data: Record<string, unknown>): string {
   // TODO: Use React Email templates (task 108)
-  return `<p>Notification: ${template}</p>`;
+  switch (template) {
+    case "emergency-auto-dispatch":
+      return [
+        `<h2>⚠️ Emergency Request Auto-Dispatched</h2>`,
+        `<p><strong>Tenant:</strong> ${data.tenantName}</p>`,
+        `<p><strong>Property:</strong> ${data.propertyName}</p>`,
+        `<p><strong>Issue category:</strong> ${data.category} (emergency)</p>`,
+        `<p><strong>Vendor notified:</strong> ${data.vendorName}</p>`,
+        `<p><a href="${data.requestLink}">View request details</a></p>`,
+        `<p style="color:#888;font-size:12px">This action was taken automatically by Liz Autopilot. You can override it from the request detail page.</p>`,
+      ].join("");
+    case "auto-dispatch-confirmation":
+      return [
+        `<h2>Maintenance Request Auto-Dispatched</h2>`,
+        `<p><strong>Tenant:</strong> ${data.tenantName}</p>`,
+        `<p><strong>Property:</strong> ${data.propertyName}</p>`,
+        `<p><strong>Issue category:</strong> ${data.category}</p>`,
+        `<p><strong>Vendor notified:</strong> ${data.vendorName}</p>`,
+        `<p><a href="${data.requestLink}">View request details</a></p>`,
+        `<p style="color:#888;font-size:12px">This action was taken automatically by Liz Autopilot. You can override it from the request detail page.</p>`,
+      ].join("");
+    default:
+      return `<p>Notification: ${template}</p>`;
+  }
 }

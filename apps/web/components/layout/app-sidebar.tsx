@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { UserButton } from "@clerk/nextjs";
-import { Building2, CreditCard, DollarSign, LayoutDashboard, Settings, Users, Wrench } from "lucide-react";
+import { Brain, Building2, CreditCard, DollarSign, LayoutDashboard, Settings, Users, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -20,6 +21,7 @@ import {
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/requests", label: "Requests", icon: Wrench },
+  { href: "/autopilot", label: "Autopilot", icon: Brain },
   { href: "/properties", label: "Properties", icon: Building2 },
   { href: "/vendors", label: "Vendors", icon: Users },
   { href: "/dashboard/payments", label: "Payments", icon: DollarSign },
@@ -27,8 +29,32 @@ const navItems = [
   { href: "/billing", label: "Billing", icon: CreditCard },
 ];
 
+function usePendingDecisionCount() {
+  const [count, setCount] = useState(0);
+
+  const fetchCount = async () => {
+    try {
+      const res = await fetch("/api/autonomy/decisions?status=pending_review&limit=1");
+      if (!res.ok) return;
+      const data = await res.json() as { total?: number };
+      setCount(data.total ?? 0);
+    } catch {
+      // silently ignore fetch errors
+    }
+  };
+
+  useEffect(() => {
+    fetchCount();
+    window.addEventListener("focus", fetchCount);
+    return () => window.removeEventListener("focus", fetchCount);
+  }, []);
+
+  return count;
+}
+
 export function AppSidebar() {
   const pathname = usePathname();
+  const pendingCount = usePendingDecisionCount();
 
   return (
     <Sidebar>
@@ -47,6 +73,7 @@ export function AppSidebar() {
                   href === "/dashboard"
                     ? pathname === href
                     : pathname === href || pathname.startsWith(href + "/");
+                const isAutopilot = href === "/autopilot";
                 return (
                   <SidebarMenuItem key={href}>
                     <SidebarMenuButton
@@ -58,6 +85,11 @@ export function AppSidebar() {
                     >
                       <Icon />
                       <span>{label}</span>
+                      {isAutopilot && pendingCount > 0 && (
+                        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                          {pendingCount > 99 ? "99+" : pendingCount}
+                        </span>
+                      )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );

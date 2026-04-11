@@ -4,6 +4,8 @@ import { z } from "zod";
 import type { ContentBlockParam } from "@anthropic-ai/sdk/resources";
 
 import { anthropic } from "@/lib/anthropic";
+import { evaluateAutonomousDecision } from "@/lib/autonomy/engine";
+import { sendLandlordAutoDispatchNotification } from "@/lib/autonomy/notifications";
 import { processRulesForRequest } from "@/lib/rules/engine";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -71,10 +73,13 @@ export async function POST(request: NextRequest) {
 
     // --- Fetch landlord profile for personalization --- //
     let profileContext = "";
+    let delegationMode: string | null = null;
+    let notifyEmergencies = true;
+    let notifyAllRequests = false;
     try {
       const { data: profile } = await supabase
         .from("landlord_profiles")
-        .select("risk_appetite")
+        .select("risk_appetite, delegation_mode, notify_emergencies, notify_all_requests")
         .eq("landlord_id", userId)
         .single();
 
@@ -88,6 +93,9 @@ export async function POST(request: NextRequest) {
             "This landlord values a balance of cost and speed. Weigh both factors equally when rating urgency and recommending actions.",
         };
         profileContext = `\n\nLandlord preferences: ${riskDescriptions[profile.risk_appetite] ?? riskDescriptions.balanced}`;
+        delegationMode = profile.delegation_mode ?? null;
+        notifyEmergencies = profile.notify_emergencies ?? true;
+        notifyAllRequests = profile.notify_all_requests ?? false;
       }
     } catch {
       // Profile not found — use generic behavior
@@ -232,11 +240,174 @@ Respond with valid JSON only (no markdown):
       console.error("Rule evaluation failed (non-critical):", err);
     }
 
+    // --- Step 5: Autonomy evaluation --- //
+    // Only runs when landlord is in 'auto' delegation mode and autonomy is not paused.
+    // Does NOT override rule-based escalations.
+    let autonomyResult = null;
+    if (delegationMode === "auto") {
+      try {
+        const { data: autonomySettings } = await supabase
+          .from("autonomy_settings")
+          .select("*")
+          .eq("landlord_id", userId)
+          .single();
+
+        const wasEscalatedByRules = rulesResult?.actions_applied.includes("escalated") ?? false;
+
+        if (autonomySettings && !autonomySettings.paused && !wasEscalatedByRules) {
+          // Fetch updated request state (post-classification + post-rules)
+          const { data: updatedRequest } = await supabase
+            .from("maintenance_requests")
+            .select("id, ai_category, ai_urgency, ai_cost_estimate_low, ai_cost_estimate_high, ai_confidence_score, vendor_id, created_at")
+            .eq("id", request_id)
+            .single();
+
+          if (updatedRequest) {
+            const requestForEngine = {
+              id: updatedRequest.id as string,
+              ai_category: (updatedRequest.ai_category as string) || estimator.category,
+              ai_urgency: (updatedRequest.ai_urgency as string) || estimator.urgency,
+              ai_cost_estimate_low: (updatedRequest.ai_cost_estimate_low as number) ?? estimator.cost_estimate_low,
+              ai_cost_estimate_high: (updatedRequest.ai_cost_estimate_high as number) ?? estimator.cost_estimate_high,
+              ai_confidence_score: (updatedRequest.ai_confidence_score as number) ?? estimator.confidence_score,
+              vendor_id: updatedRequest.vendor_id as string | undefined,
+              created_at: updatedRequest.created_at as string,
+            };
+
+            const decision = await evaluateAutonomousDecision(
+              requestForEngine,
+              autonomySettings,
+              userId,
+              supabase
+            );
+
+            // Save decision record to DB
+            const decisionId = crypto.randomUUID();
+            const { error: decisionError } = await supabase
+              .from("autonomous_decisions")
+              .insert({
+                id: decisionId,
+                request_id,
+                landlord_id: userId,
+                decision_type: decision.decision_type,
+                confidence_score: decision.confidence_score,
+                reasoning: decision.reasoning,
+                factors: decision.factors,
+                safety_checks: decision.safety_checks,
+                actions_taken: decision.actions_taken,
+                status: "pending_review",
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              });
+
+            if (!decisionError) {
+              const isAutoDispatch =
+                decision.decision_type === "dispatch" &&
+                decision.confidence_score >= autonomySettings.confidence_threshold;
+
+              if (isAutoDispatch) {
+                // Find a vendor if not already assigned
+                let vendorId = requestForEngine.vendor_id ?? null;
+
+                if (!vendorId) {
+                  const { data: vendor } = await supabase
+                    .from("vendors")
+                    .select("id")
+                    .eq("landlord_id", userId)
+                    .eq("specialty", requestForEngine.ai_category)
+                    .order("priority_rank", { ascending: true })
+                    .limit(1)
+                    .maybeSingle();
+                  vendorId = (vendor?.id as string) ?? null;
+                }
+
+                if (vendorId) {
+                  const { error: dispatchError } = await supabase
+                    .from("maintenance_requests")
+                    .update({
+                      status: "dispatched",
+                      vendor_id: vendorId,
+                      work_order_text: estimator.recommended_action,
+                      dispatched_at: new Date().toISOString(),
+                      autonomous_decision_id: decisionId,
+                      decided_autonomously: true,
+                    })
+                    .eq("id", request_id);
+
+                  if (!dispatchError) {
+                    console.log(`[autonomy] Auto-dispatched request ${request_id} to vendor ${vendorId}`);
+                    autonomyResult = { decision_type: "dispatch", decision_id: decisionId, auto_dispatched: true, vendor_id: vendorId };
+
+                    // Send landlord notification (non-blocking) — respects notify_emergencies and notify_all_requests preferences
+                    const isEmergency = requestForEngine.ai_urgency === "emergency";
+                    const shouldNotify = isEmergency
+                      ? notifyEmergencies || notifyAllRequests
+                      : notifyAllRequests;
+
+                    if (shouldNotify) {
+                      sendLandlordAutoDispatchNotification({
+                        supabase,
+                        landlordId: userId,
+                        requestId: request_id,
+                        category: requestForEngine.ai_category,
+                        urgency: requestForEngine.ai_urgency,
+                        vendorId,
+                      }).catch((err) =>
+                        console.error("[autonomy] Landlord notification failed (dispatch succeeded):", err)
+                      );
+                    }
+                  } else {
+                    console.error("[autonomy] Failed to auto-dispatch:", dispatchError);
+                  }
+                } else {
+                  // No vendor available — escalate for human review
+                  await supabase
+                    .from("maintenance_requests")
+                    .update({
+                      status: "awaiting_landlord_review",
+                      autonomous_decision_id: decisionId,
+                      decided_autonomously: false,
+                    })
+                    .eq("id", request_id);
+                  console.log(`[autonomy] Escalated request ${request_id} — no vendor available for category ${requestForEngine.ai_category}`);
+                  autonomyResult = { decision_type: "escalate", decision_id: decisionId, auto_dispatched: false, reason: "no_vendor" };
+                }
+              } else {
+                // Confidence below threshold or decision is escalate/hold
+                await supabase
+                  .from("maintenance_requests")
+                  .update({
+                    status: "awaiting_landlord_review",
+                    autonomous_decision_id: decisionId,
+                    decided_autonomously: false,
+                  })
+                  .eq("id", request_id);
+                console.log(`[autonomy] Escalated request ${request_id} — decision: ${decision.decision_type}, confidence: ${decision.confidence_score.toFixed(2)}`);
+                autonomyResult = { decision_type: decision.decision_type, decision_id: decisionId, auto_dispatched: false };
+              }
+            }
+          }
+        }
+      } catch (err) {
+        // Autonomy errors must not block the classify response — escalate as safety fallback
+        console.error("[autonomy] Evaluation failed, escalating to human review:", err);
+        try {
+          await supabase
+            .from("maintenance_requests")
+            .update({ status: "awaiting_landlord_review" })
+            .eq("id", request_id);
+        } catch {
+          // best effort
+        }
+      }
+    }
+
     return NextResponse.json({
       request_id,
       gatekeeper,
       classification: estimator,
       rules: rulesResult,
+      autonomy: autonomyResult,
     });
   } catch (err) {
     console.error("Unexpected error in POST /api/classify:", err);

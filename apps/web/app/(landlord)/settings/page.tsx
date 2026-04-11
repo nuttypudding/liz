@@ -24,6 +24,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { OptionCard } from "@/components/onboarding/option-card";
 import { RulesManager } from "@/components/settings/RulesManager";
+import { AutopilotSettings } from "@/components/settings/autopilot-settings";
 import type { LandlordProfile } from "@/lib/types";
 
 type RiskAppetite = "cost_first" | "balanced" | "speed_first";
@@ -138,6 +139,7 @@ function SettingsContent() {
           <TabsTrigger value="preferences">AI Preferences</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="rules">Automation Rules</TabsTrigger>
+          <TabsTrigger value="autopilot">Autopilot</TabsTrigger>
         </TabsList>
 
         {/* AI Preferences Tab */}
@@ -240,16 +242,13 @@ function SettingsContent() {
                 <OptionCard
                   icon={Bot}
                   title="Full autopilot"
-                  description="Your agent handles routine jobs. You review after."
+                  description="AI makes routine decisions autonomously. Review decisions and set confidence thresholds in Autopilot settings."
                   selected={delegationMode === "auto"}
-                  onSelect={() => {}}
-                  badge="Coming soon"
-                  badgeVariant="outline"
-                  disabled
+                  onSelect={() => {
+                    setDelegationMode("auto");
+                    markDirty();
+                  }}
                 />
-                <p className="text-xs text-muted-foreground ml-13 -mt-1">
-                  When available, you&apos;ll set a maximum spending amount per job.
-                </p>
               </CardContent>
             </Card>
           </div>
@@ -305,6 +304,11 @@ function SettingsContent() {
           <div className="space-y-6 pt-4">
             <RulesManager />
           </div>
+        </TabsContent>
+
+        {/* Autopilot Tab */}
+        <TabsContent value="autopilot">
+          <AutopilotSettings />
         </TabsContent>
       </Tabs>
 
