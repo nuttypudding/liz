@@ -74,7 +74,7 @@ export async function evaluateAutonomousDecision(
     request.ai_urgency === "emergency";
 
   // Determine decision type
-  let decision_type: DecisionType = "escalate";
+  let decision_type: DecisionType = DecisionType.ESCALATE;
   if (
     !cooldownActive &&
     (emergencyOverride ||
@@ -84,7 +84,7 @@ export async function evaluateAutonomousDecision(
         safetyChecks.vendor_available !== false &&
         safetyChecks.emergency_eligible !== false))
   ) {
-    decision_type = "dispatch";
+    decision_type = DecisionType.DISPATCH;
   }
 
   // Generate reasoning via Claude API

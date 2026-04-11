@@ -89,8 +89,8 @@ export function ComplianceSummaryCard() {
               Add properties and configure jurisdictions to enable compliance checking.
             </p>
           </div>
-          <Button size="sm" className="w-full" render={<Link href="/compliance" />}>
-            View Compliance Dashboard
+          <Button size="sm" className="w-full" asChild>
+            <Link href="/compliance">View Compliance Dashboard</Link>
           </Button>
         </CardContent>
       </Card>

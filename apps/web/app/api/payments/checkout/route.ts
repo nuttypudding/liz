@@ -4,7 +4,9 @@ import Stripe from "stripe";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!);
+}
 
 export async function POST(req: Request) {
   const { userId } = await auth();
@@ -72,7 +74,7 @@ export async function POST(req: Request) {
       .maybeSingle();
 
     // Create Checkout Session
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
         {

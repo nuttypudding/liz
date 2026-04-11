@@ -429,7 +429,7 @@ export default function CompliancePropertyDetailPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <Accordion type="multiple" defaultValue={Array.from(checklistByTopic.keys())}>
+            <Accordion defaultValue={Array.from(checklistByTopic.keys())}>
               {Array.from(checklistByTopic.entries()).map(([topic, items]) => {
                 const completedInTopic = items.filter((i) => i.completed).length;
                 const topicLabel = topic.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());

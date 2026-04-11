@@ -316,7 +316,7 @@ export default function ComplianceDashboardPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           {availableStates.length > 0 && (
-            <Select value={stateFilter} onValueChange={setStateFilter}>
+            <Select value={stateFilter} onValueChange={(v) => setStateFilter(v ?? "")}>
               <SelectTrigger className="w-[160px]">
                 <MapPin className="mr-2 size-4" />
                 <SelectValue placeholder="All states" />
@@ -345,9 +345,11 @@ export default function ComplianceDashboardPage() {
           </Select>
         </div>
         <ToggleGroup
-          type="single"
-          value={viewMode}
-          onValueChange={(v) => v && setViewMode(v as "grid" | "list")}
+          value={[viewMode]}
+          onValueChange={(v) => {
+            const next = v[v.length - 1];
+            if (next) setViewMode(next as "grid" | "list");
+          }}
           className="hidden sm:flex"
         >
           <ToggleGroupItem value="grid" aria-label="Grid view">

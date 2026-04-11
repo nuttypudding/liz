@@ -16,8 +16,8 @@ export function OnboardingBanner() {
           Personalize your AI assistant to match your management style.
         </p>
       </div>
-      <Button size="sm" render={<Link href="/onboarding" />}>
-        Get Started
+      <Button size="sm" asChild>
+        <Link href="/onboarding">Get Started</Link>
       </Button>
     </div>
   );

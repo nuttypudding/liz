@@ -31,8 +31,13 @@ export async function POST(req: NextRequest) {
 
     const providerName = (payload.provider as string) || 'smartmove';
     const provider = getScreeningProvider(providerName);
+    if (!provider) {
+      return NextResponse.json({ error: 'Unknown provider' }, { status: 400 });
+    }
 
-    const isValid = await provider.verifyWebhookSignature(rawBody, signature);
+    const isValid = provider.verifyWebhookSignature
+      ? await provider.verifyWebhookSignature(rawBody, signature)
+      : true;
     if (!isValid) {
       console.warn('Invalid webhook signature from provider');
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
@@ -92,7 +97,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Audit log (non-fatal)
-    await AuditLogger.logWebhook(reference_id, providerName, status);
+    await AuditLogger.logWebhook(reference_id, providerName, status ?? 'unknown');
 
     return NextResponse.json({ success: true, message: 'Webhook processed' });
   } catch (error) {

@@ -4,7 +4,9 @@ import Stripe from "stripe";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!);
+}
 
 export async function GET() {
   const { userId } = await auth();
@@ -34,7 +36,7 @@ export async function GET() {
     let stripeAccountId = existingAccount?.stripe_account_id as string | undefined;
 
     if (!stripeAccountId) {
-      const account = await stripe.accounts.create({
+      const account = await getStripe().accounts.create({
         type: "express",
         country: "US",
       });
@@ -46,7 +48,7 @@ export async function GET() {
       });
     }
 
-    const accountLink = await stripe.accountLinks.create({
+    const accountLink = await getStripe().accountLinks.create({
       account: stripeAccountId,
       type: "account_onboarding",
       return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/payments?connected=true`,

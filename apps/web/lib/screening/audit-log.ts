@@ -138,7 +138,7 @@ export const AuditLogger = {
     return logScreeningAction({
       application_id: applicationId,
       action: AuditAction.NOTIFY,
-      actor_id: null, // System action
+      actor_id: undefined, // System action
       details: {
         notification_type: type,
       },
@@ -156,7 +156,7 @@ export const AuditLogger = {
     return logScreeningAction({
       application_id: applicationId,
       action: AuditAction.WEBHOOK,
-      actor_id: null, // System action
+      actor_id: undefined, // System action
       details: {
         provider,
         webhook_status: status,

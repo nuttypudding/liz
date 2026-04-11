@@ -4,7 +4,9 @@ import Stripe from "stripe";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!);
+}
 
 export async function GET() {
   const { userId } = await auth();
@@ -35,7 +37,7 @@ export async function GET() {
       return NextResponse.json({ connected: false, charges_enabled: false });
     }
 
-    const account = await stripe.accounts.retrieve(
+    const account = await getStripe().accounts.retrieve(
       stripeAccount.stripe_account_id as string
     );
 

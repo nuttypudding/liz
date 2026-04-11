@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
     const landlordIds = [
       ...new Set(
         (allActivePeriods ?? [])
-          .map((p) => (p.properties as { landlord_id: string } | null)?.landlord_id)
+          .map((p) => (p.properties as unknown as { landlord_id: string } | null)?.landlord_id)
           .filter(Boolean) as string[]
       ),
     ];
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
     const sentAt = now.toISOString();
 
     for (const period of allActivePeriods ?? []) {
-      const landlordId = (period.properties as { landlord_id: string } | null)?.landlord_id;
+      const landlordId = (period.properties as unknown as { landlord_id: string } | null)?.landlord_id;
       if (!landlordId) continue;
 
       const profile = profileMap.get(landlordId);
@@ -205,7 +205,7 @@ export async function POST(request: NextRequest) {
 
     const overdueByLandlord = new Map<string, { count: number; propertyId: string }>();
     for (const period of overduePeriods) {
-      const landlordId = (period.properties as { landlord_id: string } | null)?.landlord_id;
+      const landlordId = (period.properties as unknown as { landlord_id: string } | null)?.landlord_id;
       if (!landlordId) continue;
       const existing = overdueByLandlord.get(landlordId);
       if (existing) {

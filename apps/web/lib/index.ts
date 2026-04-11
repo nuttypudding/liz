@@ -11,4 +11,4 @@ export * from "./schemas/rules";
 
 // Utilities
 export { cn } from "./utils";
-export { formatDate, formatCurrency, formatPhoneNumber } from "./format";
+export { fullName, formatAddress } from "./format";

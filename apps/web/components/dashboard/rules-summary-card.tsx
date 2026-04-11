@@ -95,9 +95,11 @@ export function RulesSummaryCard() {
               Create rules to automatically approve and manage maintenance requests
             </p>
           </div>
-          <Button size="sm" className="w-full" render={<Link href="/settings?tab=rules" />}>
-            <Plus className="size-4 mr-1.5" />
-            Create your first rule
+          <Button size="sm" className="w-full" asChild>
+            <Link href="/settings?tab=rules">
+              <Plus className="size-4 mr-1.5" />
+              Create your first rule
+            </Link>
           </Button>
         </CardContent>
       </Card>

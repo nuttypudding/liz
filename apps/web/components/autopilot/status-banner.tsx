@@ -85,13 +85,11 @@ export function StatusBanner({ paused, onToggle }: StatusBannerProps) {
               {paused ? "Activate" : "Pause"} autonomy
             </span>
           </label>
-          <Button
-            variant="outline"
-            size="sm"
-            render={<Link href="/settings?tab=autonomy" />}
-          >
-            <Settings2 className="mr-1.5 size-4" />
-            Configure
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/settings?tab=autonomy">
+              <Settings2 className="mr-1.5 size-4" />
+              Configure
+            </Link>
           </Button>
         </div>
       </CardContent>
