@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
+import { clerkClient, getAuth } from '@clerk/nextjs/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { ApplicationStatus, ApplicationSubmissionPayload } from '@/lib/screening/types';
 import { generateTrackingId } from '@/lib/screening/utils';
 import { validateApplicationPayload } from '@/lib/screening/validation';
+import {
+  sendApplicationConfirmation,
+  sendLandlordNewApplicationNotification,
+} from '@/lib/email/screening-service';
 
 const VALID_SORT_FIELDS = ['created_at', 'risk_score', 'updated_at', 'email'] as const;
 const VALID_ORDERS = ['asc', 'desc'] as const;
@@ -107,6 +111,28 @@ export async function POST(req: NextRequest) {
 
     const supabase = createServerSupabaseClient();
 
+    // Look up property to get landlord info
+    const { data: property, error: propertyError } = await supabase
+      .from('properties')
+      .select('id, address, landlord_id')
+      .eq('id', property_id)
+      .single();
+
+    if (propertyError || !property) {
+      return NextResponse.json({ error: 'Property not found' }, { status: 404 });
+    }
+
+    // Resolve landlord profile UUID from Clerk user ID
+    const { data: landlordProfile, error: profileError } = await supabase
+      .from('landlord_profiles')
+      .select('id')
+      .eq('landlord_id', property.landlord_id)
+      .single();
+
+    if (profileError || !landlordProfile) {
+      return NextResponse.json({ error: 'Landlord profile not found' }, { status: 404 });
+    }
+
     // Check for duplicate submission (same email + property within last 30 days)
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -137,7 +163,7 @@ export async function POST(req: NextRequest) {
       .insert([
         {
           property_id,
-          landlord_id: null,
+          landlord_id: landlordProfile.id,
           first_name: payload.first_name,
           last_name: payload.last_name,
           email,
@@ -164,11 +190,45 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to create application' }, { status: 500 });
     }
 
+    // Send confirmation email to applicant (non-fatal)
+    try {
+      await sendApplicationConfirmation({
+        applicantEmail: email,
+        applicantName: `${payload.first_name} ${payload.last_name}`,
+        trackingId: application.tracking_id,
+        propertyAddress: property.address,
+      });
+    } catch (emailError) {
+      console.error('Failed to send confirmation email:', emailError);
+    }
+
+    // Notify landlord of new application (non-fatal)
+    try {
+      const client = await clerkClient();
+      const landlordUser = await client.users.getUser(property.landlord_id);
+      const landlordEmail = landlordUser.emailAddresses.find(
+        (e) => e.id === landlordUser.primaryEmailAddressId
+      )?.emailAddress;
+
+      if (landlordEmail) {
+        await sendLandlordNewApplicationNotification({
+          landlordEmail,
+          landlordName: landlordUser.firstName || 'Landlord',
+          applicantName: `${payload.first_name} ${payload.last_name}`,
+          applicantEmail: email,
+          propertyAddress: property.address,
+          monthlyRent: monthly_rent_applying_for,
+        });
+      }
+    } catch (emailError) {
+      console.error('Failed to send landlord notification:', emailError);
+    }
+
     return NextResponse.json(
       {
         success: true,
         tracking_id: application.tracking_id,
-        message: 'Application submitted successfully. Check your status using the tracking ID.',
+        message: 'Application submitted. Check your email for confirmation.',
       },
       { status: 201 }
     );

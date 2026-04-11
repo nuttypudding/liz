@@ -6,6 +6,7 @@ import {
   ApplicationDecisionPayload,
   ApplicationStatus,
 } from '@/lib/screening/types';
+import { sendApplicantDecisionNotification } from '@/lib/email/screening-service';
 
 export interface ApplicationDecisionResponse {
   success: boolean;
@@ -123,7 +124,18 @@ export async function POST(
         if (error) console.error('Audit log error:', error);
       });
 
-    // Send decision notification email (wired by task 200)
+    // Send decision notification email to applicant (non-fatal)
+    try {
+      const decision = payload.decision === 'approve' ? 'approved' : 'denied';
+      await sendApplicantDecisionNotification({
+        applicantEmail: updatedApplication.email,
+        applicantName: `${updatedApplication.first_name} ${updatedApplication.last_name}`,
+        decision,
+        message: payload.optional_message,
+      });
+    } catch (emailError) {
+      console.error('Failed to send decision email:', emailError);
+    }
 
     const response: ApplicationDecisionResponse = {
       success: true,
