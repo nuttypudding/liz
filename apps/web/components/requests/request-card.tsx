@@ -11,8 +11,17 @@ import {
   Wrench,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { UrgencyBadge } from "@/components/requests/urgency-badge";
 import { StatusBadge } from "@/components/requests/status-badge";
+
+// Categories that involve habitability requirements
+const HABITABILITY_CATEGORIES = new Set([
+  "plumbing",
+  "electrical",
+  "hvac",
+  "structural",
+]);
 
 const categoryIcons: Record<string, React.ElementType> = {
   plumbing: Droplets,
@@ -64,6 +73,11 @@ export function RequestCard({ request, href }: RequestCardProps) {
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <UrgencyBadge urgency={urgency} />
             <StatusBadge status={request.status} />
+            {HABITABILITY_CATEGORIES.has(request.ai_category ?? "") && (
+              <Badge variant="destructive" className="h-5 text-[10px] px-1.5">
+                Habitability
+              </Badge>
+            )}
             <span className="ml-auto text-xs text-muted-foreground">{date}</span>
           </div>
         </div>

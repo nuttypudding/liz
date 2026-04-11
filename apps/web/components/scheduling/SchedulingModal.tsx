@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EntryNoticeSuggestionBanner } from "@/components/compliance/EntryNoticeSuggestionBanner";
 
 // ---- Types ----
 
@@ -57,6 +58,7 @@ export interface SchedulingModalProps {
   vendorId: string;
   tenantId: string;
   vendorName?: string;
+  propertyId?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirmed?: () => void;
@@ -153,6 +155,7 @@ export function SchedulingModal({
   vendorId,
   tenantId,
   vendorName,
+  propertyId,
   open,
   onOpenChange,
   onConfirmed,
@@ -567,6 +570,15 @@ export function SchedulingModal({
                     </div>
                   )}
                 </section>
+              )}
+
+              {/* Entry notice suggestion when a slot is selected */}
+              {selectedSlot && propertyId && (
+                <EntryNoticeSuggestionBanner
+                  propertyId={propertyId}
+                  visitorType="vendor"
+                  visitDate={new Date(`${selectedSlot.date}T${selectedSlot.timeStart}`)}
+                />
               )}
             </>
           )}

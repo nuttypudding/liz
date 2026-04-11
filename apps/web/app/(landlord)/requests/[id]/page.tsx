@@ -481,6 +481,7 @@ Please contact the tenant to schedule access. Estimated cost: $${request.ai_cost
           vendorId={request.vendor_id!}
           tenantId={request.tenant_id}
           vendorName={request.vendors?.name}
+          propertyId={request.property_id ?? undefined}
           open={schedulingOpen}
           onOpenChange={setSchedulingOpen}
           onConfirmed={fetchData}

@@ -155,8 +155,8 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/onboarding` | 5-step onboarding wizard |
 | `/dashboard` | Main landlord dashboard (includes compliance alert banners — top 3 most severe across all properties) |
 | `/properties` | Properties list |
-| `/requests` | Maintenance requests list (landlord) |
-| `/requests/[id]` | Request detail / triage (landlord; shows compliance alert banners for habitability/critical issues) |
+| `/requests` | Maintenance requests list (landlord; habitability badge shown on cards for plumbing/electrical/hvac/structural categories) |
+| `/requests/[id]` | Request detail / triage (landlord; shows compliance alert banners for habitability/critical issues; entry notice suggestion appears in scheduling modal when a time slot is selected) |
 | `/vendors` | Vendors list |
 | `/settings` | Landlord settings / AI preferences (supports `?tab=preferences\|notifications\|rules\|autopilot`) |
 | `/autopilot` | Autonomy dashboard — status banner, summary metrics, decision feed |
