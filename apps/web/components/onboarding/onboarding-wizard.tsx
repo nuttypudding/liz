@@ -527,17 +527,10 @@ export function OnboardingWizard() {
               <OptionCard
                 icon={Bot}
                 title="Full autopilot"
-                description="AI handles routine jobs. You review after."
+                description="AI makes routine decisions autonomously. Review decisions and set confidence thresholds in Autopilot settings."
                 selected={delegationMode === "auto"}
-                onSelect={() => {}}
-                badge="Coming soon"
-                badgeVariant="outline"
-                disabled
+                onSelect={() => setDelegationMode("auto")}
               />
-              <p className="text-xs text-muted-foreground ml-13 -mt-1">
-                When available, you&apos;ll set a maximum spending amount per
-                job.
-              </p>
             </div>
 
             <ComboNote
