@@ -13,6 +13,7 @@ import { RequestCard } from "@/components/requests/request-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LatePaymentBanner } from "@/components/dashboard/late-payment-banner";
 import { RulesSummaryCard } from "@/components/dashboard/rules-summary-card";
+import { ScreeningStatsCards } from "@/components/screening/ScreeningStatsCards";
 import type { Property, DashboardStats, SpendChartItem, MaintenanceRequest, RentStatus } from "@/lib/types";
 
 function DashboardContent() {
@@ -162,6 +163,10 @@ function DashboardContent() {
             monthlySpend={stats?.monthly_spend ?? 0}
           />
           <RulesSummaryCard />
+          <section>
+            <h2 className="text-base font-semibold mb-3">Application Metrics</h2>
+            <ScreeningStatsCards />
+          </section>
           <SpendChart data={chartData} />
           <div className="space-y-3">
             <h2 className="text-base font-semibold">Recent Requests</h2>

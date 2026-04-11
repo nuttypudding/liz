@@ -7,7 +7,10 @@ const isPublicRoute = createRouteMatcher([
   "/api/webhook(.*)",
   "/api/webhooks/stripe",
   "/api/reschedule(.*)",
+  "/api/applications",
+  "/api/applications/status(.*)",
   "/reschedule(.*)",
+  "/apply(.*)",
   "/unauthorized",
 ]);
 

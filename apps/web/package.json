@@ -11,6 +11,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
+    "test:integration": "vitest run --project=integration",
     "test:all": "vitest run && playwright test"
   },
   "dependencies": {
