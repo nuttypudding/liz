@@ -1,10 +1,10 @@
 {
   "status": "running",
-  "current_task_id": "178",
-  "current_task_title": "Integration tests \u2014 decision engine end-to-end flow",
-  "current_task_file": "features/inprogress/P3-001-autonomous-decision-making/backlog/178-Sonnet-integration-tests-decision-engine.md",
-  "current_feature": "P3-001-autonomous-decision-making",
-  "tasks_done": 63,
+  "current_task_id": "180",
+  "current_task_title": "Database migration \u2014 applications, screening_reports, screening_audit_log tables",
+  "current_task_file": "features/inprogress/P3-002-ai-tenant-screening/backlog/180-Haiku-database-migration-applications.md",
+  "current_feature": "P3-002-ai-tenant-screening",
+  "tasks_done": 64,
   "tasks_failed": 0,
-  "updated_at": "2026-04-10T18:12:32.767260"
+  "updated_at": "2026-04-10T18:25:31.575820"
 }
