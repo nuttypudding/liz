@@ -20,11 +20,22 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useApplicationDetail } from "@/lib/screening/hooks/useApplicationDetail";
+import { useApplicationDecision } from "@/lib/screening/hooks/useApplicationDecision";
 import { useScreeningOrchestrator } from "@/lib/screening/hooks/useScreeningOrchestrator";
 import {
   ApplicationStatus,
   type Application,
+  type ApplicationDecisionPayload,
   type ScreeningReport,
   type ScreeningFactor,
 } from "@/lib/screening/types";
@@ -295,25 +306,216 @@ function ScreeningReportPanel({ report }: { report: ScreeningReport }) {
   );
 }
 
-/* ── Decision Dialog (placeholder for task 197) ── */
+/* ── Decision Dialog ── */
 
 function DecisionDialog({
+  applicationId,
   onClose,
+  onSuccess,
 }: {
   applicationId: string;
   onClose: () => void;
   onSuccess: () => void;
 }) {
+  const { decide, loading, error } = useApplicationDecision();
+  const [step, setStep] = useState<"initial" | "approve" | "deny">("initial");
+  const [optionalMessage, setOptionalMessage] = useState("");
+  const [denialReason, setDenialReason] = useState("");
+  const [complianceConfirmed, setComplianceConfirmed] = useState(false);
+
+  const handleApprove = async () => {
+    const payload: ApplicationDecisionPayload = {
+      decision: "approve",
+      optional_message: optionalMessage || undefined,
+    };
+    const result = await decide(applicationId, payload);
+    if (result) onSuccess();
+  };
+
+  const handleDeny = async () => {
+    const payload: ApplicationDecisionPayload = {
+      decision: "deny",
+      denial_reason: denialReason,
+      compliance_confirmed: complianceConfirmed,
+    };
+    const result = await decide(applicationId, payload);
+    if (result) onSuccess();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <Card className="w-full max-w-md mx-4">
-        <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground mb-4">
-            Decision dialog will be implemented in task 197.
-          </p>
-          <Button variant="outline" onClick={onClose}>
-            Close
-          </Button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <Card className="w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+        <CardContent className="p-6">
+          {step === "initial" && (
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold">Make a Decision</h2>
+              <p className="text-sm text-muted-foreground">
+                Choose to approve or deny this application.
+              </p>
+              <div className="space-y-3 pt-2">
+                <Button
+                  onClick={() => setStep("approve")}
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  Approve Application
+                </Button>
+                <Button
+                  onClick={() => setStep("deny")}
+                  variant="outline"
+                  className="w-full border-red-300 text-red-600 hover:bg-red-50"
+                >
+                  Deny Application
+                </Button>
+              </div>
+              <Button onClick={onClose} variant="ghost" className="w-full">
+                Cancel
+              </Button>
+            </div>
+          )}
+
+          {step === "approve" && (
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold">Approve Application</h2>
+
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Optional Message to Applicant
+                </label>
+                <Textarea
+                  value={optionalMessage}
+                  onChange={(e) => setOptionalMessage(e.target.value)}
+                  placeholder="e.g., 'Congratulations! Welcome to the property.'"
+                  rows={3}
+                />
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Button
+                  onClick={handleApprove}
+                  disabled={loading}
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="size-4 mr-2 animate-spin" />
+                      Approving...
+                    </>
+                  ) : (
+                    "Confirm Approval"
+                  )}
+                </Button>
+                <Button
+                  onClick={() => setStep("initial")}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Back
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === "deny" && (
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold">Deny Application</h2>
+
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              {/* Fair Housing Compliance Card */}
+              <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-950/30">
+                <AlertDescription className="text-blue-900 dark:text-blue-100">
+                  <p className="font-semibold mb-1">Fair Housing Notice</p>
+                  <p className="text-sm">
+                    Rental decisions must not be based on protected
+                    characteristics (race, color, religion, sex, national origin,
+                    familial status, disability, or source of income). Ensure
+                    your decision is based only on legitimate business factors.
+                  </p>
+                </AlertDescription>
+              </Alert>
+
+              {/* Denial Reason */}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Reason for Denial <span className="text-red-500">*</span>
+                </label>
+                <Select value={denialReason} onValueChange={(val) => setDenialReason(val ?? "")}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a reason" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="insufficient_income">
+                      Insufficient Income
+                    </SelectItem>
+                    <SelectItem value="poor_credit">
+                      Poor Credit History
+                    </SelectItem>
+                    <SelectItem value="rental_history">
+                      Negative Rental History
+                    </SelectItem>
+                    <SelectItem value="eviction">Eviction Record</SelectItem>
+                    <SelectItem value="criminal">Criminal History</SelectItem>
+                    <SelectItem value="employment">
+                      Employment Instability
+                    </SelectItem>
+                    <SelectItem value="other">
+                      Other (Business-Related)
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Compliance Confirmation */}
+              <label className="flex items-start gap-3 p-3 bg-red-50 border border-red-200 rounded-md dark:bg-red-950/30 dark:border-red-800 cursor-pointer">
+                <Checkbox
+                  checked={complianceConfirmed}
+                  onCheckedChange={(checked) =>
+                    setComplianceConfirmed(checked === true)
+                  }
+                  className="mt-0.5"
+                />
+                <span className="text-sm text-red-900 dark:text-red-100">
+                  I confirm this denial is based on legitimate business factors
+                  and not on any protected characteristic.
+                </span>
+              </label>
+
+              <div className="flex gap-2 pt-2">
+                <Button
+                  onClick={handleDeny}
+                  disabled={loading || !denialReason || !complianceConfirmed}
+                  variant="destructive"
+                  className="flex-1"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="size-4 mr-2 animate-spin" />
+                      Denying...
+                    </>
+                  ) : (
+                    "Confirm Denial"
+                  )}
+                </Button>
+                <Button
+                  onClick={() => setStep("initial")}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Back
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
