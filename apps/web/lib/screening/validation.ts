@@ -1,4 +1,4 @@
-import { ApplicationSubmissionPayload, EmploymentStatus } from './types';
+import { ApplicationDecisionPayload, ApplicationSubmissionPayload, EmploymentStatus } from './types';
 
 export interface ValidationResult {
   valid: boolean;
@@ -69,4 +69,37 @@ function isValidDate(dateString: string): boolean {
   if (!re.test(dateString)) return false;
   const date = new Date(dateString);
   return date instanceof Date && !isNaN(date.getTime());
+}
+
+export interface DecisionValidationResult {
+  valid: boolean;
+  errors: string[];
+}
+
+export function validateApplicationDecision(
+  payload: ApplicationDecisionPayload
+): DecisionValidationResult {
+  const errors: string[] = [];
+
+  if (!payload.decision) {
+    errors.push('decision is required');
+  } else if (!['approve', 'deny', 'conditional'].includes(payload.decision)) {
+    errors.push('Invalid decision (must be approve, deny, or conditional)');
+  }
+
+  if (payload.decision === 'deny') {
+    if (!payload.denial_reason?.trim()) {
+      errors.push('denial_reason is required for denial decisions');
+    }
+    if (!payload.compliance_confirmed) {
+      errors.push(
+        'Must confirm understanding of fair housing compliance to deny'
+      );
+    }
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
 }
