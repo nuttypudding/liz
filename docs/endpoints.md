@@ -158,6 +158,8 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/scheduling/availability-prompt/[taskId]` | Tenant availability submission for scheduling (public, token-based) |
 | `/reschedule/[token]` | Vendor reschedule request page (public, token-based) |
 | `/pay` | Tenant payment portal — balance card, pay rent, payment history |
+| `/apply/[propertyId]` | Public rental application form (no auth) |
+| `/apply/status/[trackingId]` | Public application status page — timeline, status message, FAQ (no auth) |
 
 ## Environment Files
 
