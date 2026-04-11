@@ -109,6 +109,15 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | POST | `/api/rules/[id]/test` | Test rule against sample data (returns condition breakdown + actions preview) |
 | GET | `/api/rules/logs` | Query rule execution logs (filters: request_id, rule_id, from_date, to_date, matched_only; paginates by limit/offset) |
 | GET | `/api/rules/summary` | Fetch rules summary (active_rules, auto_approved_this_month, total_processed_this_month) |
+| GET | `/api/payments` | List payments (tenant sees own, landlord sees property-scoped; ?tenant_id, ?property_id, ?status, ?limit, ?offset) |
+| GET | `/api/payments/[id]` | Get single payment with receipt data |
+| POST | `/api/payments/checkout` | Create Stripe checkout session for a payment period |
+| POST | `/api/payments/generate` | Generate current month's payment period for tenant (creates if missing) |
+| GET | `/api/payments/connect/onboard` | Stripe Connect onboarding for landlord |
+| GET | `/api/payments/connect/status` | Stripe Connect account status |
+| POST | `/api/payments/vendor` | Create vendor payment record |
+| GET | `/api/payments/vendor` | List vendor payments |
+| GET | `/api/payments/summary` | Financial summary (monthly P&L aggregation) |
 
 ## App Pages
 
@@ -127,11 +136,13 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/vendors` | Vendors list |
 | `/settings` | Landlord settings / AI preferences (supports `?tab=preferences\|notifications\|rules`) |
 | `/billing` | Landlord billing — current plan, usage, available plans |
+| `/dashboard/payments` | Landlord payment dashboard — rent collection, vendor payments, financial summary |
 | `/submit` | Tenant maintenance request submission |
 | `/my-requests` | Tenant's submitted requests |
 | `/my-requests/[id]` | Tenant request detail |
 | `/scheduling/availability-prompt/[taskId]` | Tenant availability submission for scheduling (public, token-based) |
 | `/reschedule/[token]` | Vendor reschedule request page (public, token-based) |
+| `/pay` | Tenant payment portal — balance card, pay rent, payment history |
 
 ## Environment Files
 

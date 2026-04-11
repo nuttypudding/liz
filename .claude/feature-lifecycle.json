@@ -1,8 +1,8 @@
 {
-  "feature": "P2-003-rule-based-automation",
-  "branch": "feature/P2-003-rule-based-automation",
+  "feature": "P2-004-payment-integration",
+  "branch": "feature/P2-004-payment-integration",
   "state": "pr_created",
-  "pr_number": 6,
-  "pr_url": "https://github.com/nuttypudding/liz/pull/6",
-  "updated_at": "2026-04-10T22:53:00Z"
+  "pr_number": 7,
+  "pr_url": "https://github.com/nuttypudding/liz/pull/7",
+  "updated_at": "2026-04-10T23:00:00Z"
 }

@@ -71,6 +71,7 @@ function createChain(): Record<string, unknown> {
     "gt",
     "lt",
     "limit",
+    "range",
   ];
 
   for (const method of chainMethods) {
