@@ -193,6 +193,41 @@ export async function POST(
       },
     });
 
+    // Auto-generate checklist items for new jurisdiction
+    const rulesQuery = supabase
+      .from("jurisdiction_rules")
+      .select("topic, rule_text")
+      .eq("state_code", normalizedState);
+
+    const { data: allRules } = await (normalizedCity
+      ? rulesQuery.or(`city.is.null,city.eq.${normalizedCity}`)
+      : rulesQuery.is("city", null));
+
+    if (allRules && allRules.length > 0) {
+      // Deduplicate: city rule overrides state rule for the same topic
+      const topicMap = new Map<string, string>();
+      for (const rule of allRules) {
+        topicMap.set(rule.topic, rule.rule_text);
+      }
+
+      // Delete existing checklist items for this property (jurisdiction changed)
+      await supabase.from("compliance_checklist_items").delete().eq("property_id", id);
+
+      // Insert new checklist items
+      const now = new Date().toISOString();
+      const checklistItems = Array.from(topicMap.entries()).map(([topic, ruleText]) => ({
+        property_id: id,
+        topic,
+        description: ruleText.slice(0, 120) + (ruleText.length > 120 ? "…" : ""),
+        completed: false,
+        completed_at: null,
+        created_at: now,
+        updated_at: now,
+      }));
+
+      await supabase.from("compliance_checklist_items").insert(checklistItems);
+    }
+
     return NextResponse.json(jurisdiction);
   } catch (err) {
     console.error("Unexpected error in POST /api/properties/[id]/jurisdiction:", err);

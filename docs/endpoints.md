@@ -132,6 +132,8 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | GET | `/api/properties/[id]/jurisdiction` | Get jurisdiction for a property (state_code, city); returns null fields if not set, plus auto-detect suggestion from property address |
 | POST | `/api/properties/[id]/jurisdiction` | Set/update jurisdiction for a property (`{ state_code, city? }`); validates state code and city against jurisdiction_rules; logs audit event |
 | GET | `/api/compliance/[propertyId]/score` | Compliance score for a property — returns 0–100 score, completed_count, total_required_count, and missing_items list; requires jurisdiction to be set (400 if not configured) |
+| GET | `/api/compliance/[propertyId]/checklist` | Fetch all compliance checklist items for a property with completion status; optional `?completed=true\|false` filter |
+| PATCH | `/api/compliance/[propertyId]/checklist/[itemId]` | Mark a checklist item complete or incomplete (`{ completed: boolean }`); sets/clears completed_at, logs to compliance_audit_log |
 
 ## App Pages
 
