@@ -1,10 +1,10 @@
 {
   "status": "running",
-  "current_task_id": "167",
-  "current_task_title": "Install missing shadcn components \u2014 toggle-group, chart (if not installed)",
-  "current_task_file": "features/inprogress/P3-001-autonomous-decision-making/backlog/167-Haiku-install-shadcn-autonomy.md",
+  "current_task_id": "178",
+  "current_task_title": "Integration tests \u2014 decision engine end-to-end flow",
+  "current_task_file": "features/inprogress/P3-001-autonomous-decision-making/backlog/178-Sonnet-integration-tests-decision-engine.md",
   "current_feature": "P3-001-autonomous-decision-making",
-  "tasks_done": 54,
+  "tasks_done": 63,
   "tasks_failed": 0,
-  "updated_at": "2026-04-10T17:19:43.656191"
+  "updated_at": "2026-04-10T18:12:32.767260"
 }

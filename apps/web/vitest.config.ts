@@ -18,6 +18,15 @@ export default defineConfig({
       },
       {
         test: {
+          name: "integration",
+          environment: "node",
+          include: ["__tests__/integration/**/*.test.ts"],
+          setupFiles: ["tests/setup-dom.ts"],
+        },
+        resolve: { alias },
+      },
+      {
+        test: {
           name: "components",
           environment: "jsdom",
           include: ["tests/components/**/*.test.tsx"],

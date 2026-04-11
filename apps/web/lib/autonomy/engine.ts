@@ -80,7 +80,7 @@ export async function evaluateAutonomousDecision(
     (emergencyOverride ||
       (confidenceScore >= settings.confidence_threshold &&
         safetyChecks.spending_cap_ok &&
-        safetyChecks.category_excluded === false &&
+        safetyChecks.category_excluded !== false &&
         safetyChecks.vendor_available !== false &&
         safetyChecks.emergency_eligible !== false))
   ) {
