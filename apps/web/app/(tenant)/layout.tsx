@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 import { CreditCard, List, SquarePen } from "lucide-react";
+import { NotificationBell } from "@/components/layout/notification-bell";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -24,7 +25,10 @@ export default function TenantLayout({
       {/* Sticky top header */}
       <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b bg-background px-4">
         <span className="text-lg font-semibold tracking-tight">Liz</span>
-        <UserButton />
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          <UserButton />
+        </div>
       </header>
 
       {/* Page content */}

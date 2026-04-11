@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { NotificationBell } from "@/components/layout/notification-bell";
 
 interface SiteHeaderProps {
   title?: string;
@@ -23,6 +24,9 @@ export function SiteHeader({ title = "Dashboard" }: SiteHeaderProps) {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <div className="ml-auto">
+        <NotificationBell />
+      </div>
     </header>
   );
 }
