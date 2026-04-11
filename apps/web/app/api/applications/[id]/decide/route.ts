@@ -6,6 +6,7 @@ import {
   ApplicationDecisionPayload,
   ApplicationStatus,
 } from '@/lib/screening/types';
+import { AuditLogger } from '@/lib/screening/audit-log';
 import { sendApplicantDecisionNotification } from '@/lib/email/screening-service';
 
 export interface ApplicationDecisionResponse {
@@ -105,24 +106,12 @@ export async function POST(
     }
 
     // Log decision to audit trail (non-fatal)
-    supabase
-      .from('screening_audit_log')
-      .insert([
-        {
-          application_id: id,
-          action: 'decide',
-          actor_id: userId,
-          details: {
-            decision: payload.decision,
-            denial_reason: payload.denial_reason,
-            message: payload.optional_message,
-            compliance_confirmed: payload.compliance_confirmed,
-          },
-        },
-      ])
-      .then(({ error }) => {
-        if (error) console.error('Audit log error:', error);
-      });
+    await AuditLogger.logDecision(
+      id,
+      userId,
+      payload.decision as 'approve' | 'deny' | 'conditional',
+      payload.denial_reason
+    );
 
     // Send decision notification email to applicant (non-fatal)
     try {

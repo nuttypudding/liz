@@ -1,10 +1,10 @@
 {
   "status": "running",
-  "current_task_id": "202",
-  "current_task_title": "Dashboard stats extension \u2014 application count, approval rate",
-  "current_task_file": "features/inprogress/P3-002-ai-tenant-screening/backlog/202-Sonnet-dashboard-stats-screening.md",
+  "current_task_id": "203",
+  "current_task_title": "Screening audit log middleware \u2014 log all screening actions",
+  "current_task_file": "features/inprogress/P3-002-ai-tenant-screening/backlog/203-Haiku-screening-audit-log-middleware.md",
   "current_feature": "P3-002-ai-tenant-screening",
-  "tasks_done": 84,
+  "tasks_done": 85,
   "tasks_failed": 0,
-  "updated_at": "2026-04-10T19:36:36.368902"
+  "updated_at": "2026-04-10T19:40:39.461559"
 }

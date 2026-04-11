@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { Application, ScreeningReport, ApplicationDetailResponse } from '@/lib/screening/types';
+import { AuditLogger } from '@/lib/screening/audit-log';
 
 /**
  * GET /api/applications/[id]
@@ -56,15 +57,8 @@ export async function GET(
         computed_metrics.income_to_rent_ratio >= profile.min_income_ratio;
     }
 
-    // Log view action to audit trail (task 203)
-    supabase.from('screening_audit_log').insert([{
-      application_id: id,
-      action: 'view',
-      actor_id: userId,
-      details: { ip: req.headers.get('x-forwarded-for') },
-    }]).then(({ error }) => {
-      if (error) console.error('Audit log error:', error);
-    });
+    // Log view action to audit trail (non-fatal)
+    await AuditLogger.logView(id, userId);
 
     const response: ApplicationDetailResponse = {
       success: true,

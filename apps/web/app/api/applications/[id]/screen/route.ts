@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getScreeningProvider } from '@/lib/screening/providers/factory';
 import { ApplicationStatus } from '@/lib/screening/types';
+import { AuditLogger } from '@/lib/screening/audit-log';
 
 export interface ScreeningInitiationResponse {
   success: boolean;
@@ -117,14 +118,8 @@ export async function POST(
       console.error('Failed to create screening report record:', reportError);
     }
 
-    supabase.from('screening_audit_log').insert([{
-      application_id: id,
-      action: 'screen',
-      actor_id: userId,
-      details: { provider: providerName, external_order_id: orderResult.external_order_id },
-    }]).then(({ error }) => {
-      if (error) console.error('Audit log error:', error);
-    });
+    // Log screening initiation to audit trail (non-fatal)
+    await AuditLogger.logScreeningStart(id, userId, providerName, orderResult.external_order_id);
 
     const response: ScreeningInitiationResponse = {
       success: true,

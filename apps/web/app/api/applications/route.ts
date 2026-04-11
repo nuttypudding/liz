@@ -4,6 +4,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { ApplicationStatus, ApplicationSubmissionPayload } from '@/lib/screening/types';
 import { generateTrackingId } from '@/lib/screening/utils';
 import { validateApplicationPayload } from '@/lib/screening/validation';
+import { AuditLogger } from '@/lib/screening/audit-log';
 import {
   sendApplicationConfirmation,
   sendLandlordNewApplicationNotification,
@@ -189,6 +190,9 @@ export async function POST(req: NextRequest) {
       console.error('Insert error:', insertError);
       return NextResponse.json({ error: 'Failed to create application' }, { status: 500 });
     }
+
+    // Log confirmation notification (non-fatal)
+    await AuditLogger.logNotification(application.id, 'confirmation');
 
     // Send confirmation email to applicant (non-fatal)
     try {

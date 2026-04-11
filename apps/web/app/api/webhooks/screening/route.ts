@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getScreeningProvider } from '@/lib/screening/providers/factory';
 import { createScreeningReport } from '@/lib/screening/screening-service';
+import { AuditLogger } from '@/lib/screening/audit-log';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -90,15 +91,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Audit log
-    await supabase.from('screening_audit_log').insert([
-      {
-        application_id: reference_id,
-        action: 'webhook',
-        actor_id: null,
-        details: { provider: providerName, order_id, webhook_status: status },
-      },
-    ]);
+    // Audit log (non-fatal)
+    await AuditLogger.logWebhook(reference_id, providerName, status);
 
     return NextResponse.json({ success: true, message: 'Webhook processed' });
   } catch (error) {
