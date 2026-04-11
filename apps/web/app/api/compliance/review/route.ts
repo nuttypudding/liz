@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { anthropic } from "@/lib/anthropic";
 import { COMPLIANCE_DISCLAIMERS } from "@/lib/compliance/disclaimers";
+import { buildReviewPrompt, PROMPT_VERSION } from "@/lib/compliance/prompts";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 const reviewRequestSchema = z.object({
@@ -24,6 +25,8 @@ type ClaudeReviewResult = {
   findings: ComplianceFinding[];
   overall_risk_level: "low" | "medium" | "high";
   safe_to_send: boolean;
+  escalation_required: boolean;
+  escalation_reason: string | null;
 };
 
 function parseJsonFromText(text: string): unknown {
@@ -71,10 +74,6 @@ export async function POST(request: NextRequest) {
       .eq("property_id", property_id)
       .single();
 
-    const jurisdictionContext = jurisdiction
-      ? `State: ${jurisdiction.state_code}${jurisdiction.city ? `, City: ${jurisdiction.city}` : ""}`
-      : "Jurisdiction: not configured";
-
     // Fetch applicable jurisdiction rules for additional context
     let rulesContext = "";
     if (jurisdiction) {
@@ -88,10 +87,10 @@ export async function POST(request: NextRequest) {
         : rulesQuery.is("city", null));
 
       if (rules && rules.length > 0) {
-        rulesContext = `\n\nApplicable jurisdiction rules:\n${rules
+        rulesContext = rules
           .slice(0, 10)
           .map((r) => `- ${r.topic}: ${r.rule_text.slice(0, 200)}`)
-          .join("\n")}`;
+          .join("\n");
       }
     }
 
@@ -100,54 +99,27 @@ export async function POST(request: NextRequest) {
       findings: [],
       overall_risk_level: "low",
       safe_to_send: true,
+      escalation_required: false,
+      escalation_reason: null,
     };
 
     try {
+      const prompt = buildReviewPrompt(message_text, jurisdiction ?? null, rulesContext, recipient_type);
       const claudeResponse = await anthropic.messages.create({
         model: "claude-sonnet-4-6",
         max_tokens: 2048,
-        messages: [
-          {
-            role: "user",
-            content: `You are a legal compliance reviewer for landlord-tenant communications. Review the following landlord message for potential legal issues.
-
-Jurisdiction: ${jurisdictionContext}
-Recipient type: ${recipient_type}${rulesContext}
-
-Message to review:
-"""
-${message_text}
-"""
-
-Analyze the message for:
-1. Fair housing violations (discrimination based on race, color, national origin, religion, sex, familial status, disability, or other protected classes)
-2. Improper notice language (missing required disclosures, improper formatting, incorrect notice periods)
-3. Potential liability issues (threats, illegal demands, illegal self-help eviction language)
-4. Missing statutory language required by jurisdiction
-
-Respond with valid JSON only (no markdown):
-{
-  "findings": [
-    {
-      "severity": "warning" or "error",
-      "type": "fair_housing" or "notice_language" or "disclosure" or "other",
-      "flagged_text": "the exact text from the message that is problematic",
-      "reason": "clear explanation of the legal issue",
-      "suggestion": "specific correction or alternative wording"
-    }
-  ],
-  "overall_risk_level": "low" or "medium" or "high",
-  "safe_to_send": true or false
-}
-
-If no issues are found, return an empty findings array with overall_risk_level "low" and safe_to_send true.`,
-          },
-        ],
+        messages: [{ role: "user", content: prompt }],
       });
 
       const rawText =
-        claudeResponse.content[0].type === "text" ? claudeResponse.content[0].text : "{}";
+        claudeResponse.content[0].type === "text" ? claudeResponse.content[0].text : "";
+      if (!rawText) {
+        throw new Error("Empty response from Claude");
+      }
       reviewResult = parseJsonFromText(rawText) as ClaudeReviewResult;
+      // Conservative fallback: if escalation fields are missing, default to false
+      reviewResult.escalation_required = reviewResult.escalation_required ?? false;
+      reviewResult.escalation_reason = reviewResult.escalation_reason ?? null;
     } catch (err) {
       console.error("Claude review call failed:", err);
       return NextResponse.json({ error: "AI review service unavailable" }, { status: 503 });
@@ -185,6 +157,9 @@ If no issues are found, return an empty findings array with overall_risk_level "
       findings: reviewResult.findings,
       overall_risk_level: reviewResult.overall_risk_level,
       safe_to_send: reviewResult.safe_to_send,
+      escalation_required: reviewResult.escalation_required,
+      escalation_reason: reviewResult.escalation_reason,
+      prompt_version: PROMPT_VERSION,
       disclaimer: COMPLIANCE_DISCLAIMERS.NOT_LEGAL_ADVICE,
       reviewed_at: reviewedAt,
     });

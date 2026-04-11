@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { anthropic } from "@/lib/anthropic";
 import { COMPLIANCE_DISCLAIMERS } from "@/lib/compliance/disclaimers";
+import { buildNoticePrompt, PROMPT_VERSION } from "@/lib/compliance/prompts";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 const VALID_NOTICE_TYPES = ["entry", "lease_violation", "rent_increase", "eviction"] as const;
@@ -153,42 +154,18 @@ export async function POST(request: NextRequest) {
     let noticeResult: ClaudeNoticeResult;
 
     try {
+      const prompt = buildNoticePrompt(notice_type, jurisdiction, jurisdictionRulesText, contextLines);
       const claudeResponse = await anthropic.messages.create({
         model: "claude-sonnet-4-6",
         max_tokens: 3000,
-        messages: [
-          {
-            role: "user",
-            content: `You are a legal document assistant specializing in landlord-tenant law. Generate a professional, legally-compliant ${notice_type.replace("_", " ")} notice for the following situation.
-
-Jurisdiction: ${jurisdiction.state_code}${jurisdiction.city ? `, ${jurisdiction.city}` : ""}
-
-Applicable jurisdiction rules:
-${jurisdictionRulesText || "No specific rules found. Use general landlord-tenant best practices."}
-
-Notice details:
-${contextLines}
-
-Requirements:
-1. Write the notice in letter format (date, recipient, body, sender signature line)
-2. Include all required statutory citations from the jurisdiction rules
-3. Include the legally required notice period language (if applicable)
-4. Use professional, formal language appropriate for legal notices
-5. Do NOT include placeholder text — use the actual details provided above
-6. Include this disclaimer at the end: "${COMPLIANCE_DISCLAIMERS.REVIEW_BEFORE_SEND}"
-
-Respond with valid JSON only (no markdown):
-{
-  "notice_text": "The complete notice text in letter format",
-  "statutory_citations": ["List of specific statutory citations included, e.g. CA Civil Code § 1954"],
-  "notice_period_days": <number of days notice required, or 0 if not applicable>
-}`,
-          },
-        ],
+        messages: [{ role: "user", content: prompt }],
       });
 
       const rawText =
-        claudeResponse.content[0].type === "text" ? claudeResponse.content[0].text : "{}";
+        claudeResponse.content[0].type === "text" ? claudeResponse.content[0].text : "";
+      if (!rawText) {
+        throw new Error("Empty response from Claude");
+      }
       noticeResult = parseJsonFromText(rawText) as ClaudeNoticeResult;
     } catch (err) {
       console.error("Claude notice generation failed:", err);
@@ -254,6 +231,7 @@ Respond with valid JSON only (no markdown):
       statutory_citations: noticeResult.statutory_citations ?? [],
       notice_period_days: noticeResult.notice_period_days ?? 0,
       effective_date: context.effective_date ?? context.proposed_date ?? null,
+      prompt_version: PROMPT_VERSION,
       disclaimer: COMPLIANCE_DISCLAIMERS.REVIEW_BEFORE_SEND,
       generated_at: generatedAt,
     });
