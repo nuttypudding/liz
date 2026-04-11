@@ -136,6 +136,8 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | PATCH | `/api/compliance/[propertyId]/checklist/[itemId]` | Mark a checklist item complete or incomplete (`{ completed: boolean }`); sets/clears completed_at, logs to compliance_audit_log |
 | POST | `/api/compliance/review` | AI review of landlord message for fair housing, notice language, and disclosure issues; returns findings with severity, type, flagged_text, reason, suggestion; logs to compliance_audit_log (`{ message_text, property_id, recipient_type? }`) |
 | POST | `/api/compliance/notices/generate` | AI-generated jurisdiction-specific legal notice; supports notice_type: entry, lease_violation, rent_increase, eviction; returns notice content, statutory_citations, notice_period_days; stores in compliance_notices; logs to compliance_audit_log (`{ property_id, notice_type, context: { tenant_name, issue_description, proposed_date?, rent_increase_amount?, effective_date?, additional_details? } }`) |
+| POST | `/api/compliance/notices/[id]/send` | Send a generated notice — updates status to "sent", records sent_at and delivery_method, logs notice_sent to compliance_audit_log; prevents resending already-sent notices (400); body: `{ delivery_method?: "email\|print\|other", notes?: string }` |
+| GET | `/api/compliance/[propertyId]/audit-log` | Paginated compliance audit trail for a property — returns entries with action_type, details, timestamp, actor_id; query params: `?action_type=`, `?limit=` (max 100), `?offset=`, `?start_date=`, `?end_date=` |
 
 ## App Pages
 
