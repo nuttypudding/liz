@@ -11,13 +11,14 @@ import { PropertySelectorBar } from "@/components/dashboard/property-selector-ba
 import { PropertyDrillDown, PropertyDrillDownSkeleton } from "@/components/dashboard/property-drilldown";
 import { RequestCard } from "@/components/requests/request-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LatePaymentBanner } from "@/components/dashboard/late-payment-banner";
+import { OverdueRentBanner } from "@/components/dashboard/overdue-rent-banner";
+import { DashboardRentSummaryCard } from "@/components/dashboard/dashboard-rent-summary-card";
 import { RulesSummaryCard } from "@/components/dashboard/rules-summary-card";
 import { ScreeningStatsCards } from "@/components/screening/ScreeningStatsCards";
 import { ComplianceAlertsBanner } from "@/components/compliance/ComplianceAlertsBanner";
 import { ComplianceSummaryCard } from "@/components/compliance/ComplianceSummaryCard";
 import type { ComplianceAlert } from "@/lib/compliance/types";
-import type { Property, DashboardStats, SpendChartItem, MaintenanceRequest, RentStatus } from "@/lib/types";
+import type { Property, DashboardStats, SpendChartItem, MaintenanceRequest, DashboardRentSummary } from "@/lib/types";
 
 function DashboardContent() {
   const router = useRouter();
@@ -28,7 +29,7 @@ function DashboardContent() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [chartData, setChartData] = useState<SpendChartItem[]>([]);
   const [recentRequests, setRecentRequests] = useState<MaintenanceRequest[]>([]);
-  const [rentStatuses, setRentStatuses] = useState<RentStatus[]>([]);
+  const [rentSummary, setRentSummary] = useState<DashboardRentSummary | null>(null);
   const [complianceAlerts, setComplianceAlerts] = useState<ComplianceAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [showOnboardingBanner, setShowOnboardingBanner] = useState(false);
@@ -36,12 +37,13 @@ function DashboardContent() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [statsRes, chartRes, requestsRes, profileRes, propertiesRes] = await Promise.all([
+      const [statsRes, chartRes, requestsRes, profileRes, propertiesRes, rentSummaryRes] = await Promise.all([
         fetch("/api/dashboard/stats"),
         fetch("/api/dashboard/spend-chart"),
         fetch("/api/requests"),
         fetch("/api/settings/profile"),
         fetch("/api/properties"),
+        fetch("/api/dashboard/rent-summary"),
       ]);
 
       // Check profile — redirect if no profile, show banner if incomplete
@@ -63,18 +65,8 @@ function DashboardContent() {
         setProperties(props);
       }
 
-      // Fetch rent statuses for all properties (for aggregate LatePaymentBanner)
+      // Fetch compliance alerts across all properties
       if (props.length > 0) {
-        const statusResults = await Promise.all(
-          props.map((p) =>
-            fetch(`/api/properties/${p.id}/rent-status`)
-              .then((r) => (r.ok ? r.json() : null))
-              .catch(() => null)
-          )
-        );
-        setRentStatuses(statusResults.filter(Boolean) as RentStatus[]);
-
-        // Fetch compliance alerts across all properties
         const alertResults = await Promise.all(
           props.map((p) =>
             fetch(`/api/compliance/alerts/${p.id}`)
@@ -98,6 +90,10 @@ function DashboardContent() {
       if (requestsRes.ok) {
         const { requests } = await requestsRes.json();
         setRecentRequests((requests ?? []).slice(0, 3));
+      }
+      if (rentSummaryRes.ok) {
+        const { data } = await rentSummaryRes.json();
+        setRentSummary(data ?? null);
       }
     } catch {
       // Stats will show as 0, chart empty, no recent requests
@@ -165,14 +161,8 @@ function DashboardContent() {
       {effectivePropertyId === null ? (
         <>
           {showOnboardingBanner && <OnboardingBanner />}
-          <LatePaymentBanner
-            rentStatuses={rentStatuses}
-            onReview={() => {
-              const firstOverdue = rentStatuses.find((s) => s.is_overdue);
-              if (firstOverdue) handlePropertySelect(firstOverdue.property_id);
-            }}
-          />
           <EmergencyAlertBanner count={stats?.emergency_count ?? 0} />
+          <OverdueRentBanner overdueCount={rentSummary?.overdue_count ?? 0} />
           {complianceAlerts.length > 0 && (
             <ComplianceAlertsBanner
               alerts={complianceAlerts}
@@ -187,6 +177,7 @@ function DashboardContent() {
             avgResolutionDays={stats?.avg_resolution_days ?? 0}
             monthlySpend={stats?.monthly_spend ?? 0}
           />
+          <DashboardRentSummaryCard data={rentSummary} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <RulesSummaryCard />
             <ComplianceSummaryCard />

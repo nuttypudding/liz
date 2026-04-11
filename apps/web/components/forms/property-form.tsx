@@ -16,6 +16,7 @@ export interface PropertyFormData {
   apt_or_unit_no: string;
   unit_count: number;
   monthly_rent: number;
+  rent_due_day: number;
 }
 
 interface PropertyFormProps {
@@ -38,6 +39,7 @@ export function PropertyForm({
     apt_or_unit_no: initialData?.apt_or_unit_no ?? "",
     unit_count: initialData?.unit_count ?? 1,
     monthly_rent: initialData?.monthly_rent ?? 0,
+    rent_due_day: initialData?.rent_due_day ?? 1,
   });
 
   function handleSubmit(e: React.FormEvent) {
@@ -151,6 +153,23 @@ export function PropertyForm({
             className="min-h-11"
           />
         </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="prop-rent-due-day">Rent Due Day</Label>
+        <p className="text-xs text-muted-foreground">Day of the month when rent is due (1–28).</p>
+        <select
+          id="prop-rent-due-day"
+          value={form.rent_due_day}
+          onChange={(e) => setForm({ ...form, rent_due_day: Number(e.target.value) })}
+          className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          {Array.from({ length: 28 }, (_, i) => i + 1).map((day) => (
+            <option key={day} value={day}>
+              {day}
+            </option>
+          ))}
+        </select>
       </div>
 
       <SheetFooter className="px-0 mt-2">

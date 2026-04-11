@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
+import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
@@ -44,6 +45,8 @@ function SettingsContent() {
   const [maxAutoApprove, setMaxAutoApprove] = useState(150);
   const [notifyEmergencies, setNotifyEmergencies] = useState(true);
   const [notifyAllRequests, setNotifyAllRequests] = useState(false);
+  const [notifyRentReminders, setNotifyRentReminders] = useState(true);
+  const [notifyRentOverdueSummary, setNotifyRentOverdueSummary] = useState(true);
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -55,6 +58,8 @@ function SettingsContent() {
         setMaxAutoApprove(profile.max_auto_approve);
         setNotifyEmergencies(profile.notify_emergencies);
         setNotifyAllRequests(profile.notify_all_requests);
+        setNotifyRentReminders(profile.notify_rent_reminders);
+        setNotifyRentOverdueSummary(profile.notify_rent_overdue_summary);
       }
     } catch {
       toast.error("Failed to load settings");
@@ -80,6 +85,8 @@ function SettingsContent() {
             delegationMode === "manual" ? 0 : maxAutoApprove,
           notify_emergencies: notifyEmergencies,
           notify_all_requests: notifyAllRequests,
+          notify_rent_reminders: notifyRentReminders,
+          notify_rent_overdue_summary: notifyRentOverdueSummary,
           onboarding_completed: true,
         }),
       });
@@ -110,6 +117,8 @@ function SettingsContent() {
           max_auto_approve: delegationMode === "manual" ? 0 : maxAutoApprove,
           notify_emergencies: notifyEmergencies,
           notify_all_requests: notifyAllRequests,
+          notify_rent_reminders: notifyRentReminders,
+          notify_rent_overdue_summary: notifyRentOverdueSummary,
           onboarding_completed: false,
         }),
       });
@@ -290,6 +299,47 @@ function SettingsContent() {
                     checked={notifyAllRequests}
                     onCheckedChange={(checked) => {
                       setNotifyAllRequests(checked as boolean);
+                      markDirty();
+                    }}
+                  />
+                </div>
+
+                <Separator />
+
+                <div className="space-y-0.5">
+                  <div className="text-sm font-semibold">Rent</div>
+                  <div className="text-xs text-muted-foreground">
+                    Notifications about rent due dates and overdue payments
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <div className="text-sm font-medium">Rent reminders</div>
+                    <div className="text-xs text-muted-foreground">
+                      Get notified about upcoming and overdue rent
+                    </div>
+                  </div>
+                  <Switch
+                    checked={notifyRentReminders}
+                    onCheckedChange={(checked) => {
+                      setNotifyRentReminders(checked as boolean);
+                      markDirty();
+                    }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <div className="text-sm font-medium">Daily overdue summary</div>
+                    <div className="text-xs text-muted-foreground">
+                      Receive a daily summary of overdue tenants
+                    </div>
+                  </div>
+                  <Switch
+                    checked={notifyRentOverdueSummary}
+                    onCheckedChange={(checked) => {
+                      setNotifyRentOverdueSummary(checked as boolean);
                       markDirty();
                     }}
                   />

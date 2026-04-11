@@ -65,6 +65,8 @@ export const landlordProfileSchema = z.object({
   max_auto_approve: z.number().min(0).max(10000),
   notify_emergencies: z.boolean(),
   notify_all_requests: z.boolean(),
+  notify_rent_reminders: z.boolean().optional().default(true),
+  notify_rent_overdue_summary: z.boolean().optional().default(true),
   onboarding_completed: z.boolean(),
 });
 

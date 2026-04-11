@@ -24,6 +24,7 @@ const navItems = [
   { href: "/autopilot", label: "Autopilot", icon: Brain },
   { href: "/applications", label: "Applications", icon: ClipboardList },
   { href: "/properties", label: "Properties", icon: Building2 },
+  { href: "/rent", label: "Rent", icon: DollarSign },
   { href: "/vendors", label: "Vendors", icon: Users },
   { href: "/compliance", label: "Compliance", icon: Shield },
   { href: "/dashboard/payments", label: "Payments", icon: DollarSign },
