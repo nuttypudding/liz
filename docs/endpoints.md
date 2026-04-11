@@ -175,6 +175,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/compliance/[propertyId]` | Property compliance detail — score breakdown, checklist, alerts, audit log |
 | `/compliance/notices` | Notice generator — redirects to `/compliance/notices/create` |
 | `/compliance/notices/create` | Multi-step wizard for creating, previewing, and sending jurisdiction-specific legal notices (5 steps: property, type, details, preview, send) |
+| `/compliance/messages/review` | Communication reviewer — compose a message, select a property, and run AI compliance review before sending |
 
 ## Environment Files
 

@@ -402,7 +402,7 @@ export default function CompliancePropertyDetailPage() {
                   </Link>
                 </Button>
                 <Button variant="outline" size="sm" className="justify-start gap-2" asChild>
-                  <Link href="/compliance">
+                  <Link href="/compliance/messages/review">
                     <MessageSquare className="size-4" />
                     Review Message
                   </Link>
