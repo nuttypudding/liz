@@ -1,8 +1,8 @@
 {
-  "feature": "P3-002-ai-tenant-screening",
-  "branch": "feature/P3-002-ai-tenant-screening",
-  "state": "pr_created",
-  "pr_number": 9,
-  "pr_url": "https://github.com/nuttypudding/liz/pull/9",
-  "updated_at": "2026-04-10T19:55:40.000000"
+  "feature": "P3-003-legal-compliance-engine",
+  "branch": "feature/P3-003-legal-compliance-engine",
+  "state": "in_progress",
+  "pr_number": null,
+  "pr_url": null,
+  "updated_at": "2026-04-10T19:56:20.619901"
 }
