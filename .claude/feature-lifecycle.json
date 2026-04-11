@@ -1,8 +1,8 @@
 {
-  "feature": "P2-004-payment-integration",
-  "branch": "feature/P2-004-payment-integration",
-  "state": "pr_created",
-  "pr_number": 7,
-  "pr_url": "https://github.com/nuttypudding/liz/pull/7",
-  "updated_at": "2026-04-10T23:00:00Z"
+  "feature": "P3-001-autonomous-decision-making",
+  "branch": "feature/P3-001-autonomous-decision-making",
+  "state": "in_progress",
+  "pr_number": null,
+  "pr_url": null,
+  "updated_at": "2026-04-10T17:04:11.011615"
 }

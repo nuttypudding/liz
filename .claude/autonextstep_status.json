@@ -1,10 +1,10 @@
 {
   "status": "running",
-  "current_task_id": "157",
-  "current_task_title": "Integration test \u2014 full checkout flow with Stripe test mode",
-  "current_task_file": "features/inprogress/P2-004-payment-integration/backlog/157-Sonnet-integration-test-checkout-flow.md",
-  "current_feature": "P2-004-payment-integration",
-  "tasks_done": 49,
+  "current_task_id": "158",
+  "current_task_title": "Database migration \u2014 autonomy_settings table",
+  "current_task_file": "features/inprogress/P3-001-autonomous-decision-making/backlog/158-Haiku-database-migration-autonomy-settings.md",
+  "current_feature": "P3-001-autonomous-decision-making",
+  "tasks_done": 50,
   "tasks_failed": 0,
-  "updated_at": "2026-04-10T16:54:40.016743"
+  "updated_at": "2026-04-10T17:04:11.533327"
 }
