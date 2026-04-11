@@ -19,6 +19,7 @@ import {
 import { toast } from "sonner";
 import { PageHeader } from "@/components/shared/page-header";
 import { DisclaimerBanner } from "@/components/compliance/DisclaimerBanner";
+import { ComplianceAlertsBanner } from "@/components/compliance/ComplianceAlertsBanner";
 import { COMPLIANCE_DISCLAIMERS } from "@/lib/compliance/disclaimers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -497,37 +498,12 @@ export default function CompliancePropertyDetailPage() {
               </Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {alerts.map((alert) => (
-              <div
-                key={alert.id}
-                className={`rounded-lg border p-4 ${
-                  alert.severity === "error"
-                    ? "border-red-200 bg-red-50/50 dark:border-red-900/30 dark:bg-red-950/20"
-                    : "border-amber-200 bg-amber-50/50 dark:border-amber-900/30 dark:bg-amber-950/20"
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  {alert.severity === "error" ? (
-                    <AlertCircle className="mt-0.5 size-5 shrink-0 text-red-600 dark:text-red-400" />
-                  ) : (
-                    <AlertTriangle className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400" />
-                  )}
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium">{alert.title}</p>
-                    <p className="text-xs text-muted-foreground">{alert.description}</p>
-                    <p className="text-xs font-medium">
-                      Suggested: {alert.suggested_action}
-                    </p>
-                    {alert.jurisdiction_reference && (
-                      <p className="text-xs text-muted-foreground">
-                        Ref: {alert.jurisdiction_reference.statute_citation}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+          <CardContent>
+            <ComplianceAlertsBanner
+              alerts={alerts}
+              propertyId={propertyId}
+              maxVisible={10}
+            />
           </CardContent>
         </Card>
       )}
