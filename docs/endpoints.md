@@ -141,6 +141,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | GET | `/api/compliance/knowledge` | Queryable jurisdiction rules knowledge base — returns rules grouped by jurisdiction; query params: `?state_code=CA`, `?city=San Francisco` (requires state_code), `?topic=security_deposit_limit`, `?search=deposit` (searches rule_text + statute_citation), `?limit=50` (max 100), `?offset=0`; returns `{ jurisdictions, total_count, limit, offset }` |
 | GET | `/api/compliance/alerts/[propertyId]` | Proactive compliance alerts for a property — checks property state against jurisdiction rules and returns actionable warnings/errors; alert types: `jurisdiction_not_configured`, `incomplete_checklist`, `missing_security_deposit_disclosure`, `missing_lease_terms`, `habitability_defect_not_addressed`; query params: `?severity=warning\|error\|all` (default "all"), `?since=ISO date` (filter event-based alerts by date); returns `{ property_id, jurisdiction, alert_count, alerts }` |
 | GET | `/api/compliance/jurisdictions` | Available jurisdictions from jurisdiction_rules — returns `{ states: string[], cities: Record<string, string[]> }` for populating state/city dropdowns |
+| GET | `/api/compliance/stats` | Aggregated compliance stats across all landlord properties — returns `{ average_score, properties_needing_attention, critical_alerts_count, total_properties, score_distribution }` where score_distribution has keys: excellent, good, fair, poor, critical; used by ComplianceSummaryCard dashboard widget |
 
 ## App Pages
 

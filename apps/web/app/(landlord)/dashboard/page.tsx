@@ -15,6 +15,7 @@ import { LatePaymentBanner } from "@/components/dashboard/late-payment-banner";
 import { RulesSummaryCard } from "@/components/dashboard/rules-summary-card";
 import { ScreeningStatsCards } from "@/components/screening/ScreeningStatsCards";
 import { ComplianceAlertsBanner } from "@/components/compliance/ComplianceAlertsBanner";
+import { ComplianceSummaryCard } from "@/components/compliance/ComplianceSummaryCard";
 import type { ComplianceAlert } from "@/lib/compliance/types";
 import type { Property, DashboardStats, SpendChartItem, MaintenanceRequest, RentStatus } from "@/lib/types";
 
@@ -186,7 +187,10 @@ function DashboardContent() {
             avgResolutionDays={stats?.avg_resolution_days ?? 0}
             monthlySpend={stats?.monthly_spend ?? 0}
           />
-          <RulesSummaryCard />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <RulesSummaryCard />
+            <ComplianceSummaryCard />
+          </div>
           <section>
             <h2 className="text-base font-semibold mb-3">Application Metrics</h2>
             <ScreeningStatsCards />
