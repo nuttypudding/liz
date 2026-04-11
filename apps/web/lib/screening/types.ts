@@ -237,6 +237,21 @@ export interface ListApplicationsResponse {
 }
 
 /**
+ * Application detail response (landlord: full application + screening report)
+ */
+export interface ApplicationDetailResponse {
+  success: boolean;
+  data: {
+    application: Application;
+    screening_report?: ScreeningReport;
+    computed_metrics: {
+      income_to_rent_ratio?: number;
+      meets_min_ratio?: boolean;
+    };
+  };
+}
+
+/**
  * Public Status Response (no auth required, for applicants)
  */
 export interface PublicApplicationStatusResponse {
