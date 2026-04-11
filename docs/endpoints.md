@@ -129,6 +129,8 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | GET | `/api/applications/[id]` | Get full application detail with screening report and computed metrics (landlord) |
 | POST | `/api/applications/[id]/decide` | Make approval/denial decision on an application (landlord; requires denial_reason + compliance_confirmed for deny) |
 | GET | `/api/applications/status/[trackingId]` | Public status check by tracking ID — returns status timeline and generic message (no auth, no AI details) |
+| GET | `/api/properties/[id]/jurisdiction` | Get jurisdiction for a property (state_code, city); returns null fields if not set, plus auto-detect suggestion from property address |
+| POST | `/api/properties/[id]/jurisdiction` | Set/update jurisdiction for a property (`{ state_code, city? }`); validates state code and city against jurisdiction_rules; logs audit event |
 
 ## App Pages
 
