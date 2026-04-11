@@ -1,10 +1,7 @@
 {
-  "status": "running",
-  "current_task_id": "244",
-  "current_task_title": "Add Rent nav item to sidebar + bottom nav (landlord + tenant)",
-  "current_task_file": "features/inprogress/P2-001-rent-reminder/backlog/244-Sonnet-add-rent-nav-item-sidebar-bottomnav.md",
-  "current_feature": "P2-001-rent-reminder",
-  "tasks_done": 11,
+  "status": "done",
+  "tasks_done": 12,
   "tasks_failed": 0,
-  "updated_at": "2026-04-11T01:56:03.224001"
+  "elapsed_min": 61.1,
+  "updated_at": "2026-04-11T02:03:36.478380"
 }

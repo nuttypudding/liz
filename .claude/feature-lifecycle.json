@@ -1,8 +1,8 @@
 {
   "feature": "P2-001-rent-reminder",
   "branch": "feature/P2-001-rent-reminder",
-  "state": "pr_created",
+  "state": "merged",
   "pr_number": 12,
   "pr_url": "https://github.com/nuttypudding/liz/pull/12",
-  "updated_at": "2026-04-11T02:10:00Z"
+  "updated_at": "2026-04-11T02:03:35.002931"
 }
