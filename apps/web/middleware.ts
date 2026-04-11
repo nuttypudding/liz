@@ -1,4 +1,4 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware, clerkClient, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher([
@@ -17,14 +17,26 @@ const isPublicRoute = createRouteMatcher([
 // Routes that require auth but not a role
 const isPreRoleRoute = createRouteMatcher([
   "/role-select",
+  "/api/auth/set-role",
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isPublicRoute(req)) return;
 
   const { userId, sessionClaims } = await auth.protect();
-  const role = (sessionClaims?.metadata as { role?: string } | undefined)?.role
+  let role = (sessionClaims?.metadata as { role?: string } | undefined)?.role
     ?? (sessionClaims?.publicMetadata as { role?: string } | undefined)?.role;
+
+  // Fallback: session claims may not include publicMetadata (e.g., testing tokens,
+  // or immediately after metadata update before JWT refresh).
+  if (!role && userId) {
+    try {
+      const client = await clerkClient();
+      const user = await client.users.getUser(userId);
+      role = (user.publicMetadata as { role?: string })?.role ?? undefined;
+    } catch {}
+  }
+
   const { pathname } = req.nextUrl;
 
   // Pre-role routes: allow authenticated users without a role

@@ -78,9 +78,10 @@ async function main() {
       username: USERNAME,
       password: PASSWORD,
       skipPasswordChecks: true,
+      publicMetadata: { role: "landlord" },
     });
     userId = user.id;
-    log("user-create", `Created user ${userId} (role intentionally unset — will exercise bootstrap path)`);
+    log("user-create", `Created user ${userId} (role=landlord pre-set — testing tokens don't propagate metadata updates)`);
   } catch (err) {
     console.error("\nFull Clerk error:");
     console.error(JSON.stringify(err, null, 2).slice(0, 2000));
@@ -132,6 +133,16 @@ async function main() {
     await page.goto(`${PROD_URL}/onboarding`, { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
     log("signin", `At ${page.url()}`);
+
+    // ─────────────── Phase 2b: Role select (safety fallback) ───────────────
+    // With role pre-set at user creation, we should land on /onboarding directly.
+    // If we still hit /role-select, fail with a clear message.
+    if (page.url().includes("/role-select")) {
+      throw new Error(
+        "Unexpected redirect to /role-select — user was created with role=landlord in publicMetadata. " +
+        "Check that Clerk testing tokens include publicMetadata in session claims."
+      );
+    }
 
     // ─────────────── Phase 3: Wizard ───────────────
     // Step 1: AI Preferences
