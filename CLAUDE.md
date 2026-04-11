@@ -149,6 +149,7 @@ liz/
 │   └── completed/             # Archived completed features
 ├── docs/
 │   ├── endpoints.md           # All URLs: local, QA, prod, API routes, app pages
+│   ├── testing-framework.md   # Test structure, feature-to-test mapping, coverage gaps
 │   ├── testing-guides/        # Manual testing guides (10 guides, 220+ test cases)
 │   └── ui-process.md          # UI process documentation
 ├── scripts/
@@ -204,6 +205,10 @@ Production uses Supabase cloud. Same migrations work in both environments.
 ## Endpoint Registry
 
 All environment URLs, API routes, and app pages are documented in `docs/endpoints.md`. **Update that file whenever you add, rename, or remove an API route, app page, or environment URL.**
+
+## Testing
+
+Test structure, feature-to-test mapping, and coverage gaps are documented in `docs/testing-framework.md`. **Consult that file before writing or modifying tests.** Each feature must be independently testable — see the feature-to-test mapping to find which test files cover a given feature and where gaps exist.
 
 ## Key Product Constraints
 
