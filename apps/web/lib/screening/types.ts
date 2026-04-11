@@ -223,6 +223,20 @@ export interface ApplicationDecisionPayload {
 }
 
 /**
+ * Landlord applications list response
+ */
+export interface ListApplicationsResponse {
+  success: boolean;
+  data: Application[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+/**
  * Public Status Response (no auth required, for applicants)
  */
 export interface PublicApplicationStatusResponse {

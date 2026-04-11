@@ -1,8 +1,91 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAuth } from '@clerk/nextjs/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { ApplicationStatus, ApplicationSubmissionPayload } from '@/lib/screening/types';
 import { generateTrackingId } from '@/lib/screening/utils';
 import { validateApplicationPayload } from '@/lib/screening/validation';
+
+const VALID_SORT_FIELDS = ['created_at', 'risk_score', 'updated_at', 'email'] as const;
+const VALID_ORDERS = ['asc', 'desc'] as const;
+
+/**
+ * GET /api/applications?property_id=<uuid>&status=<status>&sort=<field>&order=<asc|desc>&page=<n>&limit=<n>
+ * Landlord-only: list applications for landlord's properties
+ */
+export async function GET(req: NextRequest) {
+  try {
+    const { userId } = getAuth(req);
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const supabase = createServerSupabaseClient();
+
+    const { data: profile, error: profileError } = await supabase
+      .from('landlord_profiles')
+      .select('id')
+      .eq('user_id', userId)
+      .single();
+
+    if (profileError || !profile) {
+      return NextResponse.json({ error: 'Landlord profile not found' }, { status: 404 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const property_id = searchParams.get('property_id');
+    const status = searchParams.get('status');
+    const sort = searchParams.get('sort') || 'created_at';
+    const order = searchParams.get('order') || 'desc';
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 100);
+
+    if (page < 1) {
+      return NextResponse.json({ error: 'page must be >= 1' }, { status: 400 });
+    }
+
+    if (!VALID_SORT_FIELDS.includes(sort as typeof VALID_SORT_FIELDS[number]) ||
+        !VALID_ORDERS.includes(order as typeof VALID_ORDERS[number])) {
+      return NextResponse.json({ error: 'Invalid sort or order parameter' }, { status: 400 });
+    }
+
+    let query = supabase
+      .from('applications')
+      .select('*', { count: 'exact' })
+      .eq('landlord_id', profile.id);
+
+    if (property_id) query = query.eq('property_id', property_id);
+    if (status) query = query.eq('status', status);
+
+    const ascending = order === 'asc';
+    query = sort === 'risk_score'
+      ? query.order(sort, { ascending, nullsFirst: false })
+      : query.order(sort, { ascending });
+
+    const offset = (page - 1) * limit;
+    query = query.range(offset, offset + limit - 1);
+
+    const { data: applications, error: queryError, count } = await query;
+
+    if (queryError) {
+      console.error('Query error:', queryError);
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: applications,
+      pagination: {
+        page,
+        limit,
+        total: count ?? 0,
+        total_pages: Math.ceil((count ?? 0) / limit),
+      },
+    });
+  } catch (error) {
+    console.error('List applications error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
 
 /**
  * POST /api/applications
