@@ -233,6 +233,10 @@ export interface RentPeriod {
   lease_end: string | null;
   monthly_rent: number;
   rent_due_day: number;
+  status: RentPeriodStatus;
+  amount_paid: number | null;
+  paid_at: string | null;
+  payment_notes: string | null;
   created_at: string;
   updated_at: string;
 }
