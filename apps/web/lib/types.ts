@@ -254,6 +254,15 @@ export interface RentSummary {
   last_payment_date: string | null;
 }
 
+export interface DashboardRentSummary {
+  overdue_count: number;
+  due_count: number;
+  paid_count: number;
+  upcoming_count: number;
+  total_owed: number;
+  total_collected: number;
+}
+
 export type NotificationType = 'rent_due_reminder' | 'rent_overdue' | 'rent_paid';
 
 export interface Notification {
