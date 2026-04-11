@@ -19,6 +19,11 @@ vi.mock("@/lib/autonomy/updateMonthlyStats", () => ({
   monthFromIso: vi.fn().mockReturnValue("2026-04"),
 }));
 
+// Mock handleOverride
+vi.mock("@/lib/autonomy/override", () => ({
+  handleOverride: vi.fn().mockResolvedValue({ withinWindow: false }),
+}));
+
 import { auth } from "@clerk/nextjs/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -649,6 +654,7 @@ describe("PATCH /api/autonomy/decisions/[id]", () => {
     const mockSupabase = {
       from: vi
         .fn()
+        // 1st call: fetch decision for ownership check
         .mockReturnValueOnce({
           select: vi.fn().mockReturnValue({
             eq: vi
@@ -656,13 +662,14 @@ describe("PATCH /api/autonomy/decisions/[id]", () => {
               .mockReturnValueOnce({
                 eq: vi.fn().mockReturnValue({
                   single: vi.fn().mockResolvedValue({
-                    data: { id: "decision-123", created_at: "2026-04-10T10:00:00Z" },
+                    data: { id: "decision-123", decision_type: "dispatch", created_at: "2026-04-10T10:00:00Z" },
                     error: null,
                   }),
                 }),
               }),
           }),
         })
+        // 2nd call: update decision
         .mockReturnValueOnce({
           update: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
@@ -671,6 +678,17 @@ describe("PATCH /api/autonomy/decisions/[id]", () => {
                   data: updatedDecision,
                   error: null,
                 }),
+              }),
+            }),
+          }),
+        })
+        // 3rd call: fetch autonomy_settings for rollback_window_hours
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: { rollback_window_hours: 24 },
+                error: null,
               }),
             }),
           }),
@@ -691,6 +709,7 @@ describe("PATCH /api/autonomy/decisions/[id]", () => {
     expect(response.status).toBe(200);
     expect(data.decision.status).toBe("overridden");
     expect(data.decision.review_notes).toBe("Too expensive");
+    expect(data.within_rollback_window).toBeDefined();
   });
 
   it("should reject invalid review_action", async () => {

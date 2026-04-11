@@ -388,14 +388,15 @@ Please contact the tenant to schedule access. Estimated cost: $${request.ai_cost
                 setDecisionLoading(true);
                 try {
                   const res = await fetch(
-                    `/api/autonomy/decisions/${autonomousDecision.id}/review`,
+                    `/api/autonomy/decisions/${autonomousDecision.id}`,
                     {
                       method: "PATCH",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ action: "confirmed" }),
+                      body: JSON.stringify({ review_action: "confirmed" }),
                     }
                   );
                   if (!res.ok) throw new Error("Failed to confirm");
+                  toast.success("Decision confirmed.");
                   await fetchData();
                 } finally {
                   setDecisionLoading(false);
@@ -405,17 +406,23 @@ Please contact the tenant to schedule access. Estimated cost: $${request.ai_cost
                 setDecisionLoading(true);
                 try {
                   const res = await fetch(
-                    `/api/autonomy/decisions/${autonomousDecision.id}/review`,
+                    `/api/autonomy/decisions/${autonomousDecision.id}`,
                     {
                       method: "PATCH",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({
-                        action: "overridden",
+                        review_action: "overridden",
                         review_notes: reason,
                       }),
                     }
                   );
                   if (!res.ok) throw new Error("Failed to override");
+                  const { within_rollback_window } = await res.json();
+                  if (within_rollback_window) {
+                    toast.success("Decision overridden. Vendor dispatch cancelled.");
+                  } else {
+                    toast.success("Decision overridden.");
+                  }
                   await fetchData();
                 } finally {
                   setDecisionLoading(false);

@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { reviewDecisionSchema } from "@/lib/validations";
 import { updateMonthlyStats, monthFromIso } from "@/lib/autonomy/updateMonthlyStats";
+import { handleOverride } from "@/lib/autonomy/override";
 
 export async function PATCH(
   request: NextRequest,
@@ -35,7 +36,7 @@ export async function PATCH(
 
     const supabase = createServerSupabaseClient();
 
-    // First, verify the decision exists and belongs to the landlord
+    // Fetch the decision and verify ownership
     const { data: existingDecision, error: fetchError } = await supabase
       .from("autonomous_decisions")
       .select("id, decision_type, created_at")
@@ -82,7 +83,7 @@ export async function PATCH(
       );
     }
 
-    // Increment monthly stats (non-blocking — failure does not fail the request)
+    // Increment monthly stats (non-blocking)
     const month = monthFromIso(existingDecision.created_at);
     const isConfirmedDispatch =
       parsed.data.review_action === "confirmed" &&
@@ -92,7 +93,29 @@ export async function PATCH(
       overridden: parsed.data.review_action === "overridden" ? 1 : 0,
     }).catch((err) => console.error("updateMonthlyStats failed:", err));
 
-    return NextResponse.json({ decision: data });
+    // Override side-effects: rollback check, feedback recording, cooldown
+    let withinRollbackWindow = false;
+    if (parsed.data.review_action === "overridden") {
+      const { data: settings } = await supabase
+        .from("autonomy_settings")
+        .select("rollback_window_hours")
+        .eq("landlord_id", userId)
+        .single();
+
+      const rollbackWindowHours = settings?.rollback_window_hours ?? 24;
+
+      const result = await handleOverride(
+        supabase,
+        id,
+        existingDecision.created_at,
+        userId,
+        rollbackWindowHours,
+        parsed.data.review_notes
+      );
+      withinRollbackWindow = result.withinWindow;
+    }
+
+    return NextResponse.json({ decision: data, within_rollback_window: withinRollbackWindow });
   } catch (err) {
     console.error("Unexpected error in PATCH /api/autonomy/decisions/[id]:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

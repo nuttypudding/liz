@@ -32,6 +32,7 @@ export interface AutonomySettings {
   require_cost_estimate: boolean; // default true
   emergency_auto_dispatch: boolean; // default true
   rollback_window_hours: number; // default 24 hours
+  cooldown_until?: string; // ISO 8601 — set after override, blocks auto-dispatch until expiry
   paused: boolean; // default false
   created_at: string; // ISO 8601
   updated_at: string; // ISO 8601
@@ -154,6 +155,19 @@ export interface AiRecommendation {
   reasoning: string; // Why this recommendation
   suggested_threshold?: number; // Suggested confidence_threshold adjustment
   suggested_spending_limit?: number; // Suggested per_decision_cap adjustment
+}
+
+/**
+ * Feedback record created when a landlord overrides an autonomous decision.
+ * Used for AI learning and cooldown enforcement.
+ */
+export interface AutonomyFeedback {
+  id: string;
+  decision_id: string;
+  landlord_id: string;
+  feedback_type: "override";
+  reason_text?: string;
+  created_at: string; // ISO 8601
 }
 
 /**

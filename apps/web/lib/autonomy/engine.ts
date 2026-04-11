@@ -62,19 +62,27 @@ export async function evaluateAutonomousDecision(
     factors.vendor_weight * 0.1 +
     factors.category_weight * 0.1;
 
+  // Check cooldown: if landlord recently overrode a decision, escalate instead of dispatching
+  const cooldownActive =
+    settings.cooldown_until != null &&
+    new Date(settings.cooldown_until) > new Date();
+
   // Emergency escalation: if enabled, allow dispatch despite other checks
   const emergencyOverride =
-    settings.emergency_auto_dispatch && request.ai_urgency === "emergency";
+    !cooldownActive &&
+    settings.emergency_auto_dispatch &&
+    request.ai_urgency === "emergency";
 
   // Determine decision type
   let decision_type: DecisionType = "escalate";
   if (
-    emergencyOverride ||
-    (confidenceScore >= settings.confidence_threshold &&
-      safetyChecks.spending_cap_ok &&
-      safetyChecks.category_excluded === false &&
-      safetyChecks.vendor_available !== false &&
-      safetyChecks.emergency_eligible !== false)
+    !cooldownActive &&
+    (emergencyOverride ||
+      (confidenceScore >= settings.confidence_threshold &&
+        safetyChecks.spending_cap_ok &&
+        safetyChecks.category_excluded === false &&
+        safetyChecks.vendor_available !== false &&
+        safetyChecks.emergency_eligible !== false))
   ) {
     decision_type = "dispatch";
   }
