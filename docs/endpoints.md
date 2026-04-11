@@ -138,6 +138,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | POST | `/api/compliance/notices/generate` | AI-generated jurisdiction-specific legal notice; supports notice_type: entry, lease_violation, rent_increase, eviction; returns notice content, statutory_citations, notice_period_days; stores in compliance_notices; logs to compliance_audit_log (`{ property_id, notice_type, context: { tenant_name, issue_description, proposed_date?, rent_increase_amount?, effective_date?, additional_details? } }`) |
 | POST | `/api/compliance/notices/[id]/send` | Send a generated notice — updates status to "sent", records sent_at and delivery_method, logs notice_sent to compliance_audit_log; prevents resending already-sent notices (400); body: `{ delivery_method?: "email\|print\|other", notes?: string }` |
 | GET | `/api/compliance/[propertyId]/audit-log` | Paginated compliance audit trail for a property — returns entries with action_type, details, timestamp, actor_id; query params: `?action_type=`, `?limit=` (max 100), `?offset=`, `?start_date=`, `?end_date=` |
+| GET | `/api/compliance/knowledge` | Queryable jurisdiction rules knowledge base — returns rules grouped by jurisdiction; query params: `?state_code=CA`, `?city=San Francisco` (requires state_code), `?topic=security_deposit_limit`, `?search=deposit` (searches rule_text + statute_citation), `?limit=50` (max 100), `?offset=0`; returns `{ jurisdictions, total_count, limit, offset }` |
 
 ## App Pages
 
