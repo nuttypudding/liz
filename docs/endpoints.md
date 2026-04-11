@@ -128,6 +128,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | GET | `/api/applications` | List applications for landlord's properties (landlord; ?property_id, ?status, ?sort, ?order, ?page, ?limit) |
 | GET | `/api/applications/[id]` | Get full application detail with screening report and computed metrics (landlord) |
 | POST | `/api/applications/[id]/decide` | Make approval/denial decision on an application (landlord; requires denial_reason + compliance_confirmed for deny) |
+| GET | `/api/applications/status/[trackingId]` | Public status check by tracking ID — returns status timeline and generic message (no auth, no AI details) |
 
 ## App Pages
 
