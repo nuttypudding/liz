@@ -31,6 +31,7 @@ export enum ScreeningRecommendation {
 export enum ScreeningProvider {
   SMARTMOVE = 'smartmove',
   CHECKR = 'checkr',
+  CLAUDE_AI = 'claude-ai',
 }
 
 /**
