@@ -17,15 +17,15 @@ Ticket-driven work within an existing phase uses `P{phase}-Tkt-{seq}-{name}/` na
 
 | ID | Feature | Status | Ticket | Notes |
 |----|---------|--------|--------|-------|
-| P2-001 | Rent Reminder | PLANNED | T-004 | Rent tracking, due dates, overdue alerts, Vercel Cron, notification bell. 16 tasks (3H/9S/4O). |
-| P2-002 | Auto-scheduling Vendors | IN PROGRESS | T-005 | Vendor/tenant availability, AI schedule matching, Resend + Twilio. 4 done, 13 remaining. Tasks 102–118. |
-| P2-003 | Rule-based Automation | PLANNED | T-006 | IF/THEN rules engine, visual rule builder, test panel, audit trail. 19 tasks (4H/8S/5O). |
-| P2-004 | Payment Integration | PLANNED | T-007 | Stripe Connect, tenant rent payment, vendor payment tracking, financial P&L. 20 tasks (4H/10S/4O). |
+| P2-001 | Rent Reminder | IN PROGRESS | T-004 | Rent tracking, due dates, overdue alerts, Vercel Cron, notification bell. 16 tasks (3H/9S/4O). Tasks 231–246. |
+| P2-002 | Auto-scheduling Vendors | COMPLETE | T-005 | Vendor/tenant availability, AI schedule matching, Resend + Twilio. 4 done, 13 remaining. Tasks 102–118. |
+| P2-003 | Rule-based Automation | COMPLETE | T-006 | IF/THEN rules engine, visual rule builder, test panel, audit trail. 19 tasks (4H/8S/5O). |
+| P2-004 | Payment Integration | COMPLETE | T-007 | Stripe Connect, tenant rent payment, vendor payment tracking, financial P&L. 20 tasks (4H/10S/4O). |
 
 ## Phase 3 — Full Vision
 
 | ID | Feature | Status | Ticket | Notes |
 |----|---------|--------|--------|-------|
-| P3-001 | Autonomous Decision-Making | PLANNED | T-008 | Full AI autopilot, confidence scoring, safety rails, monthly reports. 22 tasks (6H/9S/5O). |
-| P3-002 | AI Tenant Screening | PLANNED | T-009 | Application portal, TransUnion SmartMove, AI analysis, fair housing compliance. 27 tasks (5H/12S/5O). |
-| P3-003 | Legal/Compliance Engine | PLANNED | T-010 | Jurisdiction rules, notice generator, communication reviewer, compliance dashboard. 24 tasks (4H/10S/6O). |
+| P3-001 | Autonomous Decision-Making | COMPLETE | T-008 | Full AI autopilot, confidence scoring, safety rails, monthly reports. 22 tasks (6H/9S/5O). |
+| P3-002 | AI Tenant Screening | COMPLETE | T-009 | Application portal, TransUnion SmartMove, AI analysis, fair housing compliance. 27 tasks (5H/12S/5O). |
+| P3-003 | Legal/Compliance Engine | COMPLETE | T-010 | Jurisdiction rules, notice generator, communication reviewer, compliance dashboard. 24 tasks (4H/10S/6O). |
