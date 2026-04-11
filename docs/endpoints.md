@@ -140,7 +140,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/requests` | Maintenance requests list (landlord) |
 | `/requests/[id]` | Request detail / triage (landlord) |
 | `/vendors` | Vendors list |
-| `/settings` | Landlord settings / AI preferences (supports `?tab=preferences\|notifications\|rules`) |
+| `/settings` | Landlord settings / AI preferences (supports `?tab=preferences\|notifications\|rules\|autopilot`) |
 | `/autopilot` | Autonomy dashboard — status banner, summary metrics, decision feed |
 | `/billing` | Landlord billing — current plan, usage, available plans |
 | `/dashboard/payments` | Landlord payment dashboard — rent collection, vendor payments, financial summary |
