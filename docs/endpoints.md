@@ -149,6 +149,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/autopilot` | Autonomy dashboard — status banner, summary metrics, decision feed |
 | `/autopilot/report` | Monthly autonomy performance report — charts, metrics, AI recommendations |
 | `/applications` | Applications dashboard — filterable list with status/risk badges (landlord) |
+| `/applications/[id]` | Application detail — two-column layout with applicant info, screening report, risk factors, decision controls (landlord) |
 | `/billing` | Landlord billing — current plan, usage, available plans |
 | `/dashboard/payments` | Landlord payment dashboard — rent collection, vendor payments, financial summary |
 | `/submit` | Tenant maintenance request submission |
