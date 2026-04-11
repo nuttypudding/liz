@@ -142,6 +142,14 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | GET | `/api/compliance/alerts/[propertyId]` | Proactive compliance alerts for a property — checks property state against jurisdiction rules and returns actionable warnings/errors; alert types: `jurisdiction_not_configured`, `incomplete_checklist`, `missing_security_deposit_disclosure`, `missing_lease_terms`, `habitability_defect_not_addressed`; query params: `?severity=warning\|error\|all` (default "all"), `?since=ISO date` (filter event-based alerts by date); returns `{ property_id, jurisdiction, alert_count, alerts }` |
 | GET | `/api/compliance/jurisdictions` | Available jurisdictions from jurisdiction_rules — returns `{ states: string[], cities: Record<string, string[]> }` for populating state/city dropdowns |
 | GET | `/api/compliance/stats` | Aggregated compliance stats across all landlord properties — returns `{ average_score, properties_needing_attention, critical_alerts_count, total_properties, score_distribution }` where score_distribution has keys: excellent, good, fair, poor, critical; used by ComplianceSummaryCard dashboard widget |
+| GET | `/api/rent` | List rent periods for landlord (filterable by property_id, status, month) |
+| PATCH | `/api/rent/[id]` | Update rent period — mark as paid/partial/overdue; accepts `{ status, amount_paid, paid_at }` |
+| POST | `/api/rent/generate` | Generate rent periods for a month (`{ month: "YYYY-MM" }`) — idempotent |
+| GET | `/api/tenant/rent` | List rent periods for the authenticated tenant (newest first) |
+| GET | `/api/dashboard/rent-summary` | Aggregated rent stats — collected, overdue, due counts and amounts for current month |
+| GET | `/api/notifications` | List notifications for the authenticated user (`?limit`, `?offset`, `?unread_only`) |
+| PATCH | `/api/notifications` | Mark notifications as read (`{ ids: string[] }` or `{ all: true }`) |
+| POST | `/api/cron/rent-reminders` | Daily cron (6:00 AM UTC) — transitions rent period statuses and creates in-app notifications |
 
 ## App Pages
 
@@ -180,6 +188,8 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/compliance/messages/review` | Communication reviewer — compose a message, select a property, and run AI compliance review before sending |
 | `/compliance/knowledge-base` | Legal knowledge base — browse and search jurisdiction rules by topic, with category-organized grid and detail modal |
 | `/compliance/settings` | Compliance settings — configure jurisdiction (state/city) and lease terms per property, with checklist preview |
+| `/rent` | Rent Schedule page (landlord) — rent periods table/card view, mark-paid dialog, filters, overdue banners |
+| `/my-rent` | Tenant Rent View — current rent status card and payment history (tenant) |
 
 ## Environment Files
 
