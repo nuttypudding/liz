@@ -1,8 +1,8 @@
 {
-  "feature": "P3-003-legal-compliance-engine",
-  "branch": "feature/P3-003-legal-compliance-engine",
+  "feature": "P2-001-rent-reminder",
+  "branch": "feature/P2-001-rent-reminder",
   "state": "in_progress",
   "pr_number": null,
   "pr_url": null,
-  "updated_at": "2026-04-10T19:56:20.619901"
+  "updated_at": "2026-04-11T01:10:00Z"
 }
