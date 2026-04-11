@@ -246,6 +246,7 @@ Respond with valid JSON only (no markdown):
     }
 
     return NextResponse.json({
+      id: notice?.id ?? null,
       property_id,
       notice_type,
       status: "generated",

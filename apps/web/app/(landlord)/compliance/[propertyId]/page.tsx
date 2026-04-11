@@ -396,7 +396,7 @@ export default function CompliancePropertyDetailPage() {
             {jurisdictionConfigured && (
               <>
                 <Button variant="outline" size="sm" className="justify-start gap-2" asChild>
-                  <Link href="/compliance">
+                  <Link href="/compliance/notices/create">
                     <FileText className="size-4" />
                     Generate Notice
                   </Link>

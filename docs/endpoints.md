@@ -173,6 +173,8 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/apply/status/[trackingId]` | Public application status page — timeline, status message, FAQ (no auth) |
 | `/compliance` | Compliance dashboard — all-properties view with scores, alerts, jurisdiction badges |
 | `/compliance/[propertyId]` | Property compliance detail — score breakdown, checklist, alerts, audit log |
+| `/compliance/notices` | Notice generator — redirects to `/compliance/notices/create` |
+| `/compliance/notices/create` | Multi-step wizard for creating, previewing, and sending jurisdiction-specific legal notices (5 steps: property, type, details, preview, send) |
 
 ## Environment Files
 
