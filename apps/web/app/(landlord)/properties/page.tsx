@@ -470,6 +470,11 @@ export default function PropertiesPage() {
                           apt_or_unit_no: property.apt_or_unit_no,
                         })}
                       </p>
+                      {property.rent_due_day && (
+                        <p className="text-xs text-muted-foreground">
+                          Rent due on the {property.rent_due_day === 1 ? "1st" : property.rent_due_day === 2 ? "2nd" : property.rent_due_day === 3 ? "3rd" : `${property.rent_due_day}th`} of each month
+                        </p>
+                      )}
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
                       <Button

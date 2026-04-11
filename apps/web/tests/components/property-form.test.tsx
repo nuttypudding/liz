@@ -22,6 +22,7 @@ describe("PropertyForm", () => {
     expect(screen.getByLabelText("ZIP Code")).toBeInTheDocument();
     expect(screen.getByLabelText("Unit Count")).toBeInTheDocument();
     expect(screen.getByLabelText("Monthly Rent ($)")).toBeInTheDocument();
+    expect(screen.getByLabelText("Rent Due Day")).toBeInTheDocument();
   });
 
   it("populates fields from initialData", () => {
@@ -79,6 +80,7 @@ describe("PropertyForm", () => {
         postal_code: "78702",
         unit_count: 2,
         monthly_rent: 1200,
+        rent_due_day: 1,
       })
     );
   });
