@@ -124,6 +124,9 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | POST | `/api/autonomy/decisions` | Create autonomous decision record |
 | PATCH | `/api/autonomy/decisions/[id]` | Review decision (confirm or override with notes) |
 | GET | `/api/autonomy/stats` | Monthly autonomy stats (optional ?month=YYYY-MM) |
+| POST | `/api/applications` | Submit rental application (public, no auth) |
+| GET | `/api/applications` | List applications for landlord's properties (landlord; ?property_id, ?status, ?sort, ?order, ?page, ?limit) |
+| GET | `/api/applications/[id]` | Get full application detail with screening report and computed metrics (landlord) |
 
 ## App Pages
 
