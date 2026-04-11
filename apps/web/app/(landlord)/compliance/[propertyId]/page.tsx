@@ -336,7 +336,7 @@ export default function CompliancePropertyDetailPage() {
               </p>
             </div>
             <Button variant="outline" size="sm" asChild>
-              <Link href="/properties">Configure</Link>
+              <Link href="/compliance/settings">Configure</Link>
             </Button>
           </CardContent>
         </Card>
@@ -381,7 +381,7 @@ export default function CompliancePropertyDetailPage() {
           <CardContent className="grid gap-2 sm:grid-cols-2">
             {!jurisdictionConfigured && (
               <Button variant="outline" size="sm" className="justify-start gap-2" asChild>
-                <Link href="/properties">
+                <Link href="/compliance/settings">
                   <MapPin className="size-4" />
                   Configure Jurisdiction
                 </Link>
