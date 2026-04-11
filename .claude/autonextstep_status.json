@@ -1,10 +1,10 @@
 {
   "status": "running",
-  "current_task_id": "158",
-  "current_task_title": "Database migration \u2014 autonomy_settings table",
-  "current_task_file": "features/inprogress/P3-001-autonomous-decision-making/backlog/158-Haiku-database-migration-autonomy-settings.md",
+  "current_task_id": "161",
+  "current_task_title": "TypeScript types \u2014 AutonomySettings, AutonomousDecision, MonthlyReportData, etc.",
+  "current_task_file": "features/inprogress/P3-001-autonomous-decision-making/doing/161-Haiku-typescript-types-autonomy.md",
   "current_feature": "P3-001-autonomous-decision-making",
-  "tasks_done": 50,
+  "tasks_done": 51,
   "tasks_failed": 0,
-  "updated_at": "2026-04-10T17:04:11.533327"
+  "updated_at": "2026-04-10T17:06:44.907334"
 }
