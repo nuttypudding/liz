@@ -134,6 +134,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | GET | `/api/compliance/[propertyId]/score` | Compliance score for a property — returns 0–100 score, completed_count, total_required_count, and missing_items list; requires jurisdiction to be set (400 if not configured) |
 | GET | `/api/compliance/[propertyId]/checklist` | Fetch all compliance checklist items for a property with completion status; optional `?completed=true\|false` filter |
 | PATCH | `/api/compliance/[propertyId]/checklist/[itemId]` | Mark a checklist item complete or incomplete (`{ completed: boolean }`); sets/clears completed_at, logs to compliance_audit_log |
+| POST | `/api/compliance/review` | AI review of landlord message for fair housing, notice language, and disclosure issues; returns findings with severity, type, flagged_text, reason, suggestion; logs to compliance_audit_log (`{ message_text, property_id, recipient_type? }`) |
 
 ## App Pages
 
