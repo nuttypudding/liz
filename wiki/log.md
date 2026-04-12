@@ -82,3 +82,9 @@ Append-only chronological record. Newest entries at bottom.
 - Feature: P1-Tkt-002-llm-wiki
 - Tier: Sonnet
 - Changes: Added post-deploy ticket transition, `/wiki-qa-refresh`, `/wiki-status`, and deploy log append to `.claude/skills/deploy-prod/SKILL.md`.
+
+## [2026-04-12] task-done | 273 — Hook /fix-bug + /log-bug to wiki
+
+- Feature: P1-Tkt-002-llm-wiki
+- Tier: Sonnet
+- Changes: `/log-bug` appends `bug-logged` entry; `/fix-bug` appends `bug-fixed` entry with root cause, proposes concept-page "Known gotcha" with user approval, invokes `/wiki-qa-refresh` on ticket status change. Updated `/fix-bug` context research to `wiki/decisions/` + `wiki/project/`.

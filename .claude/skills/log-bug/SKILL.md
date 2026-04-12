@@ -29,7 +29,16 @@ Append a row to the **Open Tickets** table in `.claude/tickets.md`:
 |--------|------|----------|-------------|--------|--------|----|-------|
 | T-NNN | YYYY-MM-DD | bug-fix-dev/prod | description | — | open | — | — |
 
-### 4. Confirm
+### 4. Log to Wiki
+
+Append to `wiki/log.md`:
+```
+## [YYYY-MM-DD] bug-logged | T-NNN — <short description>
+- Category: bug-fix-dev | bug-fix-prod
+- Status: open
+```
+
+### 5. Confirm
 
 Report:
 - Ticket number created

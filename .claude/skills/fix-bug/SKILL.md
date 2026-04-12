@@ -29,7 +29,7 @@ git checkout -b fix/T-NNN-short-description
 
 Launch **two parallel Explore agents**:
 - **Agent A**: Search codebase for the bug — grep for relevant functions, error messages, related code
-- **Agent B**: Check `plan/` and `docs/` for context on the affected feature
+- **Agent B**: Check `wiki/decisions/` and `wiki/project/` for context on the affected feature
 
 Synthesize findings from both agents.
 
@@ -56,7 +56,21 @@ Update the ticket status in `.claude/tickets.md`:
 - **bug-fix-dev**: Commit changes. Update ticket to `closed`. Done.
 - **bug-fix-prod**: Commit changes. Update ticket to `pr-open`. Inform user to run `/deploy-prod` when ready.
 
-### 9. Report
+### 9. Wiki Hooks
+
+Append to `wiki/log.md`:
+```
+## [YYYY-MM-DD] bug-fixed | T-NNN — <title>
+- Root cause: <one sentence>
+- Files: <short list>
+- Concept-page update proposed: [[concepts/...]] or none
+```
+
+If the root cause reflects a non-obvious system behavior (e.g. "Clerk webhook doesn't set publicMetadata.role for self-signup users"), **ask the user** if you should append a "Known gotcha" section to the relevant concept page (e.g. `wiki/concepts/clerk-roles.md`). Do not edit the concept page without approval.
+
+Invoke `/wiki-qa-refresh` after any ticket status change.
+
+### 10. Report
 
 - What was the bug
 - What caused it
