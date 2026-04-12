@@ -31,7 +31,7 @@ Launch the chat: say `/run-wiki-chat` in Claude Code. A local page opens where y
 
 The chat answers using only what's written in this wiki — it won't make things up, and if it doesn't know something, it'll tell you.
 
-> The chat feature is being built in the current development round (P1-Tkt-002). Once it's live, you'll see it in the project status above.
+👉 **[[project/workflow/wiki-chat]]** — full guide: what it can answer, when to refresh, and troubleshooting.
 
 ## Other places to look
 

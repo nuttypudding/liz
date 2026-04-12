@@ -106,3 +106,9 @@ Append-only chronological record. Newest entries at bottom.
 - Feature: P1-Tkt-002-llm-wiki
 - Tier: Sonnet
 - Changes: Added `.claude/skills/run-wiki-chat.md` (port 8502, follows `/run-arena` template); flipped CLAUDE.md entry from Pending to Active.
+
+## [2026-04-12] task-done | 277 — Document chat app usage
+
+- Feature: P1-Tkt-002-llm-wiki
+- Tier: Haiku
+- Changes: Added `wiki/project/workflow/wiki-chat.md` (audience, launch, capabilities, refresh cadence, troubleshooting, hosted-path placeholder). Linked from `wiki/for-liz.md` (replaced "being built" note with the guide link). Registered in `wiki/index.md` under Project — Workflow.

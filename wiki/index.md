@@ -94,6 +94,7 @@ Reverse-chronological. Full catalog at [[decisions/index]].
 - [[project/workflow/brightstep-readme]] — Portable process export overview
 - [[project/workflow/claude-md-template]] — CLAUDE.md template for new projects
 - [[project/workflow/qmd-search]] — qmd search install + usage
+- [[project/workflow/wiki-chat]] — wiki chat app operator guide
 
 ## Root pages
 
