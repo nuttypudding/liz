@@ -88,3 +88,9 @@ Append-only chronological record. Newest entries at bottom.
 - Feature: P1-Tkt-002-llm-wiki
 - Tier: Sonnet
 - Changes: `/log-bug` appends `bug-logged` entry; `/fix-bug` appends `bug-fixed` entry with root cause, proposes concept-page "Known gotcha" with user approval, invokes `/wiki-qa-refresh` on ticket status change. Updated `/fix-bug` context research to `wiki/decisions/` + `wiki/project/`.
+
+## [2026-04-12] task-done | 274 — Streamlit wiki-chat UI design
+
+- Feature: P1-Tkt-002-llm-wiki
+- Tier: Opus
+- Changes: Created `apps/wiki-chat/app.py` (Streamlit scaffold — sidebar with status/qa-queue/roadmap buttons, chat panel with example chips, placeholder responses) and `apps/wiki-chat/README.md`. Task 275 will wire the Claude API.
