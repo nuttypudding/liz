@@ -39,16 +39,16 @@ The slash commands Claude Code uses to drive Liz's development. Mirror of the Sk
 | `/overnight-qa` | Needs full test matrix + data-flow verification |
 | `/notify` | Needs notification service credentials |
 
-## New wiki skills (planned in P1-Tkt-002)
+## Wiki skills (P1-Tkt-002)
 
-See [[project/workflow/brightstep-process]] and the feature plan at `features/inprogress/P1-Tkt-002-llm-wiki/README.md`. Upcoming:
-
-- `/ingest <path-or-url>` — Opus; file source, propagate to entity/concept pages
-- `/wiki-query <question>` — Opus; cited answers, optional file-back to `synthesis/`
-- `/wiki-lint` — Sonnet; orphans, contradictions, stale, index drift
-- `/wiki-status` — Sonnet; regenerate [[status]]
-- `/wiki-qa-refresh` — Sonnet; regenerate [[qa-queue]]
-- `/run-wiki-chat` — Sonnet; launch Streamlit chat app for Liz
+| Skill | Status | Role |
+|---|---|---|
+| `/ingest <path-or-url>` | Active | File source, propagate to entity/concept pages |
+| `/wiki-query <question>` | Active | Cited answers; optional file-back to `synthesis/` |
+| `/wiki-lint` | Active | Orphans, contradictions, stale, index drift |
+| `/wiki-status` | Active | Regenerate [[status]] |
+| `/wiki-qa-refresh` | Active | Regenerate [[qa-queue]] |
+| `/run-wiki-chat` | Pending | Launch Streamlit chat app for Liz (task 276) |
 
 ## Conventions
 

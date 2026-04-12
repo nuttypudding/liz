@@ -35,6 +35,12 @@ This project uses the BrightStep development process. See `PROCESS.md` in `brigh
 | `/deploy-prod` | Active | Production deployment to Vercel |
 | `/overnight-qa` | Pending | Comprehensive overnight QA (needs test matrix) |
 | `/notify` | Pending | Notifications (needs service credentials) |
+| `/ingest <path-or-url>` | Active | Read a source, file it into the wiki, propagate to entity/concept pages |
+| `/wiki-query <question>` | Active | Ask the wiki a question with citations; optionally file the answer into `synthesis/` |
+| `/wiki-lint` | Active | Health-check the wiki (orphans, contradictions, stale claims, index drift) |
+| `/wiki-status` | Active | Regenerate `wiki/status.md` from live feature/ticket/git state |
+| `/wiki-qa-refresh` | Active | Regenerate `wiki/qa-queue.md` — Liz's plain-language testing checklist |
+| `/run-wiki-chat` | Pending | Launch the local Streamlit chat app for Liz (see task 276) |
 
 ### Rules (auto-loaded by file path)
 
