@@ -117,10 +117,25 @@ Unresolved decisions that need user input.
 ### 7. Update Tracking
 
 - Add/update entry in `features/roadmap.md` with the feature ID (e.g., `P1-001`)
-- Add decision to `plan/DECISION_LOG.md` (create if doesn't exist)
+- Add a new decision page to `wiki/decisions/YYYY-MM-DD-<slug>.md` capturing the feature's key architectural choices (follow `wiki/WIKI.md` schema)
 - Update ticket branch in `.claude/tickets.md`
 
-### 8. Report
+### 8. Create/Extend Wiki Concept Page
+
+Identify the domain concept(s) the feature introduces (e.g. "Rent Reminder" → `wiki/concepts/rent-reminders.md`, "Auto-scheduling Vendors" → `wiki/concepts/vendor-scheduling.md`).
+
+- If a concept page already exists: extend it with the new feature's angle, add a reference to the feature plan, note unresolved questions.
+- If it doesn't exist: create a stub with `type: concept` frontmatter, one-paragraph definition, "Related features" section linking the feature plan, "Related decisions" placeholder.
+
+Append to `wiki/log.md`:
+```
+## [YYYY-MM-DD] feature-plan | <feature-name> → [[concepts/<topic>]]
+- Feature ID: P{phase}-{seq}
+- Ticket: T-NNN
+- Concept page: created | extended
+```
+
+### 9. Report
 
 - Feature ID (e.g., P1-001)
 - Ticket number

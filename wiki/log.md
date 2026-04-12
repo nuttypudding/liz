@@ -58,3 +58,9 @@ Append-only chronological record. Newest entries at bottom.
 - Consolidation pass: [[index]], [[log]], [[status]], [[for-liz]] populated
 - Subsequent refreshes by `/wiki-status` (task 265) and `/wiki-qa-refresh` (task 266)
 - Task: 261-Opus-populate-index-status-forliz
+
+## [2026-04-12] task-done | 269 — Hook /plan-feature to create concept page
+
+- Feature: P1-Tkt-002-llm-wiki
+- Tier: Sonnet
+- Changes: Added step 8 to `.claude/commands/plan-feature.md` to create/extend `wiki/concepts/<topic>.md` pages and append a `feature-plan` entry to `wiki/log.md`; step 7 now writes decisions to `wiki/decisions/` instead of the retired `plan/DECISION_LOG.md`.
