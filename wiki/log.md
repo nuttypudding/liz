@@ -70,3 +70,9 @@ Append-only chronological record. Newest entries at bottom.
 - Feature: P1-Tkt-002-llm-wiki
 - Tier: Sonnet
 - Changes: Added task-done log append and feature-done `/wiki-status` invocation to `.claude/commands/nextstep.md`; debounce honored (no per-task status regen).
+
+## [2026-04-12] task-done | 271 — Hook /ship to wiki + qa-refresh
+
+- Feature: P1-Tkt-002-llm-wiki
+- Tier: Sonnet
+- Changes: Replaced hardcoded doc-mapping in `.claude/skills/ship/SKILL.md` with delegation to `/update-docs`; added wiki log append and `/wiki-qa-refresh` trigger on ticket transition to testing/deployed.

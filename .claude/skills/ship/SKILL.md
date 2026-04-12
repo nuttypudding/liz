@@ -38,19 +38,9 @@ Use an Explore agent to scan changed source files and identify functions/modules
 
 For each gap found, write a test. Use the project's existing test conventions. If no tests exist yet, create the test directory and initial test file.
 
-### 5. Check Documentation
+### 5. Check Wiki
 
-Use an Explore agent to check if any changed files require documentation updates. Reference the doc-mapping:
-
-| Change Type | Docs to Update |
-|-------------|---------------|
-| API/backend changes | `docs/api.md` |
-| Schema/data changes | `docs/schema.md` |
-| Infrastructure | `docs/runbook.md` |
-| Feature changes | `features/roadmap.md` |
-| Architecture | `plan/README.md`, `plan/DECISION_LOG.md` |
-
-Apply updates if needed.
+Delegate to `/update-docs` (now retargeted at `wiki/project/**`). That skill handles the full doc-mapping.
 
 ### 6. Stage and Commit
 
@@ -61,7 +51,14 @@ git commit -m "<message>"
 
 Stage specific files — never `git add -A`. Do NOT push unless the user asks.
 
-### 7. Report
+### 7. Wiki Hooks
+
+After the commit succeeds:
+
+- Append to `wiki/log.md`: `## [YYYY-MM-DD] ship | <commit-subject>` with a one-line diff summary.
+- If the commit causes any ticket in `.claude/tickets.md` to transition to `testing` or `deployed`, invoke `/wiki-qa-refresh`.
+
+### 8. Report
 
 Summary of:
 - Tests run (pass/fail counts)
