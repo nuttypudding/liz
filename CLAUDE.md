@@ -43,6 +43,7 @@ This project uses the BrightStep development process. See `PROCESS.md` in `brigh
 | `documentation.md` | `docs/**` |
 | `plan-changes.md` | `plan/**` |
 | `task-execution.md` | `features/inprogress/**/backlog/**`, `features/inprogress/**/doing/**` |
+| `wiki.md` | `wiki/**` |
 
 ### Hook
 

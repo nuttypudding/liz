@@ -12,6 +12,7 @@ Ticket-driven work within an existing phase uses `P{phase}-Tkt-{seq}-{name}/` na
 | P1-002 | Clerk Auth | COMPLETE | T-003 | All 11 tasks complete. Merged to main. |
 | P1-003 | Landlord Onboarding & Decision Profile | COMPLETE | T-002 | Tasks 016–024 (3 Haiku, 4 Sonnet, 2 Opus). Risk appetite, delegation mode, auto-approve thresholds, vendor preferences. 5-step onboarding wizard with property/tenant/vendor collection. |
 | P1-Tkt-001 | MVP UX Overhaul | COMPLETE | T-016 | Consolidated from Liz's feedback. 4 work streams: onboarding refinements, property-centric dashboard, lease & document mgmt, utility integration. Tasks 025–074 (50 tasks: 7H/14S/29O). |
+| P1-Tkt-002 | LLM Wiki | IN PROGRESS | T-018 | Persistent LLM-maintained knowledge base replacing docs/ and plan/. Three audiences: Claude Code, developer, Liz. Obsidian + qmd + Streamlit chat. Tasks 247–279 (33 tasks: 8H/19S/6O). |
 
 ## Phase 2
 
