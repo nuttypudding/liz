@@ -28,7 +28,7 @@ Catalog of every wiki page. Entries are alphabetical within each section.
 
 ## Sources
 
-_(none yet — first `/ingest` will populate)_
+- [[sources/2026-04-12-intake-sample-01-sewer]] — r/mildlyinfuriating sewer-line emergency (labeled intake sample)
 
 ## Synthesis
 

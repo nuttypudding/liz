@@ -29,6 +29,7 @@ All features and bug fixes are tracked here. Every piece of work starts with a t
 | T-016 | 2026-04-08 | new-feature | MVP UX Overhaul (P1-Tkt-001) — onboarding refinements, property-centric dashboard, lease & document management, utility integration | — | open | — | Consolidates Liz's feedback (formerly T-011–T-015). Includes slider bug fix. Tasks 025–074 (50 tasks: 7H/14S/29O). |
 | T-017 | 2026-04-09 | bug-fix-prod | Onboarding wizard "Failed to create property" — `getRole()` returned null for self-signup users (no `publicMetadata.role` set). Added webhook default + backend fallback + landlord bootstrap. | feature/P1-Tkt-001-mvp-ux-overhaul | deployed | — | Reproduced via `e2e-prod/onboarding-smoke.mjs`. `/test-fix-prod` skill is now implemented. |
 | T-018 | 2026-04-12 | new-feature | LLM Wiki (P1-Tkt-002) — persistent LLM-maintained knowledge base replacing docs/ and plan/. Three audiences: Claude Code, developer, Liz. Obsidian + qmd + Streamlit chat. | feature/T-018-llm-wiki | open | — | 8-phase rollout (A scaffold → H demo ingest). ~30 tasks estimated. |
+| T-019 | 2026-04-12 | bug-fix-dev | `wiki/concepts/urgency-triage.md` cites two non-existent sources: `[[sources/intake-sample-07-electrical-unsafe-adapter]]` and `[[sources/intake-sample-10-structural-ceiling-caved]]`. Either ingest the remaining intake samples or remove the dangling citations. Surfaced by task 278 ingest dogfood. | — | open | — | Follow-up from /ingest dogfood. Candidate: batch-ingest samples 04, 07, 10. |
 
 ## Closed Tickets
 

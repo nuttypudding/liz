@@ -3,7 +3,7 @@ type: concept
 tags: [maintenance, ai, classification, urgency, safety]
 created: 2026-04-12
 updated: 2026-04-12
-source_ids: []
+source_ids: [2026-04-12-intake-sample-01-sewer]
 confidence: high
 ---
 
@@ -30,7 +30,7 @@ Urgency is assigned by the [[concepts/the-core-four]] Gatekeeper alongside a [[c
 A request is `emergency` when it meets any of the following:
 
 - **Safety hazard**: fire risk (exposed wiring, sparking outlets, overloaded extension cords — see [[sources/intake-sample-07-electrical-unsafe-adapter]]), gas leak, carbon monoxide risk
-- **Habitability**: sewage overflow or sewer line failure rendering the unit uninhabitable (see [[sources/intake-sample-01-plumbing-sewer]]), no heat in winter, black mold in HVAC with health symptoms
+- **Habitability**: sewage overflow or sewer line failure rendering the unit uninhabitable (see [[sources/2026-04-12-intake-sample-01-sewer]]), no heat in winter, black mold in HVAC with health symptoms
 - **Structural failure**: ceiling collapse or imminent structural failure (see [[sources/intake-sample-10-structural-ceiling-caved]]), balcony railing failure
 - **Active damage**: burst pipe with ongoing water damage, roof leak in rain
 

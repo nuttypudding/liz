@@ -112,3 +112,18 @@ Append-only chronological record. Newest entries at bottom.
 - Feature: P1-Tkt-002-llm-wiki
 - Tier: Haiku
 - Changes: Added `wiki/project/workflow/wiki-chat.md` (audience, launch, capabilities, refresh cadence, troubleshooting, hosted-path placeholder). Linked from `wiki/for-liz.md` (replaced "being built" note with the guide link). Registered in `wiki/index.md` under Project — Workflow.
+
+## [2026-04-12] ingest | intake-sample-01 sewer-line emergency
+
+- Source: intake/samples/sample_01_plumbing_sewer/intake.json (Reddit r/mildlyinfuriating, 2023-04-27)
+- Filed as: [[sources/2026-04-12-intake-sample-01-sewer]]
+- Raw: `wiki/raw/2026-04-12-intake-sample-01-sewer.json`
+- Updated: [[concepts/urgency-triage]] (fixed broken citation to this page), [[entities/landlord]] (new Known Failure Modes section)
+- Conflicts flagged: none
+- Task/skill: /ingest (task 278 dogfood)
+
+## [2026-04-12] task-done | 278 — Dogfood /ingest end-to-end
+
+- Feature: P1-Tkt-002-llm-wiki
+- Tier: Sonnet
+- Changes: Ran /ingest against `intake/samples/sample_01_plumbing_sewer/`. Created `wiki/sources/2026-04-12-intake-sample-01-sewer.md` + raw copy; fixed broken citation in `wiki/concepts/urgency-triage.md`; added Known Failure Modes section to `wiki/entities/landlord.md`; registered source in `wiki/index.md`. Filed follow-up **T-019** for remaining broken source citations (samples 07, 10).

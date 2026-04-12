@@ -3,7 +3,7 @@ type: entity
 tags: [landlord, persona, onboarding, mvp]
 created: 2026-04-12
 updated: 2026-04-12
-source_ids: []
+source_ids: [2026-04-12-intake-sample-01-sewer]
 confidence: high
 ---
 
@@ -32,6 +32,10 @@ The primary user of Liz. A small-to-mid landlord managing 1–20 residential uni
 - No baseline cost estimate when a vendor quotes a job
 - Manual vendor outreach — finding contact info, sending details, confirming receipt
 - No single view of which units are profitable vs. a money pit
+
+## Known Failure Modes
+
+- **Dismissing a real emergency** — a landlord may deny an issue exists until the tenant escalates (e.g. hires their own plumber). Real-world example: [[sources/2026-04-12-intake-sample-01-sewer]] — months-long sewage complaint dismissed, ultimately resulting in sewer-line replacement, interior demolition, and landlord-paid hotel costs. Liz's AI intake targets this failure mode directly: a 0.97-confidence emergency classification is hard to wave off.
 
 ## Decision Profile
 
