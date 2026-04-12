@@ -100,3 +100,9 @@ Append-only chronological record. Newest entries at bottom.
 - Feature: P1-Tkt-002-llm-wiki
 - Tier: Opus
 - Changes: Added `wiki_chat/corpus.py` (walks `wiki/**`, caps at ~800k tokens, reports dropped pages) and `wiki_chat/client.py` (Claude streaming with `cache_control: ephemeral` on the corpus block). Rewrote `app.py` to stream real replies, surface cache/fresh/output token counts, and show a friendly message when the key is missing or the API fails. Current wiki: 75 pages, ~109k tokens.
+
+## [2026-04-12] task-done | 276 — Create /run-wiki-chat skill
+
+- Feature: P1-Tkt-002-llm-wiki
+- Tier: Sonnet
+- Changes: Added `.claude/skills/run-wiki-chat.md` (port 8502, follows `/run-arena` template); flipped CLAUDE.md entry from Pending to Active.

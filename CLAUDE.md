@@ -40,7 +40,7 @@ This project uses the BrightStep development process. See `PROCESS.md` in `brigh
 | `/wiki-lint` | Active | Health-check the wiki (orphans, contradictions, stale claims, index drift) |
 | `/wiki-status` | Active | Regenerate `wiki/status.md` from live feature/ticket/git state |
 | `/wiki-qa-refresh` | Active | Regenerate `wiki/qa-queue.md` — Liz's plain-language testing checklist |
-| `/run-wiki-chat` | Pending | Launch the local Streamlit chat app for Liz (see task 276) |
+| `/run-wiki-chat` | Active | Launch the local Streamlit chat app for Liz (port 8502) |
 
 ### Rules (auto-loaded by file path)
 
