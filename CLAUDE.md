@@ -40,10 +40,10 @@ This project uses the BrightStep development process. See `PROCESS.md` in `brigh
 
 | Rule | Active When Editing |
 |------|---------------------|
-| `documentation.md` | `docs/**` |
-| `plan-changes.md` | `plan/**` |
 | `task-execution.md` | `features/inprogress/**/backlog/**`, `features/inprogress/**/doing/**` |
 | `wiki.md` | `wiki/**` |
+
+> `documentation.md` and `plan-changes.md` rules are retired — their scopes (`docs/**`, `plan/**`) no longer exist. Content conventions now live in `wiki/WIKI.md` and decision-logging is handled within `wiki/decisions/`.
 
 ### Hook
 
@@ -130,14 +130,11 @@ liz/
 │   ├── tickets.md             # Ticket tracker
 │   ├── commands/              # nextstep, plan-feature, create-feature-tasks-in-backlog
 │   ├── skills/                # Slash commands (ship, fix-bug, log-bug, etc.)
-│   ├── rules/                 # Path-scoped rules (documentation, plan-changes, task-execution)
+│   ├── rules/                 # Path-scoped rules (documentation, plan-changes, task-execution, wiki)
 │   └── hooks/                 # Post-commit reminder
 ├── intake/
 │   ├── readme.md              # Product vision, MVP features, tech stack, roadmap
 │   └── samples/               # 10 labeled maintenance intake samples
-├── plan/
-│   ├── README.md              # Plan overview
-│   └── DECISION_LOG.md        # Decision audit trail
 ├── features/
 │   ├── roadmap.md             # Feature tracking (Phase 1–3)
 │   ├── planned/               # Upcoming feature plans (P{phase}-{seq}-{name}/)
@@ -148,11 +145,12 @@ liz/
 │   │       ├── doing/         # Current task (max 1)
 │   │       └── done/          # Completed tasks
 │   └── completed/             # Archived completed features
-├── docs/
-│   ├── endpoints.md           # All URLs: local, QA, prod, API routes, app pages
-│   ├── testing-framework.md   # Test structure, feature-to-test mapping, coverage gaps
-│   ├── testing-guides/        # Manual testing guides (10 guides, 220+ test cases)
-│   └── ui-process.md          # UI process documentation
+├── wiki/                      # LLM-maintained knowledge base (see wiki/WIKI.md)
+│   ├── WIKI.md                # Authoritative schema for wiki/**
+│   ├── index.md, log.md, status.md, for-liz.md, qa-queue.md
+│   ├── entities/, concepts/, sources/, synthesis/, decisions/
+│   ├── project/               # Operational reference (endpoints, testing, workflow, etc.)
+│   └── raw/                   # Immutable source drops (+ assets/)
 ├── scripts/
 │   └── autonextstep.py        # Automated task runner
 ├── brightstep_process/        # BrightStep process reference (source material)
@@ -205,11 +203,15 @@ Production uses Supabase cloud. Same migrations work in both environments.
 
 ## Endpoint Registry
 
-All environment URLs, API routes, and app pages are documented in `docs/endpoints.md`. **Update that file whenever you add, rename, or remove an API route, app page, or environment URL.**
+All environment URLs, API routes, and app pages are documented in `wiki/project/endpoints.md`. **Update that file whenever you add, rename, or remove an API route, app page, or environment URL.**
 
 ## Testing
 
-Test structure, feature-to-test mapping, and coverage gaps are documented in `docs/testing-framework.md`. **Consult that file before writing or modifying tests.** Each feature must be independently testable — see the feature-to-test mapping to find which test files cover a given feature and where gaps exist.
+Test structure, feature-to-test mapping, and coverage gaps are documented in `wiki/project/testing-framework.md`. **Consult that file before writing or modifying tests.** Each feature must be independently testable — see the feature-to-test mapping to find which test files cover a given feature and where gaps exist.
+
+## Wiki
+
+`wiki/` is the project's LLM-maintained knowledge base. Schema and workflows live in `wiki/WIKI.md` (auto-loaded via `.claude/rules/wiki.md` when editing `wiki/**`). Decisions, domain concepts, personas, ingested sources, and operational reference live under the wiki. Liz (product owner) consults `wiki/for-liz.md` and `wiki/qa-queue.md`.
 
 ## Key Product Constraints
 
