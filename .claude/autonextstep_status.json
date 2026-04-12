@@ -1,10 +1,10 @@
 {
   "status": "running",
-  "current_task_id": "249",
-  "current_task_title": "Create wiki path-scoped rule",
-  "current_task_file": "features/inprogress/P1-Tkt-002-llm-wiki/doing/249-Haiku-path-scoped-rule.md",
+  "current_task_id": "251",
+  "current_task_title": "Generate migration manifest",
+  "current_task_file": "features/inprogress/P1-Tkt-002-llm-wiki/backlog/251-Sonnet-generate-migration-manifest.md",
   "current_feature": "P1-Tkt-002-llm-wiki",
-  "tasks_done": 3,
+  "tasks_done": 4,
   "tasks_failed": 0,
-  "updated_at": "2026-04-12T00:31:46.394169"
+  "updated_at": "2026-04-12T00:34:07.054828"
 }
