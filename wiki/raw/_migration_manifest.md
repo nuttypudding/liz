@@ -1,6 +1,7 @@
 # Migration Manifest
 
 Generated: 2026-04-12  
+**Frozen on 2026-04-12 by user** (proceed with defaults; open questions deferred to synthesis/split tasks)  
 Purpose: Classification table for every in-scope `.md` file → future wiki home (or `skip`).  
 Drives: Task 253 (migrate docs→wiki/project), Task 254 (migrate plan→decisions).
 
