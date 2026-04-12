@@ -94,3 +94,9 @@ Append-only chronological record. Newest entries at bottom.
 - Feature: P1-Tkt-002-llm-wiki
 - Tier: Opus
 - Changes: Created `apps/wiki-chat/app.py` (Streamlit scaffold — sidebar with status/qa-queue/roadmap buttons, chat panel with example chips, placeholder responses) and `apps/wiki-chat/README.md`. Task 275 will wire the Claude API.
+
+## [2026-04-12] task-done | 275 — Streamlit wiki-chat Claude API integration
+
+- Feature: P1-Tkt-002-llm-wiki
+- Tier: Opus
+- Changes: Added `wiki_chat/corpus.py` (walks `wiki/**`, caps at ~800k tokens, reports dropped pages) and `wiki_chat/client.py` (Claude streaming with `cache_control: ephemeral` on the corpus block). Rewrote `app.py` to stream real replies, surface cache/fresh/output token counts, and show a friendly message when the key is missing or the API fails. Current wiki: 75 pages, ~109k tokens.
