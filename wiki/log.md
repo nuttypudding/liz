@@ -76,3 +76,9 @@ Append-only chronological record. Newest entries at bottom.
 - Feature: P1-Tkt-002-llm-wiki
 - Tier: Sonnet
 - Changes: Replaced hardcoded doc-mapping in `.claude/skills/ship/SKILL.md` with delegation to `/update-docs`; added wiki log append and `/wiki-qa-refresh` trigger on ticket transition to testing/deployed.
+
+## [2026-04-12] task-done | 272 — Hook /deploy-prod to qa-refresh
+
+- Feature: P1-Tkt-002-llm-wiki
+- Tier: Sonnet
+- Changes: Added post-deploy ticket transition, `/wiki-qa-refresh`, `/wiki-status`, and deploy log append to `.claude/skills/deploy-prod/SKILL.md`.
