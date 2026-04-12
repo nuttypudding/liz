@@ -32,7 +32,7 @@ Catalog of every wiki page. Entries are alphabetical within each section.
 
 ## Synthesis
 
-_(none yet — `/wiki-query` file-backs will populate)_
+- [[synthesis/2026-04-12-vendor-selection-e2e]] — vendor selection end-to-end (Phase 1 → Phase 2)
 
 ## Decisions
 

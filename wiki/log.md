@@ -127,3 +127,43 @@ Append-only chronological record. Newest entries at bottom.
 - Feature: P1-Tkt-002-llm-wiki
 - Tier: Sonnet
 - Changes: Ran /ingest against `intake/samples/sample_01_plumbing_sewer/`. Created `wiki/sources/2026-04-12-intake-sample-01-sewer.md` + raw copy; fixed broken citation in `wiki/concepts/urgency-triage.md`; added Known Failure Modes section to `wiki/entities/landlord.md`; registered source in `wiki/index.md`. Filed follow-up **T-019** for remaining broken source citations (samples 07, 10).
+
+## [2026-04-12] query | What is the urgency taxonomy?
+
+- Consulted: [[concepts/urgency-triage]]
+- Answer summary: Three levels — emergency (< 2h, safety/habitability), medium (24–48h, broken appliances + persistent issues), low (1–2 weeks, cosmetic/routine). Edge rules cover mold + health symptoms, "no hot water" (winter emergency), and over-classification under low confidence.
+- Filed as: not filed (trivial lookup)
+
+## [2026-04-12] query | How does Liz handle vendor selection end-to-end?
+
+- Consulted: [[concepts/the-core-four]], [[entities/vendor]], [[entities/landlord]], [[decisions/2026-04-01-vendor-dispatch-db-only-mvp]], [[decisions/2026-04-01-mvp-scope-core-four]], [[decisions/2026-04-06-landlord-decision-profile-separate-table]], [[decisions/2026-04-06-auto-delegation-mode-disabled-mvp]], [[decisions/2026-04-08-resend-twilio-notifications]]
+- Answer summary: Phase 1 = classify → filter vendors by trade → rank by preferred/priority_rank → draft work order → landlord approval gate → DB-only persist (manual vendor contact). Phase 2 = Twilio SMS one-click dispatch + auto-scheduling on the same pipeline.
+- Filed as: [[synthesis/2026-04-12-vendor-selection-e2e]]
+
+## [2026-04-12] query | What do we know about tenant screening laws in California?
+
+- Consulted: [[decisions/2026-04-08-transunion-smartmove-tenant-screening]], [[decisions/index]]
+- Answer summary: The wiki has the general tenant screening decision (TransUnion SmartMove, SSNs off Liz servers, fair housing as first-class concern — Phase 3) but **no California-specific legal content** (no SB 1287, no state-law fair-housing supplements, no regional vendor requirements). Gap confirmed. Suggested follow-ups: `/ingest` a CA tenant-screening legal primer or TransUnion SmartMove's CA compliance doc.
+- Filed as: not filed (gap, not synthesis)
+
+## [2026-04-12] task-done | 279 — Dogfood /wiki-query end-to-end
+
+- Feature: P1-Tkt-002-llm-wiki
+- Tier: Haiku
+- Changes: Ran three /wiki-query questions (narrow urgency taxonomy, synthesis vendor selection, gap-check CA tenant screening). Filed `wiki/synthesis/2026-04-12-vendor-selection-e2e.md`, registered in index, appended three query log entries. Zero hallucinated citations — all referenced pages exist.
+
+## [2026-04-12] feature-done | P1-Tkt-002-llm-wiki
+
+- 27 tasks completed (253–279)
+- Migrated docs/ → wiki/project/ (25 files) and plan/ → wiki/decisions/ (23 pages)
+- New skills: /ingest, /wiki-query, /wiki-lint, /wiki-status, /wiki-qa-refresh, /run-wiki-chat
+- Existing skills hooked to wiki: /plan-feature, /nextstep, /ship, /deploy-prod, /fix-bug, /log-bug, /update-docs
+- Streamlit wiki chat app: `apps/wiki-chat/` with cached-corpus Claude API integration
+- Operator guide: `wiki/project/workflow/wiki-chat.md`
+- Dogfood: ingested 1 real source, ran 3 validation queries, filed 1 synthesis page
+
+## [2026-04-12] status-refresh | Feature P1-Tkt-002-llm-wiki complete; no features in flight
+
+- Features in flight: 0
+- Open tickets: 12 (10 open, 1 in-progress, 1 deployed)
+- Triggered by: /wiki-status (feature-completion hook)
