@@ -64,3 +64,9 @@ Append-only chronological record. Newest entries at bottom.
 - Feature: P1-Tkt-002-llm-wiki
 - Tier: Sonnet
 - Changes: Added step 8 to `.claude/commands/plan-feature.md` to create/extend `wiki/concepts/<topic>.md` pages and append a `feature-plan` entry to `wiki/log.md`; step 7 now writes decisions to `wiki/decisions/` instead of the retired `plan/DECISION_LOG.md`.
+
+## [2026-04-12] task-done | 270 — Hook /nextstep to log + status refresh
+
+- Feature: P1-Tkt-002-llm-wiki
+- Tier: Sonnet
+- Changes: Added task-done log append and feature-done `/wiki-status` invocation to `.claude/commands/nextstep.md`; debounce honored (no per-task status regen).

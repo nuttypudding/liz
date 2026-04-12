@@ -132,6 +132,14 @@ Move the task file to `done/`:
 mv features/inprogress/<feature>/doing/<task-file> features/inprogress/<feature>/done/
 ```
 
+Append a task-done entry to `wiki/log.md`:
+```
+## [YYYY-MM-DD] task-done | <task-id> — <task-title>
+- Feature: <feature-name>
+- Tier: Haiku|Sonnet|Opus
+- Changes: <one-line summary>
+```
+
 **Check if this was the last backlog task for the feature:**
 
 **If MORE tasks remain** (normal completion):
@@ -146,7 +154,8 @@ git push
    ```bash
    mv features/inprogress/<feature>/ features/completed/
    ```
-2. Commit all changes:
+2. Invoke `/wiki-status` to regenerate `wiki/status.md` (feature completions materially change project state). Append to `wiki/log.md`: `## [YYYY-MM-DD] feature-done | <feature-name>`.
+3. Commit all changes:
    ```bash
    git add -A
    git commit -m "Feature complete: <feature-name>"
