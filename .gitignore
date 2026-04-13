@@ -59,3 +59,7 @@ yarn-error.log*
 # Data
 *.db
 *.sqlite3
+
+# Obsidian (wiki/ is the canonical vault)
+/.obsidian/
+*.canvas
