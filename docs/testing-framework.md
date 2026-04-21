@@ -6,7 +6,7 @@ Liz uses three testing layers:
 
 | Layer | Framework | Config | Command | Count |
 |-------|-----------|--------|---------|-------|
-| **Unit tests** | Vitest | `vitest.config.ts` | `npm test` | ~930 test cases across 51 files |
+| **Unit tests** | Vitest | `vitest.config.ts` | `npm test` | ~892 test cases across 56 files |
 | **Integration tests** | Vitest | `vitest.config.ts` (integration project) | `npm run test:integration` | ~63 test cases across 2 files |
 | **E2E tests (local)** | Playwright | `playwright.config.ts` | `npm run test:e2e` | 16 test cases across 4 files |
 | **E2E tests (prod)** | Playwright (standalone) | N/A | `node e2e-prod/onboarding-smoke.mjs` | 1 smoke test |
@@ -36,6 +36,7 @@ npx vitest run tests/api/intake.test.ts tests/api/requests.test.ts     # triage
 npx vitest run tests/api/rent.test.ts                                   # rent
 npx vitest run tests/lib/compliance/                                    # compliance (folder)
 npx vitest run tests/api/autonomy/                                      # autonomy (folder)
+npx vitest run tests/api/test-lab*.test.ts tests/lib/triage-classifier*.test.ts  # test lab + triage
 
 # E2E tests for a feature
 npx playwright test e2e/intake.spec.ts                                  # triage
@@ -122,7 +123,9 @@ apps/web/
 │   │   ├── tenants.test.ts        #   tenant CRUD
 │   │   ├── vendors.test.ts        #   vendor CRUD
 │   │   ├── vendors-id.test.ts     #   vendor detail
-│   │   └── vendors-availability.test.ts  # vendor calendar
+│   │   ├── vendors-availability.test.ts  # vendor calendar
+│   │   ├── test-lab.test.ts       #   Test Lab API routes
+│   │   └── test-lab-adversarial.test.ts  # Test Lab adversarial probing
 │   │
 │   ├── components/                # React component tests (jsdom)
 │   │   ├── document-uploader.test.tsx
@@ -144,7 +147,9 @@ apps/web/
 │   │   ├── notifications.test.ts  #   notification service
 │   │   ├── validations.test.ts    #   Zod schemas
 │   │   ├── webhook-utils.test.ts  #   webhook parsing
-│   │   └── withauth.test.ts       #   auth middleware
+│   │   ├── withauth.test.ts       #   auth middleware
+│   │   ├── triage-classifier.test.ts          # triage classifier unit
+│   │   └── triage-classifier-adversarial.test.ts  # triage adversarial probing
 │   │
 │   ├── helpers.ts                 # Mock builders
 │   ├── component-helpers.tsx      # React test utils
@@ -395,6 +400,27 @@ apps/web/
 | Integration | `__tests__/integration/autonomy-flow.test.ts` | 42 |
 
 **Gaps:** No component tests. No E2E test.
+
+---
+
+### Test Lab
+
+| Source | Path |
+|--------|------|
+| Page | `app/(landlord)/test-lab/page.tsx` |
+| Components | `components/test-lab/components-list.tsx`, `runs-list.tsx`, `manual-test-form.tsx` |
+| API | `app/api/test-lab/runs/route.ts`, `runs/[id]/route.ts`, `components/triage/run/route.ts`, `components/triage/manual/route.ts` |
+| Lib | `lib/test-lab/registry.ts`, `lib/triage/classifier.ts`, `lib/triage/samples.ts`, `lib/triage/types.ts` |
+
+| Test Type | File | Cases |
+|-----------|------|-------|
+| API | `tests/api/test-lab.test.ts` | 10 |
+| API (adversarial) | `tests/api/test-lab-adversarial.test.ts` | 39 |
+| Lib | `tests/lib/triage-classifier.test.ts` | 13 |
+| Lib (adversarial) | `tests/lib/triage-classifier-adversarial.test.ts` | 33 |
+
+**Gaps:** No component tests for Test Lab UI. No E2E test.
+
 
 ---
 

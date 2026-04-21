@@ -150,6 +150,11 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | GET | `/api/notifications` | List notifications for the authenticated user (`?limit`, `?offset`, `?unread_only`) |
 | PATCH | `/api/notifications` | Mark notifications as read (`{ ids: string[] }` or `{ all: true }`) |
 | POST | `/api/cron/rent-reminders` | Daily cron (6:00 AM UTC) — transitions rent period statuses and creates in-app notifications |
+| GET | `/api/test-lab/runs` | List test runs (filters: `component`, `limit`) |
+| POST | `/api/test-lab/runs` | Create empty test run |
+| GET | `/api/test-lab/runs/[id]` | Get test run with all test cases |
+| POST | `/api/test-lab/components/triage/run` | Run triage classifier against 20 curated samples |
+| POST | `/api/test-lab/components/triage/manual` | Classify arbitrary text (no DB persistence) |
 
 ## App Pages
 
@@ -190,6 +195,7 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/compliance/settings` | Compliance settings — configure jurisdiction (state/city) and lease terms per property, with checklist preview |
 | `/rent` | Rent Schedule page (landlord) — rent periods table/card view, mark-paid dialog, filters, overdue banners |
 | `/my-rent` | Tenant Rent View — current rent status card and payment history (tenant) |
+| `/test-lab` | Test Lab — isolated component testing dashboard (Components, Test Runs, Manual Test tabs) |
 
 ## Environment Files
 
