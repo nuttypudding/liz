@@ -30,7 +30,7 @@ This project uses the BrightStep development process. See `PROCESS.md` in `brigh
 | `/autorunner-status` | Active | Check autorunner progress |
 | `/run-dev` | Active | Start local dev servers |
 | `/test-all` | Active | Run all tests (unit, component, E2E) |
-| `/test-fix-dev` | Pending | Autonomous local QA (needs test-fix loop) |
+| `/test-fix-dev` | Active | Creative autonomous local QA — invents tests, probes boundaries, self-heals |
 | `/test-fix-prod` | Active | Autonomous production smoke test + fix loop (`apps/web/e2e-prod/*.mjs`) |
 | `/deploy-prod` | Active | Production deployment to Vercel |
 | `/overnight-qa` | Pending | Comprehensive overnight QA (needs test matrix) |
@@ -219,7 +219,6 @@ Test structure, feature-to-test mapping, and coverage gaps are documented in `do
 ## Pending Items
 
 **Skills (need implementation)**:
-- `/test-fix-dev` — Autonomous test-fix loop (endpoints and test infra exist, needs loop logic)
 - `/overnight-qa` — Full test matrix with data flow verification
 - `/notify` — Notification service credentials
 
