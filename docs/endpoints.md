@@ -1,5 +1,25 @@
 # Endpoints
 
+## Quick Start
+
+```bash
+# Main app (port 3000)
+npm run dev:web
+
+# Test Lab (port 3100, LAN-accessible)
+npm run dev:test-lab
+
+# Both at once
+npm run dev:web & npm run dev:test-lab
+```
+
+| App | Local | LAN |
+|-----|-------|-----|
+| Web | http://localhost:3000 | http://192.168.50.249:3000 |
+| Test Lab | http://localhost:3100 | http://192.168.50.249:3100 |
+
+---
+
 > **Keep this file up to date.** When adding new API routes, changing Supabase config, updating Vercel deployments, or modifying environment URLs, update the relevant section below.
 
 ## Environments
@@ -8,7 +28,8 @@
 
 | Service | URL |
 |---------|-----|
-| Next.js App | `http://192.168.50.249:3000` |
+| Next.js App (web) | `http://192.168.50.249:3000` |
+| Test Lab App | `http://localhost:3100` |
 | Supabase API | `http://localhost:54321` |
 | Supabase Studio | `http://localhost:54323` |
 | Supabase Postgres | `localhost:54322` |
@@ -150,11 +171,6 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | GET | `/api/notifications` | List notifications for the authenticated user (`?limit`, `?offset`, `?unread_only`) |
 | PATCH | `/api/notifications` | Mark notifications as read (`{ ids: string[] }` or `{ all: true }`) |
 | POST | `/api/cron/rent-reminders` | Daily cron (6:00 AM UTC) — transitions rent period statuses and creates in-app notifications |
-| GET | `/api/test-lab/runs` | List test runs (filters: `component`, `limit`) |
-| POST | `/api/test-lab/runs` | Create empty test run |
-| GET | `/api/test-lab/runs/[id]` | Get test run with all test cases |
-| POST | `/api/test-lab/components/triage/run` | Run triage classifier against 20 curated samples |
-| POST | `/api/test-lab/components/triage/manual` | Classify arbitrary text (no DB persistence) |
 
 ## App Pages
 
@@ -195,7 +211,19 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `/compliance/settings` | Compliance settings — configure jurisdiction (state/city) and lease terms per property, with checklist preview |
 | `/rent` | Rent Schedule page (landlord) — rent periods table/card view, mark-paid dialog, filters, overdue banners |
 | `/my-rent` | Tenant Rent View — current rent status card and payment history (tenant) |
-| `/test-lab` | Test Lab — isolated component testing dashboard (Components, Test Runs, Manual Test tabs) |
+
+## Test Lab (`apps/test-lab/` — port 3100)
+
+Standalone QA dashboard for testing AI components in isolation. No auth required.
+
+| Method | Route | Purpose |
+|--------|-------|---------|
+| GET | `/` | Test Lab dashboard (Components, Test Runs, Manual Test tabs) |
+| GET | `/api/test-lab/runs` | List test runs (filters: `component`, `limit`) |
+| POST | `/api/test-lab/runs` | Create empty test run |
+| GET | `/api/test-lab/runs/[id]` | Get test run with all test cases |
+| POST | `/api/test-lab/components/triage/run` | Run triage classifier against 20 curated samples |
+| POST | `/api/test-lab/components/triage/manual` | Classify arbitrary text (no DB persistence) |
 
 ## Environment Files
 
@@ -204,4 +232,6 @@ All routes are relative to the app root (e.g. `http://192.168.50.249:3000` local
 | `apps/web/.env.local` | Local dev | Supabase Docker + Clerk test keys |
 | `apps/web/.env.qa` | QA | Supabase cloud + Clerk test keys |
 | `apps/web/.env.example` | Template | Placeholder values for new devs |
+| `apps/test-lab/.env.local` | Local dev | Supabase + Anthropic keys (subset of web) |
+| `apps/test-lab/.env.example` | Template | Placeholder values |
 | `.env` / `.env.local` | Root (Arena) | LLM API keys, root-level Clerk keys |

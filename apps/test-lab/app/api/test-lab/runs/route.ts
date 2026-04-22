@@ -1,23 +1,19 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createServerSupabaseClient } from "@/lib/supabase";
+
+const OWNER_ID = "test-lab-anonymous";
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const component = searchParams.get("component");
-    const limit = Math.min(parseInt(searchParams.get("limit") ?? "20"), 100);
+    const limit = Math.max(1, Math.min(parseInt(searchParams.get("limit") ?? "20") || 20, 100));
 
     const supabase = createServerSupabaseClient();
     let query = supabase
       .from("test_runs")
       .select("*")
-      .eq("landlord_id", userId)
+      .eq("landlord_id", OWNER_ID)
       .order("created_at", { ascending: false })
       .limit(limit);
 
@@ -38,11 +34,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const body = await request.json();
     const { component_name } = body as { component_name?: string };
 
@@ -54,7 +45,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase
       .from("test_runs")
       .insert({
-        landlord_id: userId,
+        landlord_id: OWNER_ID,
         component_name,
         status: "pending",
       })

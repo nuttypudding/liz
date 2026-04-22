@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { UserButton } from "@clerk/nextjs";
-import { Brain, Building2, ClipboardList, CreditCard, DollarSign, FlaskConical, LayoutDashboard, Settings, Shield, Users, Wrench } from "lucide-react";
+import { Brain, Building2, ClipboardList, CreditCard, DollarSign, LayoutDashboard, Settings, Shield, Users, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -28,7 +28,6 @@ const navItems = [
   { href: "/vendors", label: "Vendors", icon: Users },
   { href: "/compliance", label: "Compliance", icon: Shield },
   { href: "/dashboard/payments", label: "Payments", icon: DollarSign },
-  { href: "/test-lab", label: "Test Lab", icon: FlaskConical },
   { href: "/settings", label: "Settings", icon: Settings },
   { href: "/billing", label: "Billing", icon: CreditCard },
 ];

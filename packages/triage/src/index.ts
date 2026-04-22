@@ -1,4 +1,4 @@
-export { classifyMaintenanceRequest, parseJsonFromText, buildProfileContext } from "@liz/triage";
+export { classifyMaintenanceRequest, parseJsonFromText, buildProfileContext } from "./classifier";
 export type {
   AnthropicClient,
   ClassifyInput,
@@ -7,4 +7,4 @@ export type {
   EstimatorResult,
   Base64Photo,
   LandlordPrefs,
-} from "@liz/triage";
+} from "./types";
