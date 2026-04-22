@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import type { ClassifyOutput } from "@/lib/triage";
+import type { ClassifyOutput } from "@liz/triage";
 
 export function ManualTestForm() {
   const [message, setMessage] = useState("");

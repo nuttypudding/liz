@@ -1,17 +1,13 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createServerSupabaseClient } from "@/lib/supabase";
+
+const OWNER_ID = "test-lab-anonymous";
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
     const supabase = createServerSupabaseClient();
 
@@ -19,7 +15,7 @@ export async function GET(
       .from("test_runs")
       .select("*")
       .eq("id", id)
-      .eq("landlord_id", userId)
+      .eq("landlord_id", OWNER_ID)
       .single();
 
     if (runError || !run) {

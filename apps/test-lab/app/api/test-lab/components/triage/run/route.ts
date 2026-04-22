@@ -1,17 +1,12 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { anthropic } from "@/lib/anthropic";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { classifyMaintenanceRequest } from "@/lib/triage";
-import { loadCuratedSamples } from "@/lib/triage/samples";
+import { createServerSupabaseClient } from "@/lib/supabase";
+import { classifyMaintenanceRequest } from "@liz/triage";
+import { loadCuratedSamples } from "@liz/triage/samples";
 
 export async function POST() {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
+    const ownerId = "test-lab-anonymous";
     const supabase = createServerSupabaseClient();
     const samples = loadCuratedSamples();
 
@@ -19,7 +14,7 @@ export async function POST() {
     const { data: run, error: runError } = await supabase
       .from("test_runs")
       .insert({
-        landlord_id: userId,
+        landlord_id: ownerId,
         component_name: "triage",
         status: "running",
         total_cases: samples.length,

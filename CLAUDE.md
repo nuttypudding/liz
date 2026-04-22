@@ -33,6 +33,7 @@ This project uses the BrightStep development process. See `PROCESS.md` in `brigh
 | `/test-fix-dev` | Active | Creative autonomous local QA — invents tests, probes boundaries, self-heals |
 | `/test-fix-prod` | Active | Autonomous production smoke test + fix loop (`apps/web/e2e-prod/*.mjs`) |
 | `/deploy-prod` | Active | Production deployment to Vercel |
+| `/save` | Active | Save session state to memory before `/exit` |
 | `/overnight-qa` | Pending | Comprehensive overnight QA (needs test matrix) |
 | `/notify` | Pending | Notifications (needs service credentials) |
 
@@ -124,6 +125,7 @@ Both live in `features/planned/` (or `features/inprogress/` when active). The `T
 
 ```
 liz/
+├── package.json               # npm workspaces root
 ├── .claude/
 │   ├── settings.json          # Hooks config (committed)
 │   ├── tickets.md             # Ticket tracker
@@ -131,9 +133,16 @@ liz/
 │   ├── skills/                # Slash commands (ship, fix-bug, log-bug, etc.)
 │   ├── rules/                 # Path-scoped rules (documentation, plan-changes, task-execution)
 │   └── hooks/                 # Post-commit reminder
+├── packages/
+│   └── triage/                # Shared triage classifier (@liz/triage)
+│       └── src/               # classifier.ts, types.ts, samples.ts
+├── apps/
+│   ├── web/                   # Main Next.js app (landlord/tenant UI)
+│   ├── test-lab/              # Standalone QA dashboard (port 3100, no auth)
+│   └── arena/                 # LLM Arena (Python Streamlit)
 ├── intake/
 │   ├── readme.md              # Product vision, MVP features, tech stack, roadmap
-│   └── samples/               # 10 labeled maintenance intake samples
+│   └── samples/               # 20 labeled maintenance intake samples
 ├── plan/
 │   ├── README.md              # Plan overview
 │   └── DECISION_LOG.md        # Decision audit trail
@@ -189,8 +198,17 @@ Sample directories follow: `sample_XX_<category>_<short_description>`.
 | AI | Claude API (Sonnet for text classification, Vision for photo analysis) |
 | Deployment | Vercel (frontend + API routes) |
 | Language | TypeScript (strict) |
+| Monorepo | npm workspaces (`apps/web`, `apps/test-lab`, `packages/triage`) |
 
 No separate backend — Next.js API routes handle all server logic for MVP. Clerk owns auth (not Supabase Auth). Supabase is a pure database + storage layer.
+
+### Shared Packages
+
+| Package | Path | Purpose |
+|---------|------|---------|
+| `@liz/triage` | `packages/triage/` | AI maintenance classifier (pure logic, dependency-injected). Used by both `apps/web` and `apps/test-lab`. |
+
+Both Next.js apps use `transpilePackages: ["@liz/triage"]` to consume raw TypeScript sources (no build step for the package).
 
 ### Local Development
 
