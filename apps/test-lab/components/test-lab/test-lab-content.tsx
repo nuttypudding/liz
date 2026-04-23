@@ -140,8 +140,8 @@ export function TestLabContent({ samples }: TestLabContentProps) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Test Lab"
-        description={`AI Maintenance Triage — ${samples.length} samples`}
+        title="Test Lab — Triage Classifier"
+        description={`Gatekeeper (self-resolvable check) + Estimator (category, urgency, cost) — ${samples.length} samples`}
         action={
           <div className="flex items-center gap-3">
             {runAllProgress && (
