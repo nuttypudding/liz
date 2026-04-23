@@ -10,7 +10,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChevronDown, ChevronRight, Loader2, Play, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  Loader2,
+  Play,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+} from "lucide-react";
 import type { SampleData } from "@liz/triage";
 import type { RowResult } from "./test-lab-content";
 
@@ -36,15 +44,21 @@ function urgencyBadgeClass(urgency: string) {
 }
 
 function StatusIcon({ result }: { result?: RowResult }) {
-  if (!result || result.status === "idle") return <span className="text-muted-foreground">-</span>;
-  if (result.status === "running") return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />;
-  if (result.status === "error") return <AlertCircle className="h-4 w-4 text-destructive" />;
-  if (result.passed) return <CheckCircle2 className="h-4 w-4 text-green-600" />;
+  if (!result || result.status === "idle")
+    return null;
+  if (result.status === "running")
+    return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />;
+  if (result.status === "error")
+    return <AlertCircle className="h-4 w-4 text-destructive" />;
+  if (result.passed)
+    return <CheckCircle2 className="h-4 w-4 text-green-600" />;
   return <XCircle className="h-4 w-4 text-red-600" />;
 }
 
-function truncate(text: string, max: number) {
-  return text.length > max ? text.slice(0, max) + "..." : text;
+/** Extract numeric ID: "sample_01_plumbing_sewer" → "#01" */
+function shortId(sampleId: string) {
+  const match = sampleId.match(/sample_(\d+)/);
+  return match ? `#${match[1]}` : sampleId;
 }
 
 export function SampleGrid({
@@ -55,42 +69,40 @@ export function SampleGrid({
   onToggleExpand,
 }: SampleGridProps) {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-8" />
-          <TableHead className="w-28">ID</TableHead>
-          <TableHead>Message</TableHead>
-          <TableHead>Exp Cat</TableHead>
-          <TableHead>Exp Urg</TableHead>
-          <TableHead className="w-16" />
-          <TableHead>Act Cat</TableHead>
-          <TableHead>Act Urg</TableHead>
-          <TableHead>Conf</TableHead>
-          <TableHead>Time</TableHead>
-          <TableHead className="w-10" />
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {samples.map((sample) => {
-          const r = results[sample.sample_id];
-          const expanded = expandedRows.has(sample.sample_id);
-          const shortId = sample.sample_id.replace("sample_", "s_");
+    <div className="rounded-md border">
+      <Table className="table-fixed">
+        <TableHeader>
+          <TableRow className="bg-muted/50">
+            <TableHead className="w-10" />
+            <TableHead className="w-12">#</TableHead>
+            <TableHead className="w-[40%]">Message</TableHead>
+            <TableHead className="w-24">Expected</TableHead>
+            <TableHead className="w-16 text-center" />
+            <TableHead className="w-24">Actual</TableHead>
+            <TableHead className="w-14 text-center">Conf</TableHead>
+            <TableHead className="w-14 text-center">Time</TableHead>
+            <TableHead className="w-10" />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {samples.map((sample) => {
+            const r = results[sample.sample_id];
+            const expanded = expandedRows.has(sample.sample_id);
 
-          return (
-            <SampleRow
-              key={sample.sample_id}
-              sample={sample}
-              result={r}
-              expanded={expanded}
-              shortId={shortId}
-              onRun={() => onRun(sample.sample_id)}
-              onToggleExpand={() => onToggleExpand(sample.sample_id)}
-            />
-          );
-        })}
-      </TableBody>
-    </Table>
+            return (
+              <SampleRow
+                key={sample.sample_id}
+                sample={sample}
+                result={r}
+                expanded={expanded}
+                onRun={() => onRun(sample.sample_id)}
+                onToggleExpand={() => onToggleExpand(sample.sample_id)}
+              />
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
 
@@ -98,110 +110,120 @@ function SampleRow({
   sample,
   result,
   expanded,
-  shortId,
   onRun,
   onToggleExpand,
 }: {
   sample: SampleData;
   result?: RowResult;
   expanded: boolean;
-  shortId: string;
   onRun: () => void;
   onToggleExpand: () => void;
 }) {
   const isRunning = result?.status === "running";
   const isDone = result?.status === "done";
-  const categoryMatch = isDone && result.actual_category === sample.expected.category;
-  const urgencyMatch = isDone && result.actual_urgency === sample.expected.urgency;
+  const categoryMatch =
+    isDone && result.actual_category === sample.expected.category;
+  const urgencyMatch =
+    isDone && result.actual_urgency === sample.expected.urgency;
 
   return (
     <>
       <TableRow className={expanded ? "border-b-0" : undefined}>
-        <TableCell>
+        <TableCell className="px-2">
           <button
             onClick={onToggleExpand}
-            className="p-0.5 rounded hover:bg-muted"
+            className="p-1 rounded hover:bg-muted"
             aria-label={expanded ? "Collapse row" : "Expand row"}
           >
             {expanded ? (
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="h-3.5 w-3.5" />
             ) : (
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3.5 w-3.5" />
             )}
           </button>
         </TableCell>
-        <TableCell className="font-mono text-xs">{shortId}</TableCell>
-        <TableCell className="max-w-xs">
-          <span className="text-sm">{truncate(sample.tenant_message, 80)}</span>
+
+        <TableCell className="font-mono text-xs text-muted-foreground">
+          {shortId(sample.sample_id)}
         </TableCell>
-        <TableCell>
-          <Badge variant="outline">{sample.expected.category}</Badge>
+
+        <TableCell className="overflow-hidden">
+          <p className="truncate text-sm">{sample.tenant_message}</p>
         </TableCell>
-        <TableCell>
-          <Badge className={urgencyBadgeClass(sample.expected.urgency)}>
-            {sample.expected.urgency}
-          </Badge>
+
+        <TableCell className="whitespace-normal">
+          <div className="flex flex-col gap-1">
+            <Badge variant="outline" className="w-fit text-xs">
+              {sample.expected.category}
+            </Badge>
+            <Badge
+              className={`w-fit text-xs ${urgencyBadgeClass(sample.expected.urgency)}`}
+            >
+              {sample.expected.urgency}
+            </Badge>
+          </div>
         </TableCell>
-        <TableCell>
+
+        <TableCell className="text-center">
           <Button
             size="sm"
             variant="outline"
             onClick={onRun}
             disabled={isRunning}
-            className="h-7 w-14 px-2"
+            className="h-7 px-2"
           >
             {isRunning ? (
               <Loader2 className="h-3 w-3 animate-spin" />
             ) : (
               <>
                 <Play className="h-3 w-3" />
-                <span className="text-xs">Run</span>
+                <span className="sr-only">Run</span>
               </>
             )}
           </Button>
         </TableCell>
-        <TableCell>
+
+        <TableCell className="whitespace-normal">
           {isDone ? (
-            <Badge
-              variant={categoryMatch ? "default" : "destructive"}
-              className={categoryMatch ? "bg-green-100 text-green-800 border-green-300" : undefined}
-            >
-              {result.actual_category}
-            </Badge>
+            <div className="flex flex-col gap-1">
+              <Badge
+                variant={categoryMatch ? "default" : "destructive"}
+                className={`w-fit text-xs ${categoryMatch ? "bg-green-100 text-green-800 border-green-300" : ""}`}
+              >
+                {result.actual_category}
+              </Badge>
+              <Badge
+                variant={urgencyMatch ? "default" : "destructive"}
+                className={`w-fit text-xs ${urgencyMatch ? "bg-green-100 text-green-800 border-green-300" : ""}`}
+              >
+                {result.actual_urgency}
+              </Badge>
+            </div>
           ) : (
-            <span className="text-muted-foreground">-</span>
+            <span className="text-xs text-muted-foreground">—</span>
           )}
         </TableCell>
-        <TableCell>
-          {isDone ? (
-            <Badge
-              variant={urgencyMatch ? "default" : "destructive"}
-              className={urgencyMatch ? "bg-green-100 text-green-800 border-green-300" : undefined}
-            >
-              {result.actual_urgency}
-            </Badge>
-          ) : (
-            <span className="text-muted-foreground">-</span>
-          )}
-        </TableCell>
-        <TableCell className="font-mono text-xs">
+
+        <TableCell className="text-center font-mono text-xs">
           {isDone && result.confidence != null
             ? `${Math.round(result.confidence * 100)}%`
-            : "-"}
+            : "—"}
         </TableCell>
-        <TableCell className="font-mono text-xs">
+
+        <TableCell className="text-center font-mono text-xs">
           {isDone && result.execution_time_ms != null
             ? `${(result.execution_time_ms / 1000).toFixed(1)}s`
-            : "-"}
+            : "—"}
         </TableCell>
-        <TableCell>
+
+        <TableCell className="px-2">
           <StatusIcon result={result} />
         </TableCell>
       </TableRow>
 
       {expanded && (
         <TableRow className="bg-muted/30 hover:bg-muted/30">
-          <TableCell colSpan={11} className="py-3 px-6">
+          <TableCell colSpan={9} className="py-3 px-6">
             <ExpandedDetail sample={sample} result={result} />
           </TableCell>
         </TableRow>
@@ -220,16 +242,22 @@ function ExpandedDetail({
   return (
     <div className="space-y-2 text-sm">
       <div>
-        <span className="font-medium text-muted-foreground">Full message: </span>
-        <span>{sample.tenant_message}</span>
+        <span className="font-medium text-muted-foreground">
+          Full message:{" "}
+        </span>
+        <span className="whitespace-pre-wrap">{sample.tenant_message}</span>
       </div>
       {result?.status === "done" && (
         <>
           {result.gatekeeper && (
             <div>
-              <span className="font-medium text-muted-foreground">Gatekeeper: </span>
+              <span className="font-medium text-muted-foreground">
+                Gatekeeper:{" "}
+              </span>
               <span>
-                {result.gatekeeper.self_resolvable ? "Self-resolvable" : "Not self-resolvable"}{" "}
+                {result.gatekeeper.self_resolvable
+                  ? "Self-resolvable"
+                  : "Not self-resolvable"}{" "}
                 ({Math.round(result.gatekeeper.confidence * 100)}%)
               </span>
               {result.gatekeeper.troubleshooting_guide && (
@@ -241,14 +269,20 @@ function ExpandedDetail({
           )}
           {result.recommended_action && (
             <div>
-              <span className="font-medium text-muted-foreground">Action: </span>
+              <span className="font-medium text-muted-foreground">
+                Action:{" "}
+              </span>
               <span>{result.recommended_action}</span>
             </div>
           )}
           {result.cost_low != null && result.cost_high != null && (
             <div>
-              <span className="font-medium text-muted-foreground">Cost: </span>
-              <span className="font-mono">${result.cost_low} - ${result.cost_high}</span>
+              <span className="font-medium text-muted-foreground">
+                Cost:{" "}
+              </span>
+              <span className="font-mono">
+                ${result.cost_low} – ${result.cost_high}
+              </span>
             </div>
           )}
           {result.error && (
