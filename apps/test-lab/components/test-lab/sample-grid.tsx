@@ -268,14 +268,14 @@ function ExpandedDetail({
             {sample.photos.map((photo) => (
               <a
                 key={photo.file_url}
-                href={`/api/samples/${sample.sample_id}/photos/${photo.file_url}`}
+                href={`/samples/${sample.sample_id}/${photo.file_url}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block rounded border border-border overflow-hidden hover:ring-2 hover:ring-ring transition-shadow"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={`/api/samples/${sample.sample_id}/photos/${photo.file_url}`}
+                  src={`/samples/${sample.sample_id}/${photo.file_url}`}
                   alt={photo.file_url}
                   className="h-16 w-16 object-cover"
                   loading="lazy"
