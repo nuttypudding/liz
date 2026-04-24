@@ -91,6 +91,15 @@ export function ArenaContent({ samples, models }: ArenaContentProps) {
       for (const modelId of uniqueModels) {
         if (controller.signal.aborted) break;
 
+        // Skip if we already have a successful result for this sample+model
+        const existing = results[sample.sample_id]?.[modelId];
+        if (existing && !existing.error) {
+          cachedCount++;
+          done++;
+          setProgress({ current: done, total, cached: cachedCount });
+          continue;
+        }
+
         try {
           const res = await fetch("/api/arena/run", {
             method: "POST",

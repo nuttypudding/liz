@@ -180,12 +180,13 @@ export async function POST(req: NextRequest) {
 
     try {
       const supabase = getSupabase();
-      const { data: cached } = await supabase
+      const { data: rows } = await supabase
         .from("arena_results")
         .select("*")
         .eq("input_hash", inputHash)
-        .single();
+        .limit(1);
 
+      const cached = rows?.[0];
       if (cached && !cached.error) {
         return NextResponse.json({
           category: cached.category,
