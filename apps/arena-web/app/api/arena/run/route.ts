@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import { loadModelCatalog } from "@/lib/models";
+import { getSupabase } from "@/lib/supabase";
 
 const SYSTEM_PROMPT = `You are an AI property maintenance triage system. Analyze the tenant's maintenance request (message and any photos) and classify it.
 
@@ -12,6 +14,11 @@ Respond with ONLY a JSON object — no markdown, no explanation:
   "recommended_action": "<brief recommended next step for the landlord>",
   "confidence_score": <float 0.0-1.0>
 }`;
+
+function computeInputHash(modelId: string, sampleId: string, message: string, photoCount: number): string {
+  const payload = JSON.stringify({ modelId, sampleId, message, photoCount });
+  return crypto.createHash("sha256").update(payload).digest("hex").slice(0, 16);
+}
 
 function parseAIOutput(raw: string) {
   let text = raw.trim();
@@ -146,32 +153,63 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "model_id and tenant_message required" }, { status: 400 });
     }
 
-    // Find model config
     const catalog = loadModelCatalog();
     const modelCfg = catalog.find((m) => m.model_id === model_id);
     if (!modelCfg) {
       return NextResponse.json({ error: `Unknown model: ${model_id}` }, { status: 400 });
     }
 
-    // Encode photos from disk
-    const photos: string[] = [];
+    // Count photos for this sample
+    let photoCount = 0;
+    const photoFilenames: string[] = [];
     if (sample_id) {
-      // Read the intake.json to get photo filenames
       const repoRoot = path.resolve(process.cwd(), "../..");
       const intakePath = path.join(repoRoot, "intake", "samples", sample_id, "intake.json");
       if (fs.existsSync(intakePath)) {
         const intake = JSON.parse(fs.readFileSync(intakePath, "utf-8"));
         const photoUploads = intake.ai_maintenance_intake?.input?.photo_upload || [];
         for (const p of photoUploads) {
-          const photoPath = findPhotoPath(sample_id, p.file_url);
-          if (photoPath) {
-            photos.push(encodeImage(photoPath));
-          }
+          photoFilenames.push(p.file_url);
         }
+        photoCount = photoFilenames.length;
       }
     }
 
+    // Check for cached result
+    const inputHash = computeInputHash(model_id, sample_id || "", tenant_message, photoCount);
+
+    try {
+      const supabase = getSupabase();
+      const { data: cached } = await supabase
+        .from("arena_results")
+        .select("*")
+        .eq("input_hash", inputHash)
+        .single();
+
+      if (cached && !cached.error) {
+        return NextResponse.json({
+          category: cached.category,
+          urgency: cached.urgency,
+          recommended_action: cached.recommended_action,
+          confidence_score: cached.confidence_score,
+          cached: true,
+          cached_at: cached.created_at,
+          result_id: cached.id,
+        });
+      }
+    } catch {
+      // Supabase not available — proceed without cache
+    }
+
+    // Encode photos
+    const photos: string[] = [];
+    for (const filename of photoFilenames) {
+      const photoPath = findPhotoPath(sample_id, filename);
+      if (photoPath) photos.push(encodeImage(photoPath));
+    }
+
     const userText = `Tenant message: ${tenant_message}`;
+    const startTime = Date.now();
 
     let result;
     switch (modelCfg.provider) {
@@ -191,7 +229,39 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: `Unknown provider: ${modelCfg.provider}` }, { status: 400 });
     }
 
-    return NextResponse.json(result);
+    const executionTimeMs = Date.now() - startTime;
+
+    // Save result to Supabase
+    let resultId: string | undefined;
+    try {
+      const supabase = getSupabase();
+      const { data: inserted } = await supabase
+        .from("arena_results")
+        .upsert({
+          input_hash: inputHash,
+          model_id,
+          sample_id: sample_id || "manual",
+          tenant_message,
+          photo_count: photoCount,
+          category: result.category,
+          urgency: result.urgency,
+          recommended_action: result.recommended_action,
+          confidence_score: result.confidence_score,
+          execution_time_ms: executionTimeMs,
+        }, { onConflict: "input_hash" })
+        .select("id")
+        .single();
+      resultId = inserted?.id;
+    } catch {
+      // Save failed — still return result
+    }
+
+    return NextResponse.json({
+      ...result,
+      cached: false,
+      execution_time_ms: executionTimeMs,
+      result_id: resultId,
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json({ error: message }, { status: 500 });

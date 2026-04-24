@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, Database, XCircle } from "lucide-react";
 import type { ArenaResult } from "./arena-content";
 
 interface ResultCardProps {
@@ -42,6 +42,17 @@ export function ResultCard({ result, truth }: ResultCardProps) {
 
   return (
     <div className="space-y-1.5 text-sm">
+      {result.cached && (
+        <p className="flex items-center gap-1 text-xs text-blue-600">
+          <Database className="h-3 w-3" />
+          Cached
+          {result.cached_at && (
+            <span className="text-muted-foreground">
+              {new Date(result.cached_at).toLocaleDateString()}
+            </span>
+          )}
+        </p>
+      )}
       <p>
         <span className="text-muted-foreground">Category: </span>
         <code className="text-xs">{result.category}</code>{" "}
@@ -62,6 +73,11 @@ export function ResultCard({ result, truth }: ResultCardProps) {
           {Math.round(result.confidence_score * 100)}%
         </span>
       </p>
+      {result.execution_time_ms && !result.cached && (
+        <p className="text-xs text-muted-foreground">
+          {(result.execution_time_ms / 1000).toFixed(1)}s
+        </p>
+      )}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader } from "@/components/shared/page-header";
-import { Loader2, Play, Square } from "lucide-react";
+import { History, Loader2, Play, Square } from "lucide-react";
 import type { SampleData } from "@liz/triage";
 import type { ModelConfig } from "@/lib/models";
 import { ModelComparisonTable } from "./model-comparison-table";
@@ -12,12 +12,17 @@ import { ModelSelectorRow } from "./model-selector-row";
 import { SampleRow } from "./sample-row";
 import { AggregateScores } from "./aggregate-scores";
 import { FeatureAssignment } from "./feature-assignment";
+import { RunHistory } from "./run-history";
 
 export interface ArenaResult {
   category: string;
   urgency: string;
   recommended_action: string;
   confidence_score: number;
+  cached?: boolean;
+  cached_at?: string;
+  result_id?: string;
+  execution_time_ms?: number;
   error?: string;
 }
 
@@ -39,7 +44,8 @@ export function ArenaContent({ samples, models }: ArenaContentProps) {
     () => new Set(samples.map((s) => s.sample_id))
   );
   const [results, setResults] = useState<ArenaResults>({});
-  const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
+  const [progress, setProgress] = useState<{ current: number; total: number; cached: number } | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
   const isRunning = progress !== null;
@@ -77,9 +83,10 @@ export function ArenaContent({ samples, models }: ArenaContentProps) {
 
     const controller = new AbortController();
     abortRef.current = controller;
-    setProgress({ current: 0, total });
+    setProgress({ current: 0, total, cached: 0 });
 
     let done = 0;
+    let cachedCount = 0;
     for (const sample of activeSamples) {
       for (const modelId of uniqueModels) {
         if (controller.signal.aborted) break;
@@ -92,14 +99,12 @@ export function ArenaContent({ samples, models }: ArenaContentProps) {
               model_id: modelId,
               tenant_message: sample.tenant_message,
               sample_id: sample.sample_id,
-              photo_urls: sample.photos.map(
-                (p) => `/samples/${sample.sample_id}/${p.file_url}`
-              ),
             }),
             signal: controller.signal,
           });
 
           const data = await res.json();
+          if (data.cached) cachedCount++;
 
           setResults((prev) => ({
             ...prev,
@@ -128,7 +133,7 @@ export function ArenaContent({ samples, models }: ArenaContentProps) {
         }
 
         done++;
-        setProgress({ current: done, total });
+        setProgress({ current: done, total, cached: cachedCount });
       }
       if (controller.signal.aborted) break;
     }
@@ -152,9 +157,20 @@ export function ArenaContent({ samples, models }: ArenaContentProps) {
         description="Compare vision-capable LLMs on maintenance intake classification"
         action={
           <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowHistory((v) => !v)}
+            >
+              <History className="mr-1 h-3 w-3" />
+              History
+            </Button>
             {progress && (
               <span className="text-sm text-muted-foreground">
                 {progress.current}/{progress.total}
+                {progress.cached > 0 && (
+                  <span className="text-blue-600"> ({progress.cached} cached)</span>
+                )}
               </span>
             )}
             {isRunning ? (
@@ -172,11 +188,16 @@ export function ArenaContent({ samples, models }: ArenaContentProps) {
         }
       />
 
+      {showHistory && <RunHistory onClose={() => setShowHistory(false)} />}
+
       {progress && (
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
             Running... {progress.current}/{progress.total}
+            {progress.cached > 0 && (
+              <span className="text-blue-600">({progress.cached} from cache)</span>
+            )}
           </div>
           <Progress value={(progress.current / progress.total) * 100} />
         </div>
