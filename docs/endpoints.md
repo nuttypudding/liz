@@ -224,6 +224,7 @@ Standalone QA dashboard for testing AI components in isolation. No auth required
 | GET | `/api/test-lab/runs/[id]` | Get test run with all test cases |
 | POST | `/api/test-lab/components/triage/run` | Run triage classifier against 20 curated samples |
 | POST | `/api/test-lab/components/triage/manual` | Classify arbitrary text (no DB persistence) |
+| GET | `/api/samples/[sampleId]/photos/[filename]` | Serve sample photos (jpg/png) from `intake/samples/` |
 
 ## Environment Files
 

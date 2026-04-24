@@ -1,9 +1,15 @@
 import fs from "fs";
 import path from "path";
 
+export interface SamplePhoto {
+  file_url: string;
+  file_type: string;
+}
+
 export interface SampleData {
   sample_id: string;
   tenant_message: string;
+  photos: SamplePhoto[];
   expected: {
     category: string;
     urgency: string;
@@ -67,9 +73,17 @@ export function loadSample(sampleId: string): SampleData {
   const parsed = JSON.parse(raw);
   const intake = parsed.ai_maintenance_intake;
 
+  const photos: SamplePhoto[] = Array.isArray(intake.input.photo_upload)
+    ? intake.input.photo_upload.map((p: { file_url: string; file_type: string }) => ({
+        file_url: p.file_url,
+        file_type: p.file_type,
+      }))
+    : [];
+
   return {
     sample_id: sampleId,
     tenant_message: intake.input.tenant_message,
+    photos,
     expected: {
       category: intake.ai_output.category,
       urgency: intake.ai_output.urgency,

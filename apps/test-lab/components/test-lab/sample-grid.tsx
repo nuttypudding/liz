@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Camera,
   ChevronDown,
   ChevronRight,
   Loader2,
@@ -148,7 +149,15 @@ function SampleRow({
         </TableCell>
 
         <TableCell className="overflow-hidden">
-          <p className="truncate text-sm">{sample.tenant_message}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="truncate text-sm flex-1">{sample.tenant_message}</p>
+            {sample.photos.length > 0 && (
+              <span className="flex items-center gap-0.5 shrink-0 text-muted-foreground">
+                <Camera className="h-3.5 w-3.5" />
+                <span className="text-xs">{sample.photos.length}</span>
+              </span>
+            )}
+          </div>
         </TableCell>
 
         <TableCell className="whitespace-normal">
@@ -239,16 +248,60 @@ function ExpandedDetail({
   sample: SampleData;
   result?: RowResult;
 }) {
+  const isDone = result?.status === "done";
+
   return (
-    <div className="space-y-2 text-sm">
+    <div className="space-y-3 text-sm">
+      {/* Full message */}
       <div>
         <span className="font-medium text-muted-foreground">
           Full message:{" "}
         </span>
         <span className="whitespace-pre-wrap">{sample.tenant_message}</span>
       </div>
-      {result?.status === "done" && (
+
+      {/* Photo thumbnails */}
+      {sample.photos.length > 0 && (
+        <div>
+          <span className="font-medium text-muted-foreground">Photos:</span>
+          <div className="mt-1.5 flex gap-2 flex-wrap">
+            {sample.photos.map((photo) => (
+              <a
+                key={photo.file_url}
+                href={`/api/samples/${sample.sample_id}/photos/${photo.file_url}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block rounded border border-border overflow-hidden hover:ring-2 hover:ring-ring transition-shadow"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`/api/samples/${sample.sample_id}/photos/${photo.file_url}`}
+                  alt={photo.file_url}
+                  className="h-16 w-16 object-cover"
+                  loading="lazy"
+                />
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Expected recommended action (always visible) */}
+      <div>
+        <span className="font-medium text-muted-foreground">
+          Expected action:{" "}
+        </span>
+        <span>{sample.expected.recommended_action}</span>
+      </div>
+
+      {/* After-run results */}
+      {isDone && (
         <>
+          <div className="border-t border-border pt-3 mt-3">
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              AI Results
+            </span>
+          </div>
           {result.gatekeeper && (
             <div>
               <span className="font-medium text-muted-foreground">
@@ -270,7 +323,7 @@ function ExpandedDetail({
           {result.recommended_action && (
             <div>
               <span className="font-medium text-muted-foreground">
-                Action:{" "}
+                AI Action:{" "}
               </span>
               <span>{result.recommended_action}</span>
             </div>
@@ -281,7 +334,7 @@ function ExpandedDetail({
                 Cost:{" "}
               </span>
               <span className="font-mono">
-                ${result.cost_low} – ${result.cost_high}
+                ${result.cost_low} &ndash; ${result.cost_high}
               </span>
             </div>
           )}
