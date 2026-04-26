@@ -9,14 +9,21 @@ npm run dev:web
 # Test Lab (port 3100, LAN-accessible)
 npm run dev:test-lab
 
+# LLM Arena (port 3200)
+npm run dev:arena
+
+# QA (port 3001, Cloudflare tunnel)
+npm run dev:qa
+
 # Both at once
 npm run dev:web & npm run dev:test-lab
 ```
 
-| App | Local | LAN |
-|-----|-------|-----|
-| Web | http://localhost:3000 | http://192.168.50.249:3000 |
-| Test Lab | http://localhost:3100 | http://192.168.50.249:3100 |
+| App | Local | LAN | QA | Production |
+|-----|-------|-----|----|------------|
+| Web | http://localhost:3000 | http://192.168.50.249:3000 | https://liz-qa.brightstep.ai | https://web-lovat-sigma-36.vercel.app |
+| Test Lab | http://localhost:3100 | http://192.168.50.249:3100 | — | — |
+| LLM Arena | http://localhost:3200 | http://192.168.50.249:3200 | — | https://arena-web-sigma.vercel.app |
 
 ---
 
@@ -37,12 +44,15 @@ npm run dev:web & npm run dev:test-lab
 | Supabase Auth | `http://localhost:54321/auth/v1` |
 | Ngrok Tunnel (webhooks) | `https://unvenomed-finned-yulanda.ngrok-free.dev` |
 
-### QA (Supabase Cloud)
+### QA (Cloudflare Tunnel + Supabase Cloud)
 
 | Service | URL |
 |---------|-----|
+| QA App (web) | `https://liz-qa.brightstep.ai` (port 3001 via Cloudflare tunnel `brightstep`) |
 | Supabase API | `https://kmtqmuedhwfcosbgsstu.supabase.co` |
 | Supabase Studio | `https://supabase.com/dashboard/project/kmtqmuedhwfcosbgsstu` |
+
+QA uses `.env.qa` (cloud Supabase, Clerk test keys). Start with `npm run dev:qa`.
 
 ### Production
 
@@ -226,6 +236,19 @@ Standalone QA dashboard for testing AI components in isolation. No auth required
 | POST | `/api/test-lab/components/triage/manual` | Classify arbitrary text (no DB persistence) |
 | GET | `/samples/[sampleId]/[filename]` | Static sample photos served from `public/samples/` |
 
+## LLM Arena (`apps/arena-web/` — port 3200)
+
+Standalone LLM evaluation dashboard for comparing vision-capable models on maintenance intake classification. No auth required.
+
+| Method | Route | Purpose |
+|--------|-------|---------|
+| GET | `/` | Arena dashboard (model comparison, sample grid, aggregate scores) |
+| POST | `/api/arena/run` | Run single LLM evaluation (deduplicates by input hash, returns cached if available) |
+| GET | `/api/arena/history` | List past arena results (filters: `?model=`, `?limit=`) |
+
+**Production**: https://arena-web-sigma.vercel.app
+**Vercel Project**: `prj_QzZ642fkOlPUPwOG4AtKFTUfr44S`
+
 ## Environment Files
 
 | File | Environment | Notes |
@@ -235,4 +258,5 @@ Standalone QA dashboard for testing AI components in isolation. No auth required
 | `apps/web/.env.example` | Template | Placeholder values for new devs |
 | `apps/test-lab/.env.local` | Local dev | Supabase + Anthropic keys (subset of web) |
 | `apps/test-lab/.env.example` | Template | Placeholder values |
+| `apps/arena-web/.env.local` | Local dev | Supabase + LLM API keys (OpenAI, Anthropic, Google, Groq) |
 | `.env` / `.env.local` | Root (Arena) | LLM API keys, root-level Clerk keys |
