@@ -18,6 +18,7 @@ All features and bug fixes are tracked here. Every piece of work starts with a t
 
 | Ticket | Date | Category | Description | Branch | Status | PR | Notes |
 |--------|------|----------|-------------|--------|--------|----|-------|
+| T-018 | 2026-04-28 | new-feature | Agent Platform (P4-001) — standalone agent services with uniform HTTP contract. First agent: maintenance-triage. Three deploy targets (local Mac, Spark QA, Vercel prod). Establishes pattern for vendor-dispatch, autonomy, comms agents. | feature/P4-001-agent-platform | in-progress | — | Plan in `features/planned/P4-001-agent-platform/README.md`. ~12-16 tasks (3H/7S/4O estimated). Decisions logged in `plan/DECISION_LOG.md` 2026-04-28. |
 | T-003 | 2026-04-08 | new-feature | Clerk Auth — roles, role selection, billing page, withAuth helper, production config | feature/T-003-clerk-auth | in-progress | — | Foundation done (13 items). Tasks 075–085 (4H/4S/3O) for remaining work. |
 | T-004 | 2026-04-08 | new-feature | Rent Reminder — rent tracking, due dates, overdue alerts, notification preferences | — | open | — | Phase 2. Depends on P1-002. 16 tasks |
 | T-005 | 2026-04-08 | new-feature | Auto-scheduling Vendors — vendor availability, tenant availability, AI schedule matching, Resend + Twilio | — | open | — | Phase 2. 17 tasks |

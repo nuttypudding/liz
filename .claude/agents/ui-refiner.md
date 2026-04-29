@@ -34,7 +34,7 @@ You are a UI polish specialist. You refine existing components — improving sty
    - Responsive refinements
 
 ### For Theming
-1. Edit CSS custom properties directly in `dashboard/src/index.css`
+1. Edit CSS custom properties directly in `apps/web/app/globals.css`
 2. Use Tailwind utility classes for component-level adjustments
 3. Maintain consistency with the existing Zinc base + New York style
 

@@ -15,11 +15,11 @@ Read the feature description from `$ARGUMENTS`. If no description was provided, 
 Gather context:
 - What problem does this feature solve?
 - Who is the target user?
-- Are there existing patterns in the web app to follow?
+- Are there existing patterns in the dashboard to follow?
 
 ## Step 2: Explore Existing Patterns
 
-Read existing web app components to understand current conventions:
+Read existing dashboard components to understand current conventions:
 
 ```bash
 ls apps/web/components/
@@ -33,7 +33,7 @@ Skim 2-3 representative components to understand the code style, state managemen
 Use the **Task tool** with `subagent_type: "ux-designer"` to spawn the UX Designer agent:
 
 > "Plan a dashboard UI feature: `<feature description from $ARGUMENTS>`.
-> The web app is at `apps/web/`. Existing components are in `apps/web/components/`.
+> The dashboard is at `apps/web/`. Existing components are in `apps/web/components/`.
 > Installed shadcn/ui primitives are in `apps/web/components/ui/`.
 > Output a structured implementation plan following the template in your instructions."
 
