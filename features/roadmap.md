@@ -29,3 +29,11 @@ Ticket-driven work within an existing phase uses `P{phase}-Tkt-{seq}-{name}/` na
 | P3-001 | Autonomous Decision-Making | COMPLETE | T-008 | Full AI autopilot, confidence scoring, safety rails, monthly reports. 22 tasks (6H/9S/5O). |
 | P3-002 | AI Tenant Screening | COMPLETE | T-009 | Application portal, TransUnion SmartMove, AI analysis, fair housing compliance. 27 tasks (5H/12S/5O). |
 | P3-003 | Legal/Compliance Engine | COMPLETE | T-010 | Jurisdiction rules, notice generator, communication reviewer, compliance dashboard. 24 tasks (4H/10S/6O). |
+
+## Phase 4 — Agents as Standalone Services
+
+Move AI logic out of the Liz monolith into independently deployable agent services. Each agent: own dir, own deps, own tests, own deploy. Uniform HTTP contract. See `plan/DECISION_LOG.md` 2026-04-28 entries.
+
+| ID | Feature | Status | Ticket | Notes |
+|----|---------|--------|--------|-------|
+| P4-001 | Agent Platform | PLANNED | T-018 | `agents/_shared/` library + first agent (maintenance-triage). Three deploy targets: local Mac, Spark QA, Vercel prod. ~12-16 tasks. See `features/planned/P4-001-agent-platform/README.md`. |
