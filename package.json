@@ -15,7 +15,8 @@
     "dev:arena": "npm run dev --workspace=apps/arena-web",
     "dev:triage-test": "npm run dev --workspace=apps/maintenance-triage-web-test",
     "test:web": "npm run test --workspace=apps/web",
-    "test:test-lab": "npm run test --workspace=apps/test-lab"
+    "test:test-lab": "npm run test --workspace=apps/test-lab",
+    "test:triage": "cd agents/maintenance-triage && uv run pytest"
   },
   "optionalDependencies": {
     "lightningcss-darwin-arm64": "^1.32.0"

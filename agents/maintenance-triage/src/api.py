@@ -2,14 +2,20 @@ import os
 import secrets
 from typing import Literal
 
-from fastapi import FastAPI, Header, Request
+from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.types import ASGIApp
 
 AGENT_NAME = "maintenance-triage"
 AGENT_VERSION = "0.0.1"
 AGENT_MODEL = "stub"
+
+# Paths exempt from auth. Health checks must work without secrets so
+# load balancers / monitors can probe liveness.
+UNAUTHENTICATED_PATHS = frozenset({"/v1/health"})
 
 app = FastAPI(title=AGENT_NAME, version=AGENT_VERSION)
 
@@ -23,23 +29,47 @@ class RunRequest(BaseModel):
     messages: list[Message] = Field(default_factory=list)
 
 
-def _shared_secret() -> str:
-    secret = os.environ.get("AGENT_SHARED_SECRET")
-    if not secret:
-        raise RuntimeError(
-            "AGENT_SHARED_SECRET not set. Copy .env.local.example to .env.local and load it before starting uvicorn."
-        )
-    return secret
-
-
 def _error(code: str, message: str, status: int) -> JSONResponse:
-    return JSONResponse(status_code=status, content={"error": {"code": code, "message": message}})
+    return JSONResponse(
+        status_code=status, content={"error": {"code": code, "message": message}}
+    )
 
 
-def _check_auth(x_agent_auth: str | None) -> JSONResponse | None:
-    if x_agent_auth is None or not secrets.compare_digest(x_agent_auth, _shared_secret()):
-        return _error("unauthorized", "missing or invalid X-Agent-Auth header", 401)
-    return None
+class AuthMiddleware(BaseHTTPMiddleware):
+    """Reject unauthenticated requests before any body parsing.
+
+    Order matters: FastAPI's body validation runs in the route layer, so
+    without middleware here a malformed body from an unauthenticated
+    caller would surface as 422 (leaking schema info). Middleware
+    guarantees auth fires first.
+    """
+
+    def __init__(self, app: ASGIApp) -> None:
+        super().__init__(app)
+
+    async def dispatch(self, request: Request, call_next):
+        if request.url.path in UNAUTHENTICATED_PATHS:
+            return await call_next(request)
+
+        secret = os.environ.get("AGENT_SHARED_SECRET")
+        if not secret:
+            # Fail closed: a misconfigured agent should never accept calls.
+            return _error(
+                "misconfigured",
+                "AGENT_SHARED_SECRET is not set on the server",
+                500,
+            )
+
+        provided = request.headers.get("x-agent-auth")
+        if provided is None or not secrets.compare_digest(provided, secret):
+            return _error(
+                "unauthorized", "missing or invalid X-Agent-Auth header", 401
+            )
+
+        return await call_next(request)
+
+
+app.add_middleware(AuthMiddleware)
 
 
 @app.exception_handler(RequestValidationError)
@@ -53,9 +83,7 @@ def health() -> dict[str, str]:
 
 
 @app.get("/v1/info")
-def info(x_agent_auth: str | None = Header(default=None, alias="X-Agent-Auth")):
-    if denied := _check_auth(x_agent_auth):
-        return denied
+def info() -> dict[str, object]:
     return {
         "name": AGENT_NAME,
         "version": AGENT_VERSION,
@@ -65,12 +93,7 @@ def info(x_agent_auth: str | None = Header(default=None, alias="X-Agent-Auth")):
 
 
 @app.post("/v1/run")
-def run(
-    body: RunRequest,
-    x_agent_auth: str | None = Header(default=None, alias="X-Agent-Auth"),
-):
-    if denied := _check_auth(x_agent_auth):
-        return denied
+def run(body: RunRequest) -> dict[str, str]:
     return {
         "message": "hello world",
         "agent": AGENT_NAME,
