@@ -43,9 +43,9 @@ liz/
     ├── _shared/                   # base library: API skeleton, auth, telemetry, eval harness
     ├── maintenance-triage/        # first agent
     │   ├── src/
-    │   │   ├── agent.py           # Microsoft Agent Framework agent definition
+    │   │   ├── agent.py           # agent logic — LLM call via OpenRouter, schema validation
     │   │   ├── api.py             # FastAPI app object (uniform contract)
-    │   │   ├── tools/             # agent-specific tool implementations
+    │   │   ├── tools/             # agent-specific tool implementations (none for v1)
     │   │   └── prompts/v1.md      # versioned system prompt
     │   ├── api/index.py           # 5-line Vercel shim — imports src/api.py:app
     │   ├── tests/
@@ -62,7 +62,8 @@ liz/
 `agents/_shared/` is a **library** (imported by each agent), not a framework agents must extend. Carries:
 - FastAPI scaffold for the standard API contract
 - Service-to-service auth middleware (header-based shared secret)
-- OpenTelemetry tracing setup (MAF native)
+- OpenAI-compatible LLM client preconfigured for OpenRouter (with retry, timeout, telemetry hooks)
+- OpenTelemetry tracing setup (instrumented FastAPI + outbound LLM calls)
 - Eval runner (loads a JSONL dataset → runs agent → scores → reports)
 - Common pydantic models for request/response
 
@@ -76,7 +77,7 @@ Every agent implements:
 | GET | `/v1/health` | Liveness + readiness |
 | GET | `/v1/info` | Name, version, model, capabilities, tool catalog |
 
-Request/response shape mirrors OpenAI Chat Completions / MAF native (messages array, tool_calls, usage). Liz callers never deal with agent-specific SDKs — one client helper handles all agents.
+Request/response shape mirrors OpenAI Chat Completions (messages array, tool_calls, usage). Liz callers never deal with agent-specific SDKs — one client helper handles all agents.
 
 **No streaming** for v1 (confirmed: triage flow <5s, fits Vercel function limits cleanly).
 
@@ -106,6 +107,45 @@ Per-agent code stays isolated in `agents/<name>/` with its own pyproject.toml, t
 Trade-off accepted: deploys are coupled (a push to vendor-dispatch redeploys triage too) and the function size cap (250MB compressed) is shared. Splitting into separate Vercel projects becomes a small mechanical change when the pain shows up — agent source doesn't change.
 
 See `plan/DECISION_LOG.md` 2026-04-28 entry for the full rationale.
+
+### LLM access — OpenRouter as the gateway
+
+All agents call LLMs through **OpenRouter**, not directly against provider APIs. OpenRouter is OpenAI-compatible, so we use the standard `openai` Python SDK with a different `base_url`. This decouples agents from any single model provider.
+
+```python
+# agents/_shared/llm.py (sketch — not code yet)
+from openai import AsyncOpenAI
+client = AsyncOpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.environ["OPENROUTER_API_KEY"],
+)
+response = await client.chat.completions.create(
+    model=os.environ["AGENT_TRIAGE_MODEL"],  # e.g. "anthropic/claude-sonnet-4-6"
+    messages=[...],
+)
+```
+
+**Why OpenRouter:**
+- One key, ~200 models. Switching default model = change `AGENT_TRIAGE_MODEL` env var, no code change.
+- Easy A/B / eval against alternate providers — the arena pattern stays useful.
+- Provider-agnostic billing/observability in one dashboard.
+- Vision, tool use, structured output all work via the OpenAI-compatible interface.
+
+**Trade-offs accepted:**
+- ~5% margin on token cost vs. direct provider. Negligible at MVP scale; revisit if usage grows enough to matter.
+- Extra network hop adds ~50–100ms vs direct Anthropic. Fine for triage (whole flow <5s).
+- Anthropic prompt caching is supported via OpenRouter, but cache hit behavior should be verified on first deploy — providers occasionally diverge here.
+- One more vendor in the data path. OpenRouter has its own privacy/compliance posture; review before any sensitive data flows.
+
+**Env var convention (per agent):**
+- `OPENROUTER_API_KEY` — shared across agents, in Vercel project env
+- `AGENT_<NAME>_MODEL` — primary model ID (e.g. `AGENT_TRIAGE_MODEL=anthropic/claude-sonnet-4-6`)
+- `AGENT_<NAME>_FALLBACK_MODEL` — optional fallback if primary returns errors
+
+**Framework-per-agent (no monoculture):**
+- v1 triage: raw `openai` SDK + OpenRouter (~50 lines of agent logic). No agent framework.
+- Future stateful agents (vendor dispatch, autonomy, comms): default to **LangGraph** when state, checkpointing, or long-running workflows justify it. Drop in alongside OpenRouter — LangGraph supports OpenAI-compatible endpoints.
+- Each agent's `pyproject.toml` declares only what it needs. No shared framework dependency.
 
 ### Versioning + caller wiring
 
@@ -141,8 +181,11 @@ Scope for v1:
 - Input: tenant message text + optional photo URLs
 - Output: `{category, urgency, recommended_action, confidence}` matching the existing `ai_maintenance_intake` schema (`intake/readme.md`)
 - Tools: vision analysis (when photos present), nothing else for v1 (no Supabase reads, no vendor lookup yet)
-- Model: same as current production (Claude Sonnet 4.6 with vision)
+- LLM access: `openai` SDK pointed at OpenRouter
+- Default model: `anthropic/claude-sonnet-4-6` (vision-capable Claude Sonnet via OpenRouter), configurable via `AGENT_TRIAGE_MODEL`
+- Implementation shape: ~50 lines — system prompt + one chat completion call + JSON-schema validated parse. No agent framework.
 - Eval set: existing 20 labeled samples in `intake/samples/`, scored against ai_category + ai_urgency labels
+- Eval bonus: run the same eval against 2–3 alternate model IDs to verify the abstraction holds (e.g. `openai/gpt-5`, `google/gemini-2.5-pro`)
 
 **Open question:** does v1 need any tools beyond the LLM call? If not, this is essentially `@liz/triage` lifted behind HTTP. The case for an agent (vs. a library) gets stronger when triage gains tools — past similar requests, vendor availability, escalation rules. v1 may be a thin wrap; v2 grows into a real agent. **This is acceptable** — establishing the platform is the goal of v1, not maximizing agent value.
 
@@ -167,8 +210,8 @@ No big bang. Library and agent coexist until we trust the agent.
 - Gateway service — direct addressing is fine until 3+ agents
 - Multi-tenant auth (JWTs) — shared secrets are enough
 - Agent-to-agent calls — agents only respond to Liz for now
-- Cost-tier model routing (Haiku for cheap, Sonnet for hard) — agent picks one model per version
-- A/B testing infrastructure — single model per version, evals catch regressions
+- Cost-tier model routing inside production (Haiku for cheap, Sonnet for hard) — agent picks one model per version. OpenRouter makes manual swaps trivial via env, but automatic per-request routing waits.
+- A/B testing infrastructure in production — single model per version, evals catch regressions. Multi-model comparison happens in the eval suite, not at runtime.
 - Multi-arch Docker (`linux/amd64`) — Spark is arm64; Vercel handles its own packaging
 
 ---
@@ -183,16 +226,20 @@ No big bang. Library and agent coexist until we trust the agent.
 | Agent vs. library blurry for v1 triage | "Why did we add HTTP latency for nothing?" | Accept it. Establishing the pattern is the value. v2 with tools justifies the boundary. |
 | Schema fork temptation (each agent its own DB) | Future debugging hell | Hard rule: one Supabase, migrations in `apps/web/supabase/migrations/`. |
 | `_unapplied/` migrations forgotten | The 15 quarantined migrations rot | Separate ticket to either fix-and-ship or delete. Not part of this feature. |
+| OpenRouter outage | All agents go down — single point of failure for LLM access | Configure fallback model in OpenRouter dashboard. Future: short-circuit env flag to bypass OpenRouter and call provider directly. Acceptable risk for MVP given OpenRouter's uptime track record. |
+| Anthropic prompt caching divergence via OpenRouter | Cache-hit savings (~90%) might not apply, raising costs | Verify cache headers + observed hit rate on first deploy. If broken, file with OpenRouter or use direct Anthropic for caching-heavy paths. |
+| Model API drift across providers | A different model ID via OpenRouter behaves differently (tool format, JSON mode, vision encoding) | Eval suite must run against the active model, not a reference one. Switching default model triggers a re-eval. |
 
 ---
 
 ## Open decisions to make before task breakdown
 
-1. **Microsoft Agent Framework version pin.** MAF Python is young (Nov 2024 release). Pin to a specific version, plan for breaking changes. Need to check current stable.
-2. **uv vs. pip.** Use `uv` (faster, modern, plays well with workspaces). Confirmed unless objections.
-3. **Telemetry sink.** OTel is built into MAF. Where does it ship? Honeycomb / Sentry / self-hosted Phoenix? Decide before first agent ships.
-4. **Cloudflare tunnel hostnames.** `triage.agents-qa.brightstep.ai` or `triage-qa.agents.brightstep.ai`? Pick a convention.
-5. **Image distribution to Spark.** Start with `docker save | ssh spark docker load`. Graduate to ghcr.io when CI exists.
+1. **OpenRouter prompt caching strategy.** Anthropic native caching saves ~90% on repeated system prompts. Enable cache breakpoints from day one (every triage request shares the same system prompt — large win), or wait until we see actual cache-hit behavior via OpenRouter? Probably day one.
+2. **Fallback model config.** Configure in the OpenRouter dashboard (single source of truth, applies to all callers) or per-request in code (more granular, lives in repo)? Dashboard is simpler; repo is more reproducible.
+3. **uv vs. pip.** Use `uv` (faster, modern, plays well with workspaces). Confirmed unless objections.
+4. **Telemetry sink.** Where does OTel ship? Honeycomb / Sentry / self-hosted Phoenix / Langfuse? Langfuse is interesting for LLM-specific traces. Decide before first agent ships.
+5. **Cloudflare tunnel hostnames.** `triage.agents-qa.brightstep.ai` or `triage-qa.agents.brightstep.ai`? Pick a convention.
+6. **Image distribution to Spark.** Start with `docker save | ssh spark docker load`. Graduate to ghcr.io when CI exists.
 
 ---
 
@@ -201,17 +248,18 @@ No big bang. Library and agent coexist until we trust the agent.
 Estimated 12–16 tasks. Tier mix: ~3 Haiku, ~7 Sonnet, ~3-5 Opus.
 
 **Foundation (`agents/_shared/`)**
-- Opus: design `_shared/` API: pydantic models, FastAPI scaffold, auth middleware, eval runner shape
-- Sonnet: implement `_shared/` library
+- Opus: design `_shared/` API: pydantic models, FastAPI scaffold, auth middleware, eval runner shape, OpenRouter LLM client wrapper (retry/timeout/tracing)
+- Sonnet: implement `_shared/` library — OpenRouter-configured `AsyncOpenAI` client, FastAPI scaffold, auth middleware, eval runner
 - Sonnet: write `_shared/` unit tests + contract test fixtures
 - Haiku: scaffold `agents/` dir, root `pyproject.toml` (uv workspace), repo conventions doc
 
 **maintenance-triage agent**
-- Opus: agent design — system prompt, tool surface (none for v1), schema validation, error modes
-- Sonnet: implement `agents/maintenance-triage/src/agent.py` + `api.py`
+- Opus: agent design — system prompt, tool surface (none for v1), JSON-schema validated output, error modes, prompt-caching strategy
+- Sonnet: implement `agents/maintenance-triage/src/agent.py` + `api.py` (raw `openai` SDK via OpenRouter, ~50 lines)
 - Sonnet: port the 20 labeled samples into `tests/evals/dataset.jsonl` + scoring
+- Sonnet: cross-model eval — run the suite against `anthropic/claude-sonnet-4-6` + 2 alternates to verify portability
 - Sonnet: contract tests with recorded cassettes
-- Haiku: Dockerfile + `.env.example` + README
+- Haiku: Dockerfile + `.env.example` (with OPENROUTER_API_KEY, AGENT_TRIAGE_MODEL) + README
 
 **Deployment**
 - Sonnet: Vercel umbrella `api/index.py` + `vercel.json` + custom domain wiring
@@ -222,7 +270,7 @@ Estimated 12–16 tasks. Tier mix: ~3 Haiku, ~7 Sonnet, ~3-5 Opus.
 - Sonnet: `apps/web/lib/agents/client.ts` typed client
 - Sonnet: feature-flag triage call in `apps/web/app/api/intake/route.ts` (shadow mode)
 - Opus: shadow-mode comparison harness — log agent vs library output diffs
-- Haiku: env var wiring (`AGENT_TRIAGE_URL`, auth secret) for local/QA/prod
+- Haiku: env var wiring (`AGENT_TRIAGE_URL`, `OPENROUTER_API_KEY`, `AGENT_TRIAGE_MODEL`, auth secret) for local/QA/prod
 
 ---
 
