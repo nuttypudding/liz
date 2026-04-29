@@ -68,7 +68,7 @@ The agent will:
 After the refiner agent completes, verify nothing broke:
 
 ```bash
-npm run lint --workspace=apps/web
+cd dashboard && npx tsc --noEmit && cd ..
 ```
 
 If there are TypeScript errors, fix them.

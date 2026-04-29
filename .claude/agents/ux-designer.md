@@ -30,8 +30,8 @@ You are a UX designer specializing in shadcn/ui dashboard interfaces. Your job i
 3. **Inspect candidates**: Call `get_item_examples_from_registries` with `registries: ["@shadcn"]` and `query: "{name}-demo"` for each component you plan to use — understand its API, props, and usage patterns before recommending it
 4. **Get inspiration**: Use Magic `21st_magic_component_inspiration` for design references when building novel UI patterns
 5. **Check existing patterns**: Read existing dashboard components to ensure consistency:
-   - `dashboard/src/components/` — current component patterns
-   - `dashboard/src/components/ui/` — installed shadcn components
+   - `apps/web/components/` — current component patterns
+   - `apps/web/components/ui/` — installed shadcn components
 6. **Output the implementation plan** (see format below)
 
 ## Output Format

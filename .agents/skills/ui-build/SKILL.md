@@ -13,10 +13,10 @@ Build dashboard UI components from an existing implementation plan. This skill w
 Read the feature argument from `$ARGUMENTS`. Find the plan:
 
 1. If `$ARGUMENTS` is a file path, read it directly
-2. Otherwise, look for `dashboard/plans/<argument>.md`
+2. Otherwise, look for `apps/web/plans/<argument>.md`
 3. If no plan is found, list available plans:
    ```bash
-   ls dashboard/plans/
+   ls apps/web/plans/
    ```
    Ask the user which plan to implement, or suggest running `/ux-design` first.
 
@@ -27,7 +27,7 @@ Read the full plan file to understand the feature scope.
 Before building, verify the environment:
 
 ```bash
-ls dashboard/src/components/ui/
+ls apps/web/components/ui/
 ```
 
 Cross-reference the plan's "Components Needed" section against installed components. Note which ones need installation.
@@ -42,7 +42,7 @@ Use the **Task tool** with `subagent_type: "ui-builder"` to spawn the UI Builder
 > <paste full plan content here>
 > ```
 >
-> The dashboard root is `dashboard/`. Follow the project conventions in your instructions.
+> The web app root is `apps/web/`. Follow the project conventions in your instructions.
 > Already-installed shadcn components: `<list from Step 2>`.
 > Install any missing components before using them."
 
@@ -58,14 +58,14 @@ The agent will:
 After the builder agent completes, verify the build:
 
 ```bash
-cd dashboard && npx tsc --noEmit && cd ..
+npm run lint --workspace=apps/web
 ```
 
 If there are TypeScript errors, fix them before proceeding.
 
 Check that the app compiles:
 ```bash
-cd dashboard && npx vite build 2>&1 | tail -5 && cd ..
+npm run build --workspace=apps/web 2>&1 | tail -5
 ```
 
 ## Step 5: Report
