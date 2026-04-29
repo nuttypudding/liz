@@ -1,7 +1,14 @@
 # Claude Code
 .claude/settings.local.json
 .claude/worktrees/
+.claude/scheduled_tasks.lock
 .mcp.json
+
+# npm config (per-developer, e.g. os=darwin override on Mac)
+.npmrc
+
+# Personal reference materials
+books/
 
 # Python
 __pycache__/
