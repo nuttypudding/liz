@@ -1,245 +1,129 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code working in this repository.
 
 ## Project Overview
 
-**Liz** is an AI Property Manager platform. The goal is to automate landlord tasks: maintenance triage, vendor coordination, tenant communication, and rent reminders. The MVP focuses on **AI Maintenance Intake** — classifying tenant-submitted issues by category and urgency, then recommending actions.
+**Liz** is an AI Property Manager platform. The active development scope is the **Agent Platform** (Phase 4) — independently deployable AI agents with a uniform HTTP contract. The legacy Liz monolith (Phases 1–3, deployed Next.js app) is preserved under `archive/` for reference and continues to serve production from `archive/apps/web/`.
 
 ## Current Phase
 
-Phase 1 MVP complete. Deployed to Vercel production.
-
-## Development Workflow
-
-This project uses the BrightStep development process. See `PROCESS.md` in `brightstep_process/` for full reference.
-
-### Skills (Slash Commands)
-
-| Skill | Status | Purpose |
-|-------|--------|---------|
-| `/nextstep` | Active | Pick and execute the next backlog task |
-| `/plan-feature <name>` | Active | Create a feature plan + ticket + branch |
-| `/create-feature-tasks-in-backlog <name>` | Active | Generate task files from a feature plan |
-| `/fix-bug [--ticket T-NNN \| description]` | Active | Ticket-first bug fix workflow |
-| `/log-bug <description>` | Active | Log a new bug ticket |
-| `/update-docs` | Active | Scan git diff, update affected documentation |
-| `/ship <message>` | Active | Tests + doc sweep + commit (user-invoked only) |
-| `/merge-to-main` | Active | Push branch + create PR + merge to main |
-| `/review-changes` | Active | Security & architecture review (read-only) |
-| `/autorunner-status` | Active | Check autorunner progress |
-| `/run-dev` | Active | Start local dev servers |
-| `/test-all` | Active | Run all tests (unit, component, E2E) |
-| `/test-fix-dev` | Active | Creative autonomous local QA — invents tests, probes boundaries, self-heals |
-| `/test-fix-prod` | Active | Autonomous production smoke test + fix loop (`apps/web/e2e-prod/*.mjs`) |
-| `/deploy-prod` | Active | Production deployment to Vercel |
-| `/save` | Active | Save session state to memory before `/exit` |
-| `/overnight-qa` | Pending | Comprehensive overnight QA (needs test matrix) |
-| `/notify` | Pending | Notifications (needs service credentials) |
-
-### Rules (auto-loaded by file path)
-
-| Rule | Active When Editing |
-|------|---------------------|
-| `documentation.md` | `docs/**` |
-| `plan-changes.md` | `plan/**` |
-| `task-execution.md` | `features/inprogress/**/backlog/**`, `features/inprogress/**/doing/**` |
-
-### Hook
-
-Post-commit reminder: after `git commit`, a non-blocking nudge to run `/update-docs`.
-
-### Ticket-First Workflow
-
-All features and bug fixes require a ticket in `.claude/tickets.md` before work begins.
-
-- `/log-bug` creates bug tickets (`bug-fix-dev` or `bug-fix-prod`)
-- `/plan-feature` auto-creates `new-feature` tickets + branches
-- `/fix-bug --ticket T-NNN` links to an existing ticket
-
-Categories: `new-feature`, `bug-fix-dev`, `bug-fix-prod`.
-Status lifecycle: `open` → `in-progress` → `testing` → `pr-open` → `deployed` → `closed`.
-
-### Model Tier System
-
-Task filenames encode the required tier for cost control:
-
-| Tier | Prefix | Use For |
-|------|--------|---------|
-| Haiku | `Haiku-` | Routine: config, tests, docs, scaffolding, migrations |
-| Sonnet | `Sonnet-` | Guided implementation with clear design |
-| Opus | `Opus-` | Architecture, front-end design, critical judgment |
-
-**Front-end work is always Opus.**
-
-### Automated Task Runner
-
-```bash
-python scripts/autonextstep.py              # Run all ready tasks
-python scripts/autonextstep.py --dry-run    # Preview (no execution)
-python scripts/autonextstep.py --once       # Run one task, then stop
-python scripts/autonextstep.py --max 5      # Run at most 5 tasks
-```
-
-## Git Branch Strategy
-
-```
-main ──●──────────────────────────●──────────────────────●───>
-        \                        /\                      /
-         feature/P2-002 ──●──●──●  feature/P2-003 ──●──●
-              (push, PR, merge)       (push, PR, merge)
-```
-
-Branch naming: `feature/<feature-name>` (e.g., `feature/P2-002-auto-scheduling-vendors`) or `fix/T-NNN-name`.
-
-### Feature-Branch Lifecycle
-
-Each feature runs on a dedicated branch. When all tasks complete:
-1. `/nextstep` pushes the branch and creates a PR via `gh pr create`
-2. `autonextstep.py` merges the PR, checks out main, and starts the next feature
-
-State is tracked in `.claude/feature-lifecycle.json`:
-- `in_progress` — feature tasks are running on the feature branch
-- `pr_created` — all tasks done, PR awaits merge
-- `merged` — PR merged, ready for next feature
-- `error` — merge failed, needs manual intervention
-
-Use `--no-auto-merge` with `autonextstep.py` to pause after PR creation for manual review.
-
-## Feature Naming Conventions
-
-Two naming conventions exist for feature plans:
-
-| Convention | Pattern | Use When |
-|------------|---------|----------|
-| **Planned** | `P{phase}-{seq}-{name}` | Pre-roadmap features designed during planning (e.g., `P1-002-clerk-auth`, `P2-001-rent-reminder`) |
-| **Ticket-driven** | `P{phase}-Tkt-{seq}-{name}` | Reactive work within an existing phase — bug fixes, product feedback, enhancements (e.g., `P1-Tkt-001-mvp-ux-overhaul`) |
-
-Both live in `features/planned/` (or `features/inprogress/` when active). The `Tkt` convention signals work that originated from a ticket, bug report, or product review rather than upfront roadmap planning.
-
-**When to use `Tkt`**: Any feature or bug fix that responds to feedback on an existing phase. If Liz (product owner) reviews Phase 1 and requests changes, those become `P1-Tkt-{seq}`. If a bug is found in production Phase 1 code, the fix becomes `P1-Tkt-{seq}`.
-
-**When to use sequential**: Planned roadmap features designed before implementation begins (`P1-001`, `P2-001`, etc.).
+**Phase 4 — Agent Platform** (P4-001, ticket T-018, active branch `feature/P4-001-agent-platform`). POC-1 complete: hello-world `maintenance-triage` agent + web test harness, 20 passing tests. POC-2 (real OpenRouter call to Claude Sonnet 4.6) is next. See `features/planned/P4-001-agent-platform/README.md` and `POC.md`.
 
 ## Repository Structure
 
 ```
 liz/
-├── package.json               # npm workspaces root
-├── .claude/
-│   ├── settings.json          # Hooks config (committed)
-│   ├── tickets.md             # Ticket tracker
-│   ├── commands/              # nextstep, plan-feature, create-feature-tasks-in-backlog
-│   ├── skills/                # Slash commands (ship, fix-bug, log-bug, etc.)
-│   ├── rules/                 # Path-scoped rules (documentation, plan-changes, task-execution)
-│   └── hooks/                 # Post-commit reminder
-├── packages/
-│   └── triage/                # Shared triage classifier (@liz/triage)
-│       └── src/               # classifier.ts, types.ts, samples.ts
+├── agents/                            # Standalone agent services (Python, FastAPI)
+│   └── maintenance-triage/            # First agent — POC-1
 ├── apps/
-│   ├── web/                   # Main Next.js app (landlord/tenant UI)
-│   ├── test-lab/              # Standalone QA dashboard (port 3100, no auth)
-│   └── arena/                 # LLM Arena (Python Streamlit)
-├── intake/
-│   ├── readme.md              # Product vision, MVP features, tech stack, roadmap
-│   └── samples/               # 20 labeled maintenance intake samples
-├── plan/
-│   ├── README.md              # Plan overview
-│   └── DECISION_LOG.md        # Decision audit trail
+│   └── maintenance-triage-web-test/   # Next.js test harness for the agent
+├── intake/                            # Product vision + 20 labeled samples (used for agent evals)
 ├── features/
-│   ├── roadmap.md             # Feature tracking (Phase 1–3)
-│   ├── planned/               # Upcoming feature plans (P{phase}-{seq}-{name}/)
-│   ├── inprogress/            # Active features with task dirs:
-│   │   └── <feature>/
-│   │       ├── README.md      # Feature plan
-│   │       ├── backlog/       # Pending tasks
-│   │       ├── doing/         # Current task (max 1)
-│   │       └── done/          # Completed tasks
-│   └── completed/             # Archived completed features
-├── docs/
-│   ├── endpoints.md           # All URLs: local, QA, prod, API routes, app pages
-│   ├── testing-framework.md   # Test structure, feature-to-test mapping, coverage gaps
-│   ├── testing-guides/        # Manual testing guides (10 guides, 220+ test cases)
-│   └── ui-process.md          # UI process documentation
-├── scripts/
-│   └── autonextstep.py        # Automated task runner
-├── brightstep_process/        # BrightStep process reference (source material)
-└── CLAUDE.md                  # This file
+│   ├── roadmap.md                     # Phase 4 roadmap; legacy phases archived
+│   └── planned/P4-001-agent-platform/ # Active feature plan + POC docs
+├── plan/
+│   └── DECISION_LOG.md                # Architectural decisions (full history; do not trim)
+├── archive/                           # Legacy Liz monolith (Phases 1–3) — see archive/README.md
+│   ├── apps/web/                      # Production Next.js app — Vercel deploys from here
+│   ├── apps/test-lab/, apps/arena-web/, apps/arena/
+│   ├── packages/triage/               # @liz/triage classifier (legacy)
+│   ├── docs/, scripts/, supabase/, brightstep_process/
+│   └── features/completed/            # Phase 1–3 feature plans
+├── .claude/, .agents/                 # Claude Code + Codex tooling
+├── package.json                       # npm workspaces root (slim — only the test web app)
+├── CLAUDE.md, AGENTS.md
 ```
 
-## Intake JSON Schema
-
-Every `intake.json` follows this structure:
-
-```
-ai_maintenance_intake
-├── input
-│   ├── tenant_message (string)
-│   └── photo_upload[] (file_url, file_type, uploaded_at)
-├── ai_output
-│   ├── category: plumbing | electrical | hvac | structural | pest | appliance | general
-│   ├── urgency: low | medium | emergency
-│   ├── recommended_action (string)
-│   └── confidence_score (0–1)
-└── source
-    ├── origin, subreddit, post_url, post_title
-```
-
-Sample directories follow: `sample_XX_<category>_<short_description>`.
-
-## Tech Stack
+## Tech Stack (Phase 4 / agents)
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | Next.js 16 (App Router) |
-| Styling | Tailwind CSS |
-| Auth & Billing | Clerk (`@clerk/nextjs`) — auth, roles, subscriptions |
-| Database | Supabase (PostgreSQL + Storage + Realtime) |
-| AI | Claude API (Sonnet for text classification, Vision for photo analysis) |
-| Deployment | Vercel (frontend + API routes) |
-| Language | TypeScript (strict) |
-| Monorepo | npm workspaces (`apps/web`, `apps/test-lab`, `packages/triage`) |
+| Agents | Python 3.12+, FastAPI, uv |
+| LLM access | OpenRouter (OpenAI-compatible SDK), model env-configurable per agent |
+| Agent framework | Per-agent choice — raw `openai` SDK for stateless; LangGraph reserved for stateful |
+| Auth (agent ↔ caller) | Shared secret `X-Agent-Auth` header in starlette middleware |
+| Test harness | Next.js 16 (`apps/maintenance-triage-web-test/`) |
+| Deploy targets | Local (uvicorn), Spark QA (Docker — future POC), Vercel (Python function — future POC) |
 
-No separate backend — Next.js API routes handle all server logic for MVP. Clerk owns auth (not Supabase Auth). Supabase is a pure database + storage layer.
+Microsoft Agent Framework was evaluated and rejected; see `plan/DECISION_LOG.md` 2026-04-28 entries.
 
-### Shared Packages
+## Skills (slash commands)
 
-| Package | Path | Purpose |
-|---------|------|---------|
-| `@liz/triage` | `packages/triage/` | AI maintenance classifier (pure logic, dependency-injected). Used by both `apps/web` and `apps/test-lab`. |
+| Skill | Status | Purpose |
+|-------|--------|---------|
+| `/plan-feature <name>` | Active | Create a feature plan + ticket + branch |
+| `/log-bug <description>` | Active | Log a new bug ticket |
+| `/fix-bug [--ticket T-NNN \| description]` | Active | Ticket-first bug fix workflow |
+| `/ship <message>` | Active | Tests + doc sweep + commit (user-invoked) |
+| `/merge-to-main` | Active | Push branch + create PR + merge |
+| `/review-changes` | Active | Security & architecture review (read-only) |
+| `/update-docs` | Active | Scan git diff, update affected docs |
+| `/save` | Active | Save session state to memory |
+| `/codex:review`, `/codex:adversarial-review`, `/codex:rescue` | Active | Second-opinion review/rescue via Codex |
 
-Both Next.js apps use `transpilePackages: ["@liz/triage"]` to consume raw TypeScript sources (no build step for the package).
+UI / deploy / autorunner skills (`/ui-build`, `/deploy-prod`, `/run-dev`, `/test-all`, `/test-fix-dev`, `/test-fix-prod`, `/autorunner-status`, `/nextstep`, `/create-feature-tasks-in-backlog`) reference the legacy `apps/web/` app and are kept active for work touching `archive/apps/web/`. They will need adaptation for the agent platform when needed.
 
-### Local Development
+## Rules (auto-loaded by file path)
 
-Supabase CLI runs the full stack locally via Docker (`supabase start`):
-- **Postgres**: `localhost:54322`
-- **Supabase Studio**: `localhost:54323`
-- **Auth**: `localhost:54321`
-- **Storage**: `localhost:54321/storage/v1`
+| Rule | Active when editing |
+|------|---------------------|
+| `documentation.md` | `docs/**` (now `archive/docs/**`) |
+| `plan-changes.md` | `plan/**` |
+| `task-execution.md` | `features/inprogress/**/backlog/**`, `features/inprogress/**/doing/**` |
 
-Production uses Supabase cloud. Same migrations work in both environments.
+## Ticket-First Workflow
 
-## Endpoint Registry
+Tickets live in `.claude/tickets.md`. T-001..T-017 cover archived Phase 1–3 work. T-018 is the active P4-001 Agent Platform ticket.
 
-All environment URLs, API routes, and app pages are documented in `docs/endpoints.md`. **Update that file whenever you add, rename, or remove an API route, app page, or environment URL.**
+Categories: `new-feature`, `bug-fix-dev`, `bug-fix-prod`. Status lifecycle: `open` → `in-progress` → `testing` → `pr-open` → `deployed` → `closed`.
 
-## Testing
+## Git Branch Strategy
 
-Test structure, feature-to-test mapping, and coverage gaps are documented in `docs/testing-framework.md`. **Consult that file before writing or modifying tests.** Each feature must be independently testable — see the feature-to-test mapping to find which test files cover a given feature and where gaps exist.
+```
+main ──●──────●─────●──────────────●───>
+        \           \              /
+         feature/P4-001 ──●──●──●  (PR + merge)
+```
 
-## Key Product Constraints
+Branch naming: `feature/<feature-name>` (e.g., `feature/P4-001-agent-platform`) or `fix/T-NNN-name`.
 
-- MVP targets small landlords (1–20 units). Keep features minimal.
-- Landlord approval is always required before actions are sent — AI assists, never acts autonomously.
-- Not included in MVP: payment processing, tenant screening, legal compliance engine.
+Feature plan naming: `P{phase}-{seq}-{name}` (planned roadmap) or `P{phase}-Tkt-{seq}-{name}` (ticket-driven within a phase).
 
-## Pending Items
+The pre-archive snapshot is preserved as the immutable tag `legacy/pre-agent-platform`.
 
-**Skills (need implementation)**:
-- `/overnight-qa` — Full test matrix with data flow verification
-- `/notify` — Notification service credentials
+## Endpoint registry
 
-**Rules not yet created**:
-- `typescript-frontend.md` — Next.js App Router, strict TypeScript, Tailwind conventions
-- `supabase.md` — RLS policies, storage bucket conventions, auth patterns
+Agent endpoints (POC-1, local only):
+- `agents/maintenance-triage` → `http://localhost:8101/v1/{health,info,run}` (auth header: `X-Agent-Auth`)
+- `apps/maintenance-triage-web-test` → `http://localhost:3300` (form + server-side proxy)
+
+Legacy app endpoints, environment URLs, and API routes are documented in `archive/docs/endpoints.md`.
+
+## Local dev (POC-1)
+
+```bash
+# Agent
+cd agents/maintenance-triage
+uv sync
+cp .env.local.example .env.local
+uv run --env-file .env.local uvicorn src.api:app --reload --port 8101
+
+# Web test (from repo root, separate terminal)
+npm install
+cp apps/maintenance-triage-web-test/.env.local.example apps/maintenance-triage-web-test/.env.local
+npm run dev:triage-test                # http://localhost:3300
+
+# Tests
+npm run test:triage                    # 20 pytest tests
+```
+
+## Working with archived code
+
+If asked to look at the legacy Clerk/Supabase/Stripe/etc. implementation, read directly from `archive/apps/web/...`. Don't switch branches — the archive is in the working tree on main. The full legacy stack (with its own Supabase migrations, Tailwind, Clerk auth, Stripe) lives at `archive/apps/web/` exactly as it did before.
+
+## Pending
+
+- Adapt skills like `/run-dev`, `/test-all`, `/deploy-prod`, etc. to the agent platform shape (currently they reference `apps/web/`).
+- POC-2: replace stub with OpenRouter call to Claude Sonnet 4.6.
+- Future POCs: structured JSON output, vision input, eval harness, `_shared/` library, Liz integration, Spark/Vercel deploys.

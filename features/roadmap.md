@@ -1,39 +1,20 @@
 # Feature Roadmap
 
-Feature plans live at `features/planned/P{phase}-{seq}-{name}/README.md` (planned) or `features/inprogress/P{phase}-{seq}-{name}/` (active, with `backlog/`, `doing/`, `done/` task dirs).
-
-Ticket-driven work within an existing phase uses `P{phase}-Tkt-{seq}-{name}/` naming (e.g., `P1-Tkt-001-mvp-ux-overhaul`). See CLAUDE.md for convention details.
-
-## Phase 1 — MVP
-
-| ID | Feature | Status | Ticket | Notes |
-|----|---------|--------|--------|-------|
-| P1-001 | AI Maintenance Intake MVP | COMPLETE | T-001 | "The Core Four" — Gatekeeper, Estimator, Matchmaker, Ledger. 15 tasks complete. Merged PR #1. |
-| P1-002 | Clerk Auth | COMPLETE | T-003 | All 11 tasks complete. Merged to main. |
-| P1-003 | Landlord Onboarding & Decision Profile | COMPLETE | T-002 | Tasks 016–024 (3 Haiku, 4 Sonnet, 2 Opus). Risk appetite, delegation mode, auto-approve thresholds, vendor preferences. 5-step onboarding wizard with property/tenant/vendor collection. |
-| P1-Tkt-001 | MVP UX Overhaul | COMPLETE | T-016 | Consolidated from Liz's feedback. 4 work streams: onboarding refinements, property-centric dashboard, lease & document mgmt, utility integration. Tasks 025–074 (50 tasks: 7H/14S/29O). |
-
-## Phase 2
-
-| ID | Feature | Status | Ticket | Notes |
-|----|---------|--------|--------|-------|
-| P2-001 | Rent Reminder | IN PROGRESS | T-004 | Rent tracking, due dates, overdue alerts, Vercel Cron, notification bell. 16 tasks (3H/9S/4O). Tasks 231–246. |
-| P2-002 | Auto-scheduling Vendors | COMPLETE | T-005 | Vendor/tenant availability, AI schedule matching, Resend + Twilio. 4 done, 13 remaining. Tasks 102–118. |
-| P2-003 | Rule-based Automation | COMPLETE | T-006 | IF/THEN rules engine, visual rule builder, test panel, audit trail. 19 tasks (4H/8S/5O). |
-| P2-004 | Payment Integration | COMPLETE | T-007 | Stripe Connect, tenant rent payment, vendor payment tracking, financial P&L. 20 tasks (4H/10S/4O). |
-
-## Phase 3 — Full Vision
-
-| ID | Feature | Status | Ticket | Notes |
-|----|---------|--------|--------|-------|
-| P3-001 | Autonomous Decision-Making | COMPLETE | T-008 | Full AI autopilot, confidence scoring, safety rails, monthly reports. 22 tasks (6H/9S/5O). |
-| P3-002 | AI Tenant Screening | COMPLETE | T-009 | Application portal, TransUnion SmartMove, AI analysis, fair housing compliance. 27 tasks (5H/12S/5O). |
-| P3-003 | Legal/Compliance Engine | COMPLETE | T-010 | Jurisdiction rules, notice generator, communication reviewer, compliance dashboard. 24 tasks (4H/10S/6O). |
+Active development is on the **Agent Platform** (Phase 4). Phases 1–3 (the legacy Liz monolith) are archived under `archive/features/completed/` for reference.
 
 ## Phase 4 — Agents as Standalone Services
 
-Move AI logic out of the Liz monolith into independently deployable agent services. Each agent: own dir, own deps, own tests, own deploy. Uniform HTTP contract. See `plan/DECISION_LOG.md` 2026-04-28 entries.
+Move AI logic into independently deployable agent services. Each agent: own dir, own deps, own tests, own deploy. Uniform HTTP contract. See `plan/DECISION_LOG.md` 2026-04-28 entries.
 
 | ID | Feature | Status | Ticket | Notes |
 |----|---------|--------|--------|-------|
-| P4-001 | Agent Platform | PLANNED | T-018 | `agents/_shared/` library + first agent (maintenance-triage). Three deploy targets: local Mac, Spark QA, Vercel prod. ~12-16 tasks. See `features/planned/P4-001-agent-platform/README.md`. |
+| P4-001 | Agent Platform | IN PROGRESS | T-018 | First agent: `agents/maintenance-triage/`. POC-1 complete (hello-world stub + 20 tests + web test harness). See `features/planned/P4-001-agent-platform/README.md` and `POC.md`. |
+
+## Naming conventions
+
+- **Planned roadmap**: `P{phase}-{seq}-{name}` (e.g., `P4-001-agent-platform`)
+- **Ticket-driven**: `P{phase}-Tkt-{seq}-{name}` (reactive work — bug fixes, feedback)
+
+## Legacy phases (archived)
+
+Phase 1 MVP, Phase 2 (rent reminder, vendor scheduling, automation, payments), and Phase 3 (autonomy, screening, compliance) are complete. Their feature plans, tasks, and code live under `archive/`. See `archive/features/completed/` for historical reference. The legacy Liz app deploys from `archive/apps/web/` via Vercel.
