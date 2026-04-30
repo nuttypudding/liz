@@ -1,6 +1,7 @@
 import os
 import secrets
-from typing import Literal, Optional
+from contextlib import asynccontextmanager
+from typing import AsyncIterator, Literal, Optional
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -19,7 +20,26 @@ OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 # load balancers / monitors can probe liveness.
 UNAUTHENTICATED_PATHS = frozenset({"/v1/health"})
 
-app = FastAPI(title=AGENT_NAME, version=AGENT_VERSION)
+
+# Single AsyncOpenAI instance shared across all requests. AsyncOpenAI
+# manages an internal connection pool; constructing a new one per request
+# would churn that pool, leak file descriptors over time, and add latency.
+# The client is created lazily on first use (so tests that don't touch
+# OpenRouter never instantiate one) and closed cleanly via the lifespan
+# shutdown hook below.
+_openrouter_client_instance: Optional[AsyncOpenAI] = None
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    yield
+    global _openrouter_client_instance
+    if _openrouter_client_instance is not None:
+        await _openrouter_client_instance.close()
+        _openrouter_client_instance = None
+
+
+app = FastAPI(title=AGENT_NAME, version=AGENT_VERSION, lifespan=lifespan)
 
 
 class Message(BaseModel):
@@ -83,10 +103,29 @@ async def _validation_handler(_: Request, exc: RequestValidationError) -> JSONRe
 
 
 def _openrouter_client() -> Optional[AsyncOpenAI]:
+    """Return the shared AsyncOpenAI client, lazy-initialized once per process.
+
+    The instance is cached at module scope so connection pools and file
+    descriptors are reused across requests. Tests reset this via the
+    `_reset_openrouter_client_for_tests` hook in conftest.py.
+    """
+    global _openrouter_client_instance
+    if _openrouter_client_instance is not None:
+        return _openrouter_client_instance
     api_key = os.environ.get("OPENROUTER_API_KEY")
     if not api_key:
         return None
-    return AsyncOpenAI(base_url=OPENROUTER_BASE_URL, api_key=api_key)
+    _openrouter_client_instance = AsyncOpenAI(
+        base_url=OPENROUTER_BASE_URL, api_key=api_key
+    )
+    return _openrouter_client_instance
+
+
+def _reset_openrouter_client_for_tests() -> None:
+    """Clear the cached client. Called between tests so monkeypatched env
+    vars take effect on the next /v1/run call."""
+    global _openrouter_client_instance
+    _openrouter_client_instance = None
 
 
 def _resolved_model(override: Optional[str]) -> str:

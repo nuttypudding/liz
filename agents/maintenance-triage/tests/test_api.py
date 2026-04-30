@@ -226,6 +226,38 @@ def test_run_env_model_overrides_default_when_no_request_override(
     assert mock_create.call_args.kwargs["model"] == "google/gemini-2.5-pro"
 
 
+def test_openrouter_client_is_reused_across_requests(
+    client: TestClient,
+    auth_headers: dict[str, str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Regression: a single AsyncOpenAI instance must be shared across
+    /v1/run calls so the underlying HTTP connection pool is reused.
+    Per-request construction would churn pools and leak file descriptors
+    under load.
+    """
+    from src import api as api_module
+
+    monkeypatch.setenv("OPENROUTER_API_KEY", "sk-or-v1-test")
+    mock_create = AsyncMock(return_value=_mock_completion("ok", "x/y"))
+    with patch(
+        "openai.resources.chat.completions.AsyncCompletions.create", mock_create
+    ):
+        for _ in range(3):
+            response = client.post(
+                "/v1/run",
+                headers=auth_headers,
+                json={"messages": [{"role": "user", "content": "ping"}]},
+            )
+            assert response.status_code == 200
+
+    # All three requests resolved to the same module-level client.
+    assert api_module._openrouter_client_instance is not None
+    first_id = id(api_module._openrouter_client_instance)
+    assert id(api_module._openrouter_client()) == first_id
+    assert id(api_module._openrouter_client()) == first_id
+
+
 # ---------- Unhappy path: auth ----------
 
 
