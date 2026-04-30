@@ -1,0 +1,16 @@
+[Unit]
+Description=Liz QA Server (Next.js on port 3001)
+After=network.target
+
+[Service]
+Type=simple
+User=noelcacnio
+WorkingDirectory=/home/noelcacnio/actions-runner/liz/_work/liz/liz/archive/apps/web
+ExecStart=/usr/bin/npx next start --port 3001
+Environment=NEXT_DIST_DIR=.next-qa
+EnvironmentFile=/home/noelcacnio/actions-runner/liz/_work/liz/liz/archive/apps/web/.env.qa
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -22,7 +22,7 @@ jobs:
         run: npm ci
 
       - name: Build QA
-        run: npm run build:qa --workspace=apps/web
+        run: npm run build:qa --workspace=archive/apps/web
 
       - name: Restart QA service
         run: sudo systemctl restart liz-qa
