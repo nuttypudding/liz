@@ -1,11 +1,11 @@
 ---
 name: pr-fix-qa
-description: Triage and fix PR review comments tagged with `@CLAUDE.md fix this`. Creates a fresh fix branch off the original PR's head, applies each fix as a separate commit, opens a stacked fix PR back into the original PR's branch, and posts `@codex review` on the fix PR. Use when a reviewer (Codex, human, or any bot) leaves an actionable suggestion on a QA-bound PR and wants Claude to handle it.
+description: Triage and fix PR review comments tagged with `@claude fix this`. Creates a fresh fix branch off the original PR's head, applies each fix as a separate commit, opens a stacked fix PR back into the original PR's branch, and posts `@codex review` on the fix PR. Use when a reviewer (Codex, human, or any bot) leaves an actionable suggestion on a QA-bound PR and wants Claude to handle it.
 ---
 
 # /pr-fix-qa — Fix PR Comments via a Stacked Fix Branch
 
-This skill walks the open review comments on a PR, picks the ones tagged `@CLAUDE.md fix this`, and **creates a new branch** off the PR's head to land the fixes — never committing directly to the original feature branch. Each fix becomes one commit on the fix branch. A new "fix PR" is opened targeting the original PR's branch, replies link the fix PR back to each original comment thread, and `@codex review` is posted on the fix PR (not the original).
+This skill walks the open review comments on a PR, picks the ones tagged `@claude fix this`, and **creates a new branch** off the PR's head to land the fixes — never committing directly to the original feature branch. Each fix becomes one commit on the fix branch. A new "fix PR" is opened targeting the original PR's branch, replies link the fix PR back to each original comment thread, and `@codex review` is posted on the fix PR (not the original).
 
 Optional arguments: `$ARGUMENTS` (PR number — defaults to the open PR for the current branch)
 
@@ -18,7 +18,7 @@ Optional arguments: `$ARGUMENTS` (PR number — defaults to the open PR for the 
 
 ## When to use
 
-- A PR is open against `qa` (or any other base) and a reviewer left a comment containing the literal trigger `@CLAUDE.md fix this`
+- A PR is open against `qa` (or any other base) and a reviewer left a comment containing the literal trigger `@claude fix this`
 - The comment describes a concrete, scoped fix Claude can handle automatically
 - The fix is mechanical / small enough to land without a fresh design discussion
 
@@ -61,15 +61,15 @@ gh pr view "$PR_NUM" --json state,baseRefName,headRefName \
 
 ### 2. Fetch tagged comments
 
-Pull both **issue comments** (the chat below the PR description) and **review comments** (line-attached comments inside Files Changed). Filter to those whose body contains `@CLAUDE.md fix this`:
+Pull both **issue comments** (the chat below the PR description) and **review comments** (line-attached comments inside Files Changed). Filter to those whose body contains `@claude fix this`:
 
 ```bash
 gh api "repos/{owner}/{repo}/issues/$PR_NUM/comments" \
-  --jq '[.[] | select(.body | contains("@CLAUDE.md fix this"))
+  --jq '[.[] | select(.body | contains("@claude fix this"))
         | {kind: "issue", id, body, html_url, user: .user.login, created_at}]'
 
 gh api "repos/{owner}/{repo}/pulls/$PR_NUM/comments" \
-  --jq '[.[] | select(.body | contains("@CLAUDE.md fix this"))
+  --jq '[.[] | select(.body | contains("@claude fix this"))
         | {kind: "review", id, body, html_url, user: .user.login,
             path, line, original_line, side, commit_id}]'
 ```
@@ -170,7 +170,7 @@ FIX_PR_URL=$(gh pr create \
   --head "$FIX_BRANCH" \
   --title "Fix review comments on #$PR_NUM" \
   --body "$(cat <<EOF
-Stacked fix PR for review comments on #$PR_NUM tagged \`@CLAUDE.md fix this\`.
+Stacked fix PR for review comments on #$PR_NUM tagged \`@claude fix this\`.
 
 Each commit below resolves one tagged comment. Merge this PR into \`$ORIGINAL_BRANCH\` to land the fixes on #$PR_NUM.
 
@@ -220,7 +220,7 @@ After all per-thread replies are posted, leave one comment on the **fix PR** con
 gh pr comment "$FIX_PR_URL" --body "$(cat <<EOF
 @codex review
 
-Fixes for #$PR_NUM comments tagged \`@CLAUDE.md fix this\`:
+Fixes for #$PR_NUM comments tagged \`@claude fix this\`:
 
 $SUMMARY
 EOF
