@@ -229,8 +229,8 @@ Run through these to confirm POC-1 is done. **Both happy and unhappy paths must 
 
 | POC | Adds | Rough scope |
 |-----|------|------------|
-| POC-2 | Real OpenRouter call → Claude Sonnet returns conversational reply | ~2h |
-| POC-3 | Structured JSON output (`category`, `urgency`, `recommended_action`, `confidence`) | ~1h |
+| POC-2 | ✅ Real OpenRouter call → Claude Sonnet returns conversational reply | shipped |
+| POC-3 | ✅ Structured JSON output — gatekeeper (self-resolvable + troubleshooting guide) + classification (category/urgency/recommended_action/cost_estimate) with Pydantic schema validation, JSON-mode prompt, structured-stub fallback when no API key | shipped |
 | POC-4 | Vision input (photo URLs in `messages`) | ~1h |
 | POC-5 | Eval suite against 20 labeled samples in `intake/samples/` | ~3h |
 | POC-6 | Extract `agents/_shared/` library (FastAPI scaffold, OpenRouter client wrapper, eval runner) | ~2h |

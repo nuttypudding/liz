@@ -5,8 +5,19 @@ TEST_SECRET = "test-secret-for-pytest"
 
 
 @pytest.fixture(autouse=True)
-def _shared_secret_env(monkeypatch: pytest.MonkeyPatch) -> None:
+def _agent_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Pin the agent's env to a known baseline before each test.
+
+    AGENT_SHARED_SECRET must be set so requests can authenticate.
+    OPENROUTER_API_KEY and AGENT_TRIAGE_MODEL must be UNSET so tests that
+    exercise the stub path don't accidentally hit the real LLM and tests
+    that exercise the live path opt in via monkeypatch.setenv. Without
+    this guard, running `uv run --env-file .env.local pytest` (or any
+    dev shell with these exported) silently changes test behavior.
+    """
     monkeypatch.setenv("AGENT_SHARED_SECRET", TEST_SECRET)
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
+    monkeypatch.delenv("AGENT_TRIAGE_MODEL", raising=False)
 
 
 @pytest.fixture(autouse=True)
