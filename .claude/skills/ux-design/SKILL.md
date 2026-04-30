@@ -15,15 +15,15 @@ Read the feature description from `$ARGUMENTS`. If no description was provided, 
 Gather context:
 - What problem does this feature solve?
 - Who is the target user?
-- Are there existing patterns in the dashboard to follow?
+- Are there existing patterns in the web app to follow?
 
 ## Step 2: Explore Existing Patterns
 
-Read existing dashboard components to understand current conventions:
+Read existing web app components to understand current conventions:
 
 ```bash
-ls dashboard/src/components/
-ls dashboard/src/components/ui/
+ls apps/web/components/
+ls apps/web/components/ui/
 ```
 
 Skim 2-3 representative components to understand the code style, state management, and layout patterns already in use.
@@ -33,8 +33,8 @@ Skim 2-3 representative components to understand the code style, state managemen
 Use the **Task tool** with `subagent_type: "ux-designer"` to spawn the UX Designer agent:
 
 > "Plan a dashboard UI feature: `<feature description from $ARGUMENTS>`.
-> The dashboard is at `dashboard/src/`. Existing components are in `dashboard/src/components/`.
-> Installed shadcn/ui primitives are in `dashboard/src/components/ui/`.
+> The web app is at `apps/web/`. Existing components are in `apps/web/components/`.
+> Installed shadcn/ui primitives are in `apps/web/components/ui/`.
 > Output a structured implementation plan following the template in your instructions."
 
 The agent will:
@@ -46,18 +46,18 @@ The agent will:
 
 ## Step 4: Save the Plan
 
-Write the agent's plan output to `dashboard/plans/<feature-name>.md` so it can be referenced by `/ui-build`.
+Write the agent's plan output to `apps/web/plans/<feature-name>.md` so it can be referenced by `/ui-build`.
 
 ```
-dashboard/plans/<feature-name>.md
+apps/web/plans/<feature-name>.md
 ```
 
-Create the `dashboard/plans/` directory if it doesn't exist.
+Create the `apps/web/plans/` directory if it doesn't exist.
 
 ## Step 5: Report
 
 Tell the user:
-- Plan saved to `dashboard/plans/<feature-name>.md`
+- Plan saved to `apps/web/plans/<feature-name>.md`
 - Summary of key decisions (component choices, layout approach)
 - Any open questions or alternatives worth discussing
 - Next step: run `/ui-build <feature-name>` to implement

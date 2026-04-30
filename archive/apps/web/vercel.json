@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "installCommand": "cd ../../.. && npm install",
+  "buildCommand": "next build",
+  "outputDirectory": ".next",
+  "crons": [
+    { "path": "/api/cron/rent-reminders", "schedule": "0 6 * * *" }
+  ]
+}

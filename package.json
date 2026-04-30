@@ -2,17 +2,20 @@
   "name": "liz",
   "private": true,
   "workspaces": [
-    "packages/*",
-    "apps/web",
-    "apps/test-lab",
-    "apps/arena-web"
+    "apps/maintenance-triage-web-test",
+    "archive/apps/web",
+    "archive/apps/test-lab",
+    "archive/apps/arena-web",
+    "archive/packages/triage"
   ],
   "scripts": {
-    "dev:web": "npm run dev --workspace=apps/web",
-    "dev:qa": "npm run dev:qa --workspace=apps/web",
-    "dev:test-lab": "npm run dev --workspace=apps/test-lab",
-    "dev:arena": "npm run dev --workspace=apps/arena-web",
-    "test:web": "npm run test --workspace=apps/web",
-    "test:test-lab": "npm run test --workspace=apps/test-lab"
+    "dev:triage-test": "npm run dev --workspace=apps/maintenance-triage-web-test",
+    "test:triage": "cd agents/maintenance-triage && uv run pytest"
+  },
+  "optionalDependencies": {
+    "lightningcss-darwin-arm64": "^1.32.0"
+  },
+  "dependencies": {
+    "lightningcss": "^1.32.0"
   }
 }

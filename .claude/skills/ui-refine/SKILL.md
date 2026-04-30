@@ -15,7 +15,7 @@ Read the component argument from `$ARGUMENTS`. Find the component:
 1. If `$ARGUMENTS` is a file path, use it directly
 2. Otherwise, search for it:
    ```bash
-   ls dashboard/src/components/
+   ls apps/web/components/
    ```
    Match by name (case-insensitive). If ambiguous, ask the user which component to refine.
 
@@ -30,7 +30,7 @@ Read the target component file(s) in full. Note:
 - Accessibility attributes (ARIA roles, labels, keyboard handlers)
 - Responsive breakpoints in use
 
-Also read `dashboard/src/index.css` for theme context (CSS custom properties, base styles).
+Also read `apps/web/app/globals.css` for theme context (CSS custom properties, base styles).
 
 ## Step 3: Refine the Component
 
@@ -68,7 +68,7 @@ The agent will:
 After the refiner agent completes, verify nothing broke:
 
 ```bash
-cd dashboard && npx tsc --noEmit && cd ..
+npm run lint --workspace=apps/web
 ```
 
 If there are TypeScript errors, fix them.
