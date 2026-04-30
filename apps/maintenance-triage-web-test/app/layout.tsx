@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Maintenance Triage — Web Test",
@@ -10,17 +11,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body
-        style={{
-          fontFamily:
-            "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-          margin: 0,
-          background: "#0b0b0d",
-          color: "#e6e6e6",
-        }}
-      >
-        {children}
-      </body>
+      <body className="min-h-screen">{children}</body>
     </html>
   );
 }
