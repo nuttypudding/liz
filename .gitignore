@@ -54,6 +54,9 @@ yarn-error.log*
 # Next.js build output
 .next/
 
+# Playwright MCP artifacts (screenshots, traces, console logs)
+.playwright-mcp/
+
 # Expo
 .expo/
 *.jks
