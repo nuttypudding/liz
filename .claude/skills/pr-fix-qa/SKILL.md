@@ -64,14 +64,17 @@ gh pr view "$PR_NUM" --json state,baseRefName,headRefName \
 Pull both **issue comments** (the chat below the PR description) and **review comments** (line-attached comments inside Files Changed). Filter to those whose body contains `@claude fix this`:
 
 ```bash
-gh api "repos/{owner}/{repo}/issues/$PR_NUM/comments" \
-  --jq '[.[] | select(.body | contains("@claude fix this"))
-        | {kind: "issue", id, body, html_url, user: .user.login, created_at}]'
+# --paginate is required: GitHub's comment list endpoints return 30 per page
+# by default. Without it, tagged comments past page 1 are silently skipped on
+# busier PRs.
+gh api --paginate "repos/{owner}/{repo}/issues/$PR_NUM/comments" \
+  --jq '.[] | select(.body | contains("@claude fix this"))
+        | {kind: "issue", id, body, html_url, user: .user.login, created_at}'
 
-gh api "repos/{owner}/{repo}/pulls/$PR_NUM/comments" \
-  --jq '[.[] | select(.body | contains("@claude fix this"))
+gh api --paginate "repos/{owner}/{repo}/pulls/$PR_NUM/comments" \
+  --jq '.[] | select(.body | contains("@claude fix this"))
         | {kind: "review", id, body, html_url, user: .user.login,
-            path, line, original_line, side, commit_id}]'
+            path, line, original_line, side, commit_id}'
 ```
 
 If no matches: report and exit. Nothing to do — don't create an empty fix branch.
@@ -123,9 +126,21 @@ For each match:
 ### 6. Run tests for what changed
 
 ```bash
+# Build the union of committed + working-tree (staged/unstaged/untracked)
+# paths. The test gate must include the in-flight fix — at this point we've
+# applied edits but not yet committed, so a HEAD-vs-origin/qa diff alone
+# would miss them and we'd push untested agent changes.
+CHANGED=$(
+  {
+    git diff --name-only origin/qa..HEAD            # committed
+    git diff --name-only HEAD                       # unstaged
+    git diff --name-only --cached                   # staged
+    git ls-files --others --exclude-standard        # untracked
+  } | sort -u
+)
+
 # Agent
-git diff --name-only HEAD origin/qa | grep -q "^agents/maintenance-triage/" && \
-  npm run test:triage
+echo "$CHANGED" | grep -q "^agents/maintenance-triage/" && npm run test:triage
 
 # Add other workspace test commands as they exist
 ```

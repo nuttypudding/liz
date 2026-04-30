@@ -28,8 +28,21 @@ git status --short --untracked-files=all
 Before committing, run the relevant test suite:
 
 ```bash
+# Build the union of (a) committed diff vs origin/qa and (b) working-tree
+# changes — staged, unstaged, and untracked. Tests run BEFORE the commit
+# in step 3, so a check that only inspects HEAD would miss the very edits
+# we're about to ship.
+CHANGED=$(
+  {
+    git diff --name-only origin/qa..HEAD            # committed
+    git diff --name-only HEAD                       # unstaged
+    git diff --name-only --cached                   # staged
+    git ls-files --others --exclude-standard        # untracked
+  } | sort -u
+)
+
 # Agent changes
-git diff --name-only HEAD origin/qa | grep -q "^agents/maintenance-triage/" && npm run test:triage
+echo "$CHANGED" | grep -q "^agents/maintenance-triage/" && npm run test:triage
 
 # Web changes — currently no per-app vitest for maintenance-triage-web-test;
 # rely on local Playwright + manual smoke. When tests exist, run them here.
