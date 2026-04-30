@@ -136,29 +136,55 @@ If multiple comments are being fixed in the same skill invocation, prefer **one 
 
 ### 8. Reply on each comment thread
 
-After pushing, reply to each fixed comment with the commit SHA so the reviewer can verify:
+After pushing, reply to **each** fixed comment with the commit SHA so the reviewer can verify in-thread:
 
 ```bash
-SHA=$(git rev-parse HEAD)
+# For each fixed comment, captured during step 4-7
+COMMIT_SHA=$(git log -1 --format=%H -- <files-from-this-comment>)
 
-# Issue comment reply (just appends to the conversation)
-gh pr comment "$PR_NUM" --body "Fixed in $SHA. See diff for details."
-
-# Review comment reply (threaded on the original line comment)
+# Review comment (line-attached) — threaded reply preserves context
 gh api -X POST "repos/{owner}/{repo}/pulls/$PR_NUM/comments/$COMMENT_ID/replies" \
-  --field body="Fixed in $SHA."
+  --field body="Fixed in $COMMIT_SHA."
+
+# Issue comment (general PR conversation) — appends to the thread
+gh pr comment "$PR_NUM" --body "Fixed in $COMMIT_SHA — re: <link to original comment>."
 ```
 
 Use the **review comment reply endpoint** for line-attached comments so the thread shows resolved-in-context. Use the issue comment endpoint for general PR-conversation comments.
+
+### 9. Trigger Codex re-review (one comment, regardless of fix count)
+
+After **all** comments have been addressed and per-thread replies posted, leave a single top-level PR comment that mentions `@codex review`. The Codex GitHub bot watches for this trigger and runs a fresh review pass on the new commits.
+
+```bash
+# Build a one-line summary of what was fixed
+SUMMARY=$(git log "${BASE_SHA}..HEAD" --format='- %s' --no-merges)
+
+gh pr comment "$PR_NUM" --body "$(cat <<EOF
+Fixes pushed for the comments tagged \`@CLAUDE.md fix this\`:
+
+$SUMMARY
+
+@codex review
+EOF
+)"
+```
+
+**Rules for this comment:**
+- Post **exactly once**, even if multiple comments were fixed in this skill invocation. Don't spam `@codex review` per fix — that triggers redundant review passes.
+- Post **at the end**, after all per-thread replies. Codex re-reviews the latest tip; one trigger after the last push is enough.
+- If zero comments were actionable (e.g., all were ambiguous and skipped), do **not** post `@codex review`. Nothing changed; nothing to re-review.
+- If the human reviewer (not a bot) left the original comment, the `@codex review` mention still helps — Codex's pass complements the human's, and the human can sign off after.
 
 ## Report
 
 After the skill finishes, tell the user:
 - PR number worked on + URL
 - How many tagged comments were found
-- For each: a one-line summary of the fix + the commit SHA
+- For each: a one-line summary of the fix + the commit SHA + the per-thread reply URL
 - Any comments that were skipped (and why — e.g., ambiguous, design decision required)
 - Test status (X/Y tests passing for the affected workspace)
+- Confirmation that the `@codex review` trigger comment was posted (URL), or note that it was skipped because no comments were actionable
 - Pointer: `gh pr checks $PR_NUM` to watch CI on the new commit
 
 ## Safety rails
