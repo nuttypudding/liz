@@ -60,7 +60,7 @@ cd ~/Documents/repo/liz/agents/maintenance-triage
 cd ~/Documents/repo/liz
 PORT=3303 npm run dev --workspace=apps/maintenance-triage-web-test -- --port 3303 --hostname 127.0.0.1 &
 sleep 8
-SECRET=$(grep AGENT_SHARED_SECRET agents/maintenance-triage/.env.local | cut -d= -f2)
+SECRET=$(grep AGENT_SHARED_SECRET agents/maintenance-triage/.env.local | cut -d= -f2-)
 
 # health (no auth)
 curl -s -w "\nHTTP %{http_code}\n" http://localhost:8101/v1/health
@@ -298,7 +298,7 @@ Read `~/logs/triage-{agent,web}.log`. Common causes:
 **`cloudflared tunnel ingress validate` fails.**
 - Check YAML indentation. Each `- hostname:` block must align.
 - Make sure the catch-all `- service: http_status:404` stays last.
-- Restore the backup: `sudo cp /etc/cloudflared/config.yml.bak.* /etc/cloudflared/config.yml`.
+- Restore the most recent backup: `sudo cp "$(ls -t /etc/cloudflared/config.yml.bak.* | head -1)" /etc/cloudflared/config.yml` (the wildcard form fails when multiple backups exist).
 
 **External URL returns 502/503.**
 - Tunnel reaches the Spark but localhost:3303 isn't responding. Check `systemctl --user status triage-web`.
