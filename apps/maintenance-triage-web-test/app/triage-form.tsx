@@ -89,14 +89,25 @@ export function TriageForm({ samples }: TriageFormProps) {
     setResponse(null);
     const start = performance.now();
     try {
+      // Only forward `model` when the user picked a specific one. An empty
+      // string means "use the agent's server-side default" (AGENT_TRIAGE_MODEL
+      // env var). Including model: "" would override the env default with an
+      // empty string and break the server-default flow.
+      const requestBody: {
+        messages: { role: string; content: string }[];
+        landlord_prefs: { risk_appetite: RiskAppetite };
+        model?: string;
+      } = {
+        messages: [{ role: "user", content: message }],
+        landlord_prefs: { risk_appetite: risk },
+      };
+      if (model) {
+        requestBody.model = model;
+      }
       const res = await fetch("/api/run", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          messages: [{ role: "user", content: message }],
-          landlord_prefs: { risk_appetite: risk },
-          model,
-        }),
+        body: JSON.stringify(requestBody),
       });
       const text = await res.text();
       let body: unknown = text;
@@ -392,6 +403,9 @@ function ModelSelect({ value, onChange }: ModelSelectProps) {
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
       >
+        <option value="">
+          Server default (AGENT_TRIAGE_MODEL env on the agent)
+        </option>
         {Object.entries(groups).map(([provider, list]) => (
           <optgroup key={provider} label={provider}>
             {list.map((m) => (
@@ -404,7 +418,7 @@ function ModelSelect({ value, onChange }: ModelSelectProps) {
           </optgroup>
         ))}
       </select>
-      {selected && (
+      {selected ? (
         <div className="mt-1 text-xs text-zinc-500 tabular-nums">
           <code className="text-zinc-700">{selected.id}</code>
           <span className="mx-1.5 text-zinc-300">·</span>
@@ -417,6 +431,13 @@ function ModelSelect({ value, onChange }: ModelSelectProps) {
               <span className="text-emerald-600">vision-capable</span>
             </>
           )}
+        </div>
+      ) : (
+        <div className="mt-1 text-xs text-zinc-500">
+          Request omits <code className="text-zinc-700">model</code> so the
+          agent resolves it from the{" "}
+          <code className="text-zinc-700">AGENT_TRIAGE_MODEL</code> env var.
+          Useful for testing model IDs not in the curated list above.
         </div>
       )}
     </div>
