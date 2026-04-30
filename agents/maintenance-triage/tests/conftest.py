@@ -9,6 +9,17 @@ def _shared_secret_env(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("AGENT_SHARED_SECRET", TEST_SECRET)
 
 
+@pytest.fixture(autouse=True)
+def _reset_openrouter_client() -> None:
+    """Clear the cached AsyncOpenAI singleton between tests so each test
+    sees the env var state set up by its own monkeypatch fixture."""
+    from src.api import _reset_openrouter_client_for_tests
+
+    _reset_openrouter_client_for_tests()
+    yield
+    _reset_openrouter_client_for_tests()
+
+
 @pytest.fixture
 def secret() -> str:
     return TEST_SECRET

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import type { Sample, Urgency, Category } from "@/lib/samples";
+import { MODELS, DEFAULT_MODEL_ID, modelById } from "@/lib/models";
 
 type RiskAppetite = "cost_first" | "balanced" | "speed_first";
 
@@ -63,6 +64,7 @@ export function TriageForm({ samples }: TriageFormProps) {
       "leaky faucet under the kitchen sink, dripping all night",
   );
   const [risk, setRisk] = useState<RiskAppetite>("balanced");
+  const [model, setModel] = useState<string>(DEFAULT_MODEL_ID);
   const [activeSample, setActiveSample] = useState<Sample | null>(
     samples[0] ?? null,
   );
@@ -87,13 +89,25 @@ export function TriageForm({ samples }: TriageFormProps) {
     setResponse(null);
     const start = performance.now();
     try {
+      // Only forward `model` when the user picked a specific one. An empty
+      // string means "use the agent's server-side default" (AGENT_TRIAGE_MODEL
+      // env var). Including model: "" would override the env default with an
+      // empty string and break the server-default flow.
+      const requestBody: {
+        messages: { role: string; content: string }[];
+        landlord_prefs: { risk_appetite: RiskAppetite };
+        model?: string;
+      } = {
+        messages: [{ role: "user", content: message }],
+        landlord_prefs: { risk_appetite: risk },
+      };
+      if (model) {
+        requestBody.model = model;
+      }
       const res = await fetch("/api/run", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          messages: [{ role: "user", content: message }],
-          landlord_prefs: { risk_appetite: risk },
-        }),
+        body: JSON.stringify(requestBody),
       });
       const text = await res.text();
       let body: unknown = text;
@@ -156,7 +170,10 @@ export function TriageForm({ samples }: TriageFormProps) {
               />
             </div>
 
-            <RiskRadio value={risk} onChange={setRisk} />
+            <div className="grid gap-5 sm:grid-cols-2">
+              <RiskRadio value={risk} onChange={setRisk} />
+              <ModelSelect value={model} onChange={setModel} />
+            </div>
 
             <PhotoStrip
               photos={activeSample?.photos ?? []}
@@ -360,6 +377,73 @@ function RiskRadio({ value, onChange }: RiskRadioProps) {
   );
 }
 
+interface ModelSelectProps {
+  value: string;
+  onChange: (v: string) => void;
+}
+
+function ModelSelect({ value, onChange }: ModelSelectProps) {
+  // Group by provider for the <optgroup>s
+  const groups = MODELS.reduce<Record<string, typeof MODELS>>((acc, m) => {
+    (acc[m.provider] ||= []).push(m);
+    return acc;
+  }, {});
+  const selected = modelById(value);
+
+  return (
+    <div>
+      <div className="text-sm font-medium text-zinc-900 mb-1.5">
+        Model
+        <span className="ml-2 text-xs font-normal text-zinc-500">
+          (OpenRouter · sent to agent in request body)
+        </span>
+      </div>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
+      >
+        <option value="">
+          Server default (AGENT_TRIAGE_MODEL env on the agent)
+        </option>
+        {Object.entries(groups).map(([provider, list]) => (
+          <optgroup key={provider} label={provider}>
+            {list.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name} — ${m.cost_input}/${m.cost_output} per 1M
+                {m.vision ? " · vision" : ""}
+                {m.notes ? ` · ${m.notes}` : ""}
+              </option>
+            ))}
+          </optgroup>
+        ))}
+      </select>
+      {selected ? (
+        <div className="mt-1 text-xs text-zinc-500 tabular-nums">
+          <code className="text-zinc-700">{selected.id}</code>
+          <span className="mx-1.5 text-zinc-300">·</span>
+          input ${selected.cost_input}/M
+          <span className="mx-1.5 text-zinc-300">·</span>
+          output ${selected.cost_output}/M
+          {selected.vision && (
+            <>
+              <span className="mx-1.5 text-zinc-300">·</span>
+              <span className="text-emerald-600">vision-capable</span>
+            </>
+          )}
+        </div>
+      ) : (
+        <div className="mt-1 text-xs text-zinc-500">
+          Request omits <code className="text-zinc-700">model</code> so the
+          agent resolves it from the{" "}
+          <code className="text-zinc-700">AGENT_TRIAGE_MODEL</code> env var.
+          Useful for testing model IDs not in the curated list above.
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface PhotoStripProps {
   photos: { filename: string; url: string; contentType: string }[];
   sampleLabel: string | null;
@@ -438,6 +522,13 @@ function ResponsePanel({
   const body = response?.body as
     | {
         message?: string;
+        model?: string;
+        usage?: {
+          prompt_tokens?: number;
+          completion_tokens?: number;
+          total_tokens?: number;
+        } | null;
+        finish_reason?: string;
         gatekeeper?: {
           self_resolvable?: boolean;
           troubleshooting_guide?: string | null;
@@ -466,6 +557,16 @@ function ResponsePanel({
             <span className={`font-medium ${statusClasses(response.status)}`}>
               HTTP {response.status || "—"}
             </span>
+            {body?.model && (
+              <span className="text-zinc-500">
+                <code className="text-zinc-700">{body.model}</code>
+              </span>
+            )}
+            {body?.usage?.total_tokens != null && (
+              <span className="text-zinc-500 tabular-nums">
+                {body.usage.total_tokens} tok
+              </span>
+            )}
             <span className="text-zinc-500 tabular-nums">
               {response.elapsedMs} ms
             </span>
@@ -481,6 +582,18 @@ function ResponsePanel({
 
       {response && (
         <div className="p-4 space-y-3">
+          {body?.message && (
+            <SubCard title="Reply">
+              <div className="text-sm text-zinc-900 whitespace-pre-wrap leading-relaxed">
+                {body.message}
+              </div>
+              {body?.finish_reason && body.finish_reason !== "stop" && (
+                <div className="mt-2 text-xs text-amber-700">
+                  finish_reason: {body.finish_reason}
+                </div>
+              )}
+            </SubCard>
+          )}
           <SubCard title="Gatekeeper">
             <div className="grid grid-cols-2 gap-4 text-sm">
               <Field
