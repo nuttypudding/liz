@@ -118,6 +118,8 @@ WantedBy=default.target
 
 ### `~/.config/systemd/user/triage-web.service`
 
+> **Important: production build, not `next dev`.** Cloudflare Tunnel's WebSocket upgrade returns 502 for the Turbopack dev server, which means `next dev` renders the SSR HTML but **never hydrates** — the page looks right but click handlers never fire. Production build is statically served, no HMR, no WebSocket. Verified 2026-04-30.
+
 ```ini
 [Unit]
 Description=Liz maintenance-triage web test
@@ -127,7 +129,8 @@ After=triage-agent.service network.target
 Type=simple
 WorkingDirectory=/home/noelcacnio/Documents/repo/liz
 EnvironmentFile=/home/noelcacnio/Documents/repo/liz/apps/maintenance-triage-web-test/.env.local
-ExecStart=/usr/bin/npm run dev --workspace=apps/maintenance-triage-web-test -- --port 3303 --hostname 127.0.0.1
+ExecStartPre=/usr/bin/npm run build --workspace=apps/maintenance-triage-web-test
+ExecStart=/usr/bin/npm run start --workspace=apps/maintenance-triage-web-test -- --port 3303 --hostname 127.0.0.1
 Restart=on-failure
 RestartSec=3
 StandardOutput=append:/home/noelcacnio/logs/triage-web.log
@@ -136,6 +139,8 @@ StandardError=append:/home/noelcacnio/logs/triage-web.log
 [Install]
 WantedBy=default.target
 ```
+
+`ExecStartPre` rebuilds on every restart so a `git pull` + `systemctl --user restart triage-web` is enough to roll out new code. The build takes ~30s; service marked active only after the build succeeds.
 
 Enable + start:
 ```bash
@@ -153,7 +158,11 @@ curl -s http://localhost:8101/v1/health
 curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3303/
 ```
 
-> **Note on `next dev` vs prod**: the unit runs `next dev`, which gives you HMR and recent-commit-shows-fast at the cost of ~2x CPU and slightly slower first-paint. For tighter QA, swap `dev` → `start` and add a `build` step on `git pull`. Defer that until/unless it matters.
+> **Why production build, not `next dev`?** Two reasons:
+> 1. **Hydration over Cloudflare Tunnel requires WebSocket support that the tunnel doesn't proxy reliably.** Turbopack dev's chunk delivery rides on `wss://`. Cloudflare's edge returns 502 for the upgrade; the page renders but never hydrates; click handlers never attach. Production build serves static chunks via plain HTTP — no WebSocket, no hydration issue.
+> 2. **Lower CPU/memory.** `next start` is ~3× lighter than `next dev` per request.
+>
+> If you ever want HMR for live debugging through the tunnel, you'd need to enable WebSocket on the cloudflared ingress (`originRequest.disableChunkedEncoding: false` and verify upgrade headers pass through) — not worth the effort for QA. Use local `npm run dev:triage-test` for HMR; QA uses production builds.
 
 ## Step 3 — Cloudflare Tunnel ingress (sudo)
 
@@ -242,7 +251,8 @@ The form's `Send to agent →` button should hit the proxy → agent and return 
 | Want to | Command |
 |---------|---------|
 | Tail logs | `tail -f ~/logs/triage-agent.log ~/logs/triage-web.log` |
-| Restart after a `git pull` | `cd ~/Documents/repo/liz && git pull && systemctl --user restart triage-web triage-agent` |
+| Restart after a `git pull` | `cd ~/Documents/repo/liz && git pull && systemctl --user restart triage-web triage-agent` (the web unit's `ExecStartPre` runs `next build` before serving) |
+| Web shows hello-world but clicks do nothing | The unit is running `next dev` (Turbopack) instead of `next start`. WebSocket-dependent hydration over Cloudflare Tunnel fails silently. Switch to `next start` (see runbook Step 2 / triage-web.service). |
 | Stop both services | `systemctl --user stop triage-web triage-agent` |
 | Disable on next boot | `systemctl --user disable triage-web triage-agent` |
 | Bump agent deps | `cd ~/Documents/repo/liz/agents/maintenance-triage && uv sync && systemctl --user restart triage-agent` |
