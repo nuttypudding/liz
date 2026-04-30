@@ -31,7 +31,7 @@ liz/
 │   ├── docs/, scripts/, supabase/, brightstep_process/
 │   └── features/completed/            # Phase 1–3 feature plans
 ├── .claude/, .agents/                 # Claude Code + Codex tooling
-├── package.json                       # npm workspaces root (slim — only the test web app)
+├── package.json                       # npm workspaces root — POC app + archive workspaces (so archive/apps/web still installs for Vercel deploys)
 ├── CLAUDE.md, AGENTS.md
 ```
 

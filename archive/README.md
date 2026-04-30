@@ -45,9 +45,19 @@ cat archive/apps/web/middleware.ts
 grep -r "clerkClient" archive/apps/web/
 ```
 
-To run the legacy app locally, two paths:
-1. **Stay on main** and `cd archive/apps/web/` — but you'll need to update workspace paths first since the root `package.json` no longer declares it as a workspace
-2. **Check out the snapshot tag** for the original layout: `git checkout legacy/pre-agent-platform`
+To run the legacy app locally:
+
+The root `package.json` declares `archive/apps/web`, `archive/apps/test-lab`, `archive/apps/arena-web`, and `archive/packages/triage` as npm workspaces, so a single `npm install` from the repo root resolves all dependencies (including the `@liz/triage` symlink). Run scripts via the workspace flag:
+
+```bash
+npm run dev --workspace=archive/apps/web              # local dev (port 3000)
+npm run dev:qa --workspace=archive/apps/web           # QA mode (port 3001, .env.qa)
+npm run build --workspace=archive/apps/web            # production build
+npm run test --workspace=archive/apps/web             # vitest
+npm run test:e2e --workspace=archive/apps/web         # playwright
+```
+
+If you'd rather check out the original pre-archive layout, use the snapshot tag: `git checkout legacy/pre-agent-platform`.
 
 ## Resurrecting something from archive
 
